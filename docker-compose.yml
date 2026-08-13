@@ -1,9 +1,9 @@
-# Local containerized environment for the AdonisJS web kit.
+# Local containerized environment for Benício.
 # - `docker compose up postgres redis`  -> just the datastores (run the app on the host)
 # - `docker compose up --build`          -> full stack (app + datastores) in containers
 #
 # Generate a real APP_KEY once:  node ace generate:key  (then export APP_KEY=...).
-name: adonis-web-kit
+name: benicio
 
 services:
   postgres:
@@ -12,13 +12,13 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: adonis_web_kit
+      POSTGRES_DB: benicio
     ports:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d adonis_web_kit']
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d benicio']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -64,7 +64,7 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_DATABASE: adonis_web_kit
+      DB_DATABASE: benicio
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis
