@@ -11,8 +11,8 @@ export default function LoginPage() {
       <AuthSplitLayout
         title="Sign in"
         subtitle="Enter your email and password to access your account"
-        panelTitle="Welcome back to AdonisKit"
-        panelDescription="A modern, full-stack starter kit built with AdonisJS and React. Auth, RBAC and multi-tenancy out of the box."
+        panelTitle="Welcome back to Benício"
+        panelDescription="A focused workspace for legal teams to organize people, permissions and the work that matters."
         features={[
           {
             title: 'Role-based access',

@@ -40,9 +40,9 @@ export function AuthSplitLayout({
         <header className="flex items-center justify-between p-6 lg:p-8">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex size-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-lg font-bold text-primary-foreground">A</span>
+              <span className="text-lg font-bold text-primary-foreground">B</span>
             </div>
-            <span className="text-xl font-bold">AdonisKit</span>
+            <span className="text-xl font-bold">Benício</span>
           </Link>
           <ThemeToggle />
         </header>
@@ -61,7 +61,7 @@ export function AuthSplitLayout({
         </div>
 
         <footer className="p-6 text-sm text-muted-foreground lg:p-8">
-          &copy; {new Date().getFullYear()} AdonisKit. All rights reserved.
+          &copy; {new Date().getFullYear()} Benício. All rights reserved.
         </footer>
       </div>
 

@@ -15,8 +15,8 @@ export default function RegisterPage({ errors }: RegisterPageProps) {
       <AuthSplitLayout
         title="Create account"
         subtitle="Enter your information to create your account"
-        panelTitle="Join AdonisKit today"
-        panelDescription="Start building with a powerful toolkit: authentication, user management, file uploads and more."
+        panelTitle="Start with Benício"
+        panelDescription="Create your workspace and prepare your legal operation for the workflows coming next."
         features={[
           {
             title: 'Secure by default',

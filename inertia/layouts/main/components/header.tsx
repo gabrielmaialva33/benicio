@@ -165,9 +165,9 @@ export function Header({ onToggleSidebar, collapsed = false }: HeaderProps) {
           <SheetContent side="left" className="w-[280px] p-0">
             <Link href="/dashboard" className="flex h-16 items-center gap-2 border-b px-5">
               <div className="flex size-8 items-center justify-center rounded-lg bg-primary">
-                <span className="font-bold text-primary-foreground">A</span>
+                <span className="font-bold text-primary-foreground">B</span>
               </div>
-              <span className="text-lg font-semibold">AdonisKit</span>
+              <span className="text-lg font-semibold">Benício</span>
             </Link>
             <SidebarNav />
           </SheetContent>
@@ -176,9 +176,9 @@ export function Header({ onToggleSidebar, collapsed = false }: HeaderProps) {
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary">
-            <span className="font-bold text-primary-foreground">A</span>
+            <span className="font-bold text-primary-foreground">B</span>
           </div>
-          <span className={cn('text-lg font-semibold', collapsed && 'lg:hidden')}>AdonisKit</span>
+          <span className={cn('text-lg font-semibold', collapsed && 'lg:hidden')}>Benício</span>
         </Link>
       </div>
 
