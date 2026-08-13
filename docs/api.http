@@ -8,8 +8,8 @@
 ### - Content-Type: application/json (except file uploads)
 ### - Timestamps: ISO 8601 format
 ### - Database fields: snake_case naming
-### - Pagination: ?page=1&perPage=10
-### - Sorting: ?sortBy=field&order=asc|desc
+### - Pagination: ?page=1&per_page=10
+### - Sorting: ?sort_by=field&order=asc|desc
 ### - Search: ?search=term
 
 ### Variables (replace with actual values)
@@ -17,6 +17,9 @@
 @token = replace-with-access-token
 @userId = 3
 @roleId = 3
+@tenantId = 1
+@clientId = 1
+@folderId = 1
 
 ###############################################################################
 ### HEALTH ENDPOINTS
@@ -121,12 +124,12 @@ Authorization: Bearer {{token}}
 Accept: application/json
 
 ### List Users with Pagination
-GET {{baseUrl}}/api/v1/users?page=1&perPage=20
+GET {{baseUrl}}/api/v1/users?page=1&per_page=20
 Authorization: Bearer {{token}}
 Accept: application/json
 
 ### List Users with Sorting
-GET {{baseUrl}}/api/v1/users?sortBy=created_at&order=desc
+GET {{baseUrl}}/api/v1/users?sort_by=created_at&order=desc
 Authorization: Bearer {{token}}
 Accept: application/json
 
@@ -187,7 +190,7 @@ Authorization: Bearer {{token}}
 Accept: application/json
 
 ### List Roles with Pagination
-GET {{baseUrl}}/api/v1/admin/roles?page=1&perPage=10
+GET {{baseUrl}}/api/v1/admin/roles?page=1&per_page=10
 Authorization: Bearer {{token}}
 Accept: application/json
 
@@ -307,11 +310,106 @@ Content-Type: application/json
 }
 
 ###############################################################################
+### CLIENTS (Requires Authentication, Tenant and Permission)
+###############################################################################
+
+### List Clients
+GET {{baseUrl}}/api/v1/clients?page=1&per_page=20&sort_by=name&order=asc
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Accept: application/json
+
+### Create Client
+POST {{baseUrl}}/api/v1/clients
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Content-Type: application/json
+
+{
+  "name": "Banco Exemplo S.A.",
+  "document": "AB12.CD34/EF56-01",
+  "person_type": "company",
+  "email": "juridico@example.com",
+  "address": {
+    "city": "São Paulo",
+    "state": "SP",
+    "country": "BR"
+  }
+}
+
+### Get Client
+GET {{baseUrl}}/api/v1/clients/{{clientId}}
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Accept: application/json
+
+### Update Client
+PUT {{baseUrl}}/api/v1/clients/{{clientId}}
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Content-Type: application/json
+
+{
+  "phone": "+55 11 99999-9999"
+}
+
+### Soft-delete Client
+DELETE {{baseUrl}}/api/v1/clients/{{clientId}}
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+
+###############################################################################
+### FOLDERS (Requires Authentication, Tenant and Permission)
+###############################################################################
+
+### List Folders
+GET {{baseUrl}}/api/v1/folders?page=1&per_page=20&status=active&area=Cível%20Contencioso
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Accept: application/json
+
+### Create Folder
+POST {{baseUrl}}/api/v1/folders
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Content-Type: application/json
+
+{
+  "code": "pasta-001",
+  "title": "Contencioso principal",
+  "status": "active",
+  "area": "Cível Contencioso",
+  "subarea": "Bancário",
+  "client_id": {{clientId}}
+}
+
+### Get Folder
+GET {{baseUrl}}/api/v1/folders/{{folderId}}
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Accept: application/json
+
+### Update Folder
+PUT {{baseUrl}}/api/v1/folders/{{folderId}}
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Content-Type: application/json
+
+{
+  "status": "pending"
+}
+
+### Soft-delete Folder
+DELETE {{baseUrl}}/api/v1/folders/{{folderId}}
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+
+###############################################################################
 ### FILE MANAGEMENT ENDPOINTS (Requires Authentication)
 ###############################################################################
 
 ### Upload File
-# Maximum size: 5MB
+# Maximum size: 10MB
 # Allowed extensions: jpeg, jpg, png, pdf, doc, docx, txt, csv, xls, xlsx, mp3, mp4, zip
 # File is automatically categorized: image, document, video, audio, file
 POST {{baseUrl}}/api/v1/files/upload

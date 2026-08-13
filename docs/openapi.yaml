@@ -33,8 +33,8 @@ info:
 
     ### Request Format
     - **Content-Type**: `application/json` for all requests (except file uploads)
-    - **Pagination**: Use `?page=1&perPage=10` query parameters
-    - **Sorting**: Use `?sortBy=field&order=asc` or `?sortBy=field&order=desc`
+    - **Pagination**: Use `?page=1&per_page=10` query parameters
+    - **Sorting**: Use `?sort_by=field&order=asc` or `?sort_by=field&order=desc`
     - **Searching**: Use `?search=term` for text search
 
     ### Response Format
@@ -100,6 +100,278 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Role'
+
+    ClientAddress:
+      type: object
+      additionalProperties: false
+      properties:
+        street:
+          type: [string, 'null']
+        number:
+          type: [string, 'null']
+        complement:
+          type: [string, 'null']
+        neighborhood:
+          type: [string, 'null']
+        city:
+          type: [string, 'null']
+        state:
+          type: [string, 'null']
+        postal_code:
+          type: [string, 'null']
+        country:
+          type: [string, 'null']
+
+    Client:
+      type: object
+      required: [id, tenant_id, name, document, person_type, metadata, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        tenant_id:
+          type: integer
+        name:
+          type: string
+          example: 'Banco Exemplo S.A.'
+        document:
+          type: string
+          description: Normalized CPF or CNPJ. CNPJ may be alphanumeric.
+          example: 'AB12CD34EF5601'
+        person_type:
+          type: string
+          enum: [individual, company]
+        email:
+          type: [string, 'null']
+          format: email
+        phone:
+          type: [string, 'null']
+        address:
+          oneOf:
+            - $ref: '#/components/schemas/ClientAddress'
+            - type: 'null'
+        notes:
+          type: [string, 'null']
+        metadata:
+          type: object
+          additionalProperties: true
+        deleted_at:
+          type: [string, 'null']
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ClientInput:
+      type: object
+      additionalProperties: false
+      required: [name, document, person_type]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+        document:
+          type: string
+          maxLength: 32
+        person_type:
+          type: string
+          enum: [individual, company]
+        email:
+          type: [string, 'null']
+          format: email
+        phone:
+          type: [string, 'null']
+        address:
+          oneOf:
+            - $ref: '#/components/schemas/ClientAddress'
+            - type: 'null'
+        notes:
+          type: [string, 'null']
+        metadata:
+          type: object
+          additionalProperties: true
+
+    ClientUpdateInput:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+        document:
+          type: string
+          maxLength: 32
+        person_type:
+          type: string
+          enum: [individual, company]
+        email:
+          type: [string, 'null']
+          format: email
+        phone:
+          type: [string, 'null']
+        address:
+          oneOf:
+            - $ref: '#/components/schemas/ClientAddress'
+            - type: 'null'
+        notes:
+          type: [string, 'null']
+        metadata:
+          type: object
+          additionalProperties: true
+
+    Folder:
+      type: object
+      required: [id, tenant_id, code, title, status, area, client_id, client, metadata]
+      properties:
+        id:
+          type: integer
+        tenant_id:
+          type: integer
+        code:
+          type: string
+          example: 'PASTA-001'
+        title:
+          type: string
+        description:
+          type: [string, 'null']
+        status:
+          type: string
+          enum: [active, completed, pending, cancelled, archived]
+        area:
+          type: string
+          example: 'Cível Contencioso'
+        subarea:
+          type: [string, 'null']
+        client_id:
+          type: integer
+        responsible_lawyer_id:
+          type: [integer, 'null']
+        client:
+          $ref: '#/components/schemas/Client'
+        responsible_lawyer:
+          oneOf:
+            - $ref: '#/components/schemas/User'
+            - type: 'null'
+        metadata:
+          type: object
+          additionalProperties: true
+        deleted_at:
+          type: [string, 'null']
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    FolderInput:
+      type: object
+      additionalProperties: false
+      required: [code, title, area, client_id]
+      properties:
+        code:
+          type: string
+          maxLength: 80
+        title:
+          type: string
+          minLength: 2
+          maxLength: 255
+        description:
+          type: [string, 'null']
+        status:
+          type: string
+          enum: [active, completed, pending, cancelled, archived]
+          default: active
+        area:
+          type: string
+          maxLength: 120
+        subarea:
+          type: [string, 'null']
+          maxLength: 120
+        client_id:
+          type: integer
+          minimum: 1
+        responsible_lawyer_id:
+          type: [integer, 'null']
+          minimum: 1
+        metadata:
+          type: object
+          additionalProperties: true
+
+    FolderUpdateInput:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        code:
+          type: string
+          maxLength: 80
+        title:
+          type: string
+          minLength: 2
+          maxLength: 255
+        description:
+          type: [string, 'null']
+        status:
+          type: string
+          enum: [active, completed, pending, cancelled, archived]
+        area:
+          type: string
+          maxLength: 120
+        subarea:
+          type: [string, 'null']
+          maxLength: 120
+        client_id:
+          type: integer
+          minimum: 1
+        responsible_lawyer_id:
+          type: [integer, 'null']
+          minimum: 1
+        metadata:
+          type: object
+          additionalProperties: true
+
+    ClientEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Client'
+
+    FolderEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Folder'
+
+    ClientsPage:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Client'
+
+    FoldersPage:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Folder'
 
     Role:
       type: object
@@ -250,7 +522,7 @@ components:
       description: Page number for pagination
 
     perPageParam:
-      name: perPage
+      name: per_page
       in: query
       schema:
         type: integer
@@ -260,7 +532,7 @@ components:
       description: Number of items per page
 
     sortByParam:
-      name: sortBy
+      name: sort_by
       in: query
       schema:
         type: string
@@ -282,6 +554,15 @@ components:
       schema:
         type: string
       description: Search term for filtering results
+
+    tenantIdHeader:
+      name: x-tenant-id
+      in: header
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+      description: Active tenant. Falls back to the signed JWT claim or the user's first active tenant.
 
   responses:
     UnauthorizedError:
@@ -336,6 +617,10 @@ tags:
     description: Current user profile operations
   - name: Permissions
     description: Permission management operations (admin only)
+  - name: Clients
+    description: Tenant-scoped legal client management
+  - name: Folders
+    description: Tenant-scoped legal matter and folder management
 
 paths:
   /version:
@@ -1080,6 +1365,276 @@ paths:
         '422':
           $ref: '#/components/responses/ValidationError'
 
+  /api/v1/clients:
+    get:
+      operationId: listClients
+      summary: List clients in the active tenant
+      tags: [Clients]
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/sortByParam'
+        - $ref: '#/components/parameters/orderParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: person_type
+          in: query
+          schema:
+            type: string
+            enum: [individual, company]
+      responses:
+        '200':
+          description: Paginated clients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientsPage'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    post:
+      operationId: createClient
+      summary: Create a client in the active tenant
+      tags: [Clients]
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientInput'
+      responses:
+        '201':
+          description: Client created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientEnvelope'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          description: An active client already uses this document in the tenant
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/clients/{id}:
+    get:
+      operationId: getClient
+      summary: Get a client from the active tenant
+      tags: [Clients]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200':
+          description: Client found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientEnvelope'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: updateClient
+      summary: Update a client in the active tenant
+      tags: [Clients]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientUpdateInput'
+      responses:
+        '200':
+          description: Client updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientEnvelope'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Another active client uses the requested document
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      operationId: deleteClient
+      summary: Soft-delete a client in the active tenant
+      tags: [Clients]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '204':
+          description: Client deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Client still has active folders
+
+  /api/v1/folders:
+    get:
+      operationId: listFolders
+      summary: List folders in the active tenant
+      tags: [Folders]
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/sortByParam'
+        - $ref: '#/components/parameters/orderParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, completed, pending, cancelled, archived]
+        - name: area
+          in: query
+          schema:
+            type: string
+        - name: client_id
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: responsible_lawyer_id
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Paginated folders with client and responsible lawyer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FoldersPage'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    post:
+      operationId: createFolder
+      summary: Create a folder in the active tenant
+      tags: [Folders]
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FolderInput'
+      responses:
+        '201':
+          description: Folder created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderEnvelope'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Client or responsible lawyer was not found in the tenant
+        '409':
+          description: An active folder already uses this code in the tenant
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/folders/{id}:
+    get:
+      operationId: getFolder
+      summary: Get a folder from the active tenant
+      tags: [Folders]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200':
+          description: Folder found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderEnvelope'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: updateFolder
+      summary: Update a folder in the active tenant
+      tags: [Folders]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FolderUpdateInput'
+      responses:
+        '200':
+          description: Folder updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderEnvelope'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Folder, client, or responsible lawyer was not found in the tenant
+        '409':
+          description: Another active folder uses the requested code
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      operationId: deleteFolder
+      summary: Soft-delete a folder in the active tenant
+      tags: [Folders]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '204':
+          description: Folder deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
   /api/v1/files/upload:
     post:
       operationId: uploadFile
@@ -1088,7 +1643,7 @@ paths:
         Upload a file to the server. Files are automatically categorized based on their type.
 
         **File constraints:**
-        - Maximum size: 5MB
+        - Maximum size: 10MB
         - Allowed extensions: jpeg, jpg, png, pdf, doc, docx, txt, csv, xls, xlsx, mp3, mp4, zip
 
         **Categories:**
@@ -1129,6 +1684,6 @@ paths:
                 $ref: '#/components/schemas/Error'
               example:
                 errors:
-                  - message: 'File size should be less than 5MB'
+                  - message: 'File size should be less than 10MB'
                     field: 'file'
                     rule: 'size'
