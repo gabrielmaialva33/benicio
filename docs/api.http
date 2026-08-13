@@ -1,4 +1,4 @@
-### Base ACL API HTTP Requests
+### Benício API HTTP Requests
 ### Base URL: http://localhost:3333
 ###
 ### Authentication: Most endpoints require JWT Bearer token
@@ -14,7 +14,7 @@
 
 ### Variables (replace with actual values)
 @baseUrl = http://localhost:3333
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc1MjE5MDY4NywiZXhwIjoxNzUyMTkxNTg3fQ.mN5_LyaxP1nZ46wWjRFVVB26E-0FD9vXJ7J5JlkE8AE
+@token = replace-with-access-token
 @userId = 3
 @roleId = 3
 
@@ -23,7 +23,7 @@
 ###############################################################################
 
 ### Get API Information
-GET {{baseUrl}}/
+GET {{baseUrl}}/version
 Accept: application/json
 
 ### Health Check

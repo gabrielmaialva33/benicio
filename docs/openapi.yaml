@@ -1,11 +1,11 @@
 openapi: 3.1.0
 info:
-  title: Base ACL API
+  title: Benício API
   version: 1.0.0
   description: |
-    ## Welcome to Base ACL API
+    ## Welcome to the Benício API
 
-    A robust authentication and access control API built with AdonisJS v6. This API provides comprehensive user management, role-based access control, and file management capabilities.
+    The versioned API for the Benício legal operations platform, built with AdonisJS v7. The current foundation provides user management, multi-tenancy, role-based access control, and file management capabilities.
 
     ### Key Features
 
@@ -51,8 +51,7 @@ info:
     ```
 
   contact:
-    name: API Support
-    email: support@example.com
+    name: Benício
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -60,8 +59,6 @@ info:
 servers:
   - url: http://127.0.0.1:3333
     description: Local development server
-  - url: https://api.yourdomain.com
-    description: Production server
 
 security:
   - bearerAuth: []
@@ -341,7 +338,7 @@ tags:
     description: Permission management operations (admin only)
 
 paths:
-  /:
+  /version:
     get:
       operationId: getApiInfo
       summary: Get API information
@@ -359,10 +356,10 @@ paths:
                 properties:
                   name:
                     type: string
-                    example: 'adonis-web-kit'
+                    example: 'benicio'
                   description:
                     type: string
-                    example: 'Base ACL API built with AdonisJS'
+                    example: 'Plataforma jurídica multi-tenant construída com AdonisJS, Inertia e React.'
                   version:
                     type: string
                     example: '0.0.0'
