@@ -1,16 +1,16 @@
-<h1 align="center">
-  <img src=".github/assets/ui-design.png" height="250" alt="Adonis Web Kit">
-</h1>
+<h1 align="center">Benício</h1>
+
+<p align="center">Plataforma jurídica para organizar escritórios, equipes e fluxos de trabalho.</p>
 
 <p align="center">
-  <a href="https://github.com/gabrielmaialva33/adonis-web-kit/actions/workflows/ci-cd.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/gabrielmaialva33/adonis-web-kit/ci-cd.yml?branch=master&style=flat-square" alt="Status do CI" >
+  <a href="https://github.com/gabrielmaialva33/benicio/actions/workflows/ci-cd.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/gabrielmaialva33/benicio/ci-cd.yml?branch=master&style=flat-square" alt="Status do CI" >
   </a>
-  <img src="https://img.shields.io/github/license/gabrielmaialva33/adonis-web-kit?color=00b8d3&style=flat-square" alt="Licença" />
-  <img src="https://img.shields.io/github/languages/top/gabrielmaialva33/adonis-web-kit?style=flat-square" alt="Linguagem principal do GitHub" >
-  <img src="https://img.shields.io/github/repo-size/gabrielmaialva33/adonis-web-kit?style=flat-square" alt="Tamanho do repositório" >
-  <a href="https://github.com/gabrielmaialva33/adonis-web-kit/commits/master">
-    <img src="https://img.shields.io/github/last-commit/gabrielmaialva33/adonis-web-kit?style=flat-square" alt="Último commit do GitHub" >
+  <img src="https://img.shields.io/github/license/gabrielmaialva33/benicio?color=00b8d3&style=flat-square" alt="Licença" />
+  <img src="https://img.shields.io/github/languages/top/gabrielmaialva33/benicio?style=flat-square" alt="Linguagem principal do GitHub" >
+  <img src="https://img.shields.io/github/repo-size/gabrielmaialva33/benicio?style=flat-square" alt="Tamanho do repositório" >
+  <a href="https://github.com/gabrielmaialva33/benicio/commits/master">
+    <img src="https://img.shields.io/github/last-commit/gabrielmaialva33/benicio?style=flat-square" alt="Último commit do GitHub" >
   </a>
 </p>
 
@@ -22,7 +22,7 @@
 
 <p align="center">
   <a href="#bookmark-sobre">Sobre</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#rocket-desenvolvimento-ai-first">Desenvolvimento AI-First</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#status-atual">Status atual</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#computer-tecnologias">Tecnologias</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#package-instalação">Instalação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#whale-docker">Docker</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
@@ -31,20 +31,18 @@
 
 ## :bookmark: Sobre
 
-O **Adonis Web Kit** é um _starter kit_ full-stack moderno, opinativo e focado em IA, projetado para acelerar o
-desenvolvimento de aplicações web robustas. Ele combina um poderoso backend em **AdonisJS v7** com um frontend dinâmico
-em **React 19** e **Inertia.js**, tudo dentro de uma estrutura monorepo unificada.
+O **Benício** é uma plataforma de gestão jurídica para organizar escritórios, equipes e fluxos de trabalho. Este é o
+repositório canônico do produto: aplicação web em **React 19 + Inertia.js**, API REST versionada e backend em
+**AdonisJS v7**, todos apoiados pela mesma camada de domínio.
 
-Este projeto não é apenas uma coleção de tecnologias; é uma fundação projetada para eficiência, escalabilidade e
-colaboração transparente com parceiros de desenvolvimento de IA. O backend é organizado em **módulos de domínio** e já
-vem com autenticação multi-guard, controle de acesso baseado em papéis (RBAC), **multi-tenancy N:N** e gerenciamento de
-arquivos prontos para uso — permitindo que desenvolvedores (humanos e IAs) foquem na lógica de negócio em vez de código
-repetitivo.
+A fundação atual já entrega autenticação multi-guard, controle de acesso baseado em papéis (RBAC), **multi-tenancy N:N**,
+auditoria e gerenciamento de arquivos. Os módulos jurídicos do legado serão migrados incrementalmente, começando pelo
+fluxo de pastas e processos, sempre com dados reais e testes de contrato.
 
 ### 🏗️ Visão Geral da Arquitetura
 
 O backend é **modular (orientado a domínio)**: cada domínio (`auth`, `users`, `roles`, `permissions`, `files`, `audits`,
-`tenants`, `health`, `web`) é dono dos seus controllers, serviços, repositórios, modelos, validators e rotas em
+`tenants`, `health`, `web` e, progressivamente, os módulos jurídicos) é dono dos seus controllers, serviços, repositórios, modelos, validators e rotas em
 `app/modules/<domínio>/`. Código transversal (middleware, guard JWT, repositório/modelos base) fica em `app/shared/`, e
 as exceptions tipadas em `app/exceptions/`.
 
@@ -87,19 +85,12 @@ graph TD
     BE_SERVICES --> CACHE
 ```
 
-## :rocket: Desenvolvimento AI-First
+## Status atual
 
-Este _starter kit_ foi projetado de forma única para maximizar a eficácia da codificação assistida por IA.
-
-- **Contexto Unificado (Monorepo)**: Ter o código do backend e do frontend em um único repositório fornece um contexto
-  completo para ferramentas de IA, permitindo que elas gerem código mais preciso e coeso que abrange toda a stack.
-- **Base Fortemente Tipada**: O uso de TypeScript de ponta a ponta cria um contrato claro entre as camadas de frontend,
-  backend e API. Isso reduz a ambiguidade e permite que a IA entenda estruturas de dados e assinaturas de funções,
-  resultando em menos erros.
-- **Arquitetura Modular e Orientada a Domínio**: Cada domínio é autocontido em `app/modules/<domínio>/`, então uma IA
-  (ou um humano) consegue localizar, entender e modificar uma feature de ponta a ponta sem caçar entre camadas soltas.
-- **Foco na Lógica de Negócio**: Com o boilerplate de autenticação, permissões e armazenamento de arquivos já resolvido,
-  a IA pode ser direcionada para resolver problemas de negócio de nível superior desde o primeiro dia.
+- **Fundação disponível**: autenticação, usuários, tenants, RBAC, auditoria, arquivos, shell web e infraestrutura de API.
+- **Próximo slice**: pastas e processos de ponta a ponta, do schema às telas Inertia e ao contrato REST.
+- **Web canônica**: controllers Inertia finos reutilizam os mesmos serviços de aplicação da API.
+- **Mobile**: o cliente Flutter será conectado quando o contrato REST v1 estiver estabilizado e coberto por testes.
 
 ## 🌟 Principais Funcionalidades
 
@@ -172,8 +163,8 @@ Este _starter kit_ foi projetado de forma única para maximizar a eficácia da c
 1. **Clone o repositório:**
 
    ```sh
-   git clone https://github.com/gabrielmaialva33/adonis-web-kit.git
-   cd adonis-web-kit
+   git clone https://github.com/gabrielmaialva33/benicio.git
+   cd benicio
    ```
 
 2. **Instale as dependências:**
@@ -277,5 +268,5 @@ Este projeto está licenciado sob a **Licença MIT**. Veja o arquivo [LICENSE](L
 ---
 
 <p align="center">
-  Feito com ❤️ pela comunidade.
+  Benício — operação jurídica organizada.
 </p>

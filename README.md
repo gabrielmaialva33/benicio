@@ -1,16 +1,16 @@
-<h1 align="center">
-  <img src=".github/assets/ui-design.png" height="250" alt="Adonis Web Kit">
-</h1>
+<h1 align="center">Benício</h1>
+
+<p align="center">A legal operations platform for firms, teams, and their daily workflows.</p>
 
 <p align="center">
-  <a href="https://github.com/gabrielmaialva33/adonis-web-kit/actions/workflows/ci-cd.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/gabrielmaialva33/adonis-web-kit/ci-cd.yml?branch=master&style=flat-square" alt="CI status" >
+  <a href="https://github.com/gabrielmaialva33/benicio/actions/workflows/ci-cd.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/gabrielmaialva33/benicio/ci-cd.yml?branch=master&style=flat-square" alt="CI status" >
   </a>
-  <img src="https://img.shields.io/github/license/gabrielmaialva33/adonis-web-kit?color=00b8d3&style=flat-square" alt="License" />
-  <img src="https://img.shields.io/github/languages/top/gabrielmaialva33/adonis-web-kit?style=flat-square" alt="GitHub top language" >
-  <img src="https://img.shields.io/github/repo-size/gabrielmaialva33/adonis-web-kit?style=flat-square" alt="Repository size" >
-  <a href="https://github.com/gabrielmaialva33/adonis-web-kit/commits/master">
-    <img src="https://img.shields.io/github/last-commit/gabrielmaialva33/adonis-web-kit?style=flat-square" alt="GitHub last commit" >
+  <img src="https://img.shields.io/github/license/gabrielmaialva33/benicio?color=00b8d3&style=flat-square" alt="License" />
+  <img src="https://img.shields.io/github/languages/top/gabrielmaialva33/benicio?style=flat-square" alt="GitHub top language" >
+  <img src="https://img.shields.io/github/repo-size/gabrielmaialva33/benicio?style=flat-square" alt="Repository size" >
+  <a href="https://github.com/gabrielmaialva33/benicio/commits/master">
+    <img src="https://img.shields.io/github/last-commit/gabrielmaialva33/benicio?style=flat-square" alt="GitHub last commit" >
   </a>
 </p>
 
@@ -22,7 +22,7 @@
 
 <p align="center">
   <a href="#bookmark-about">About</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#rocket-ai-first-development">AI-First Development</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#current-status">Current Status</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#computer-technologies">Technologies</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#package-installation">Installation</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#whale-docker">Docker</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
@@ -31,19 +31,18 @@
 
 ## :bookmark: About
 
-**Adonis Web Kit** is a modern, opinionated, and AI-first full-stack starter kit designed to accelerate the development of
-robust web applications. It combines a powerful **AdonisJS v7** backend with a dynamic **React 19** and **Inertia.js**
-frontend, all within a unified monorepo structure.
+**Benício** is a legal operations platform for organizing firms, teams, and their workflows. This is the product's
+canonical repository: a **React 19 + Inertia.js** web application, a versioned REST API, and an **AdonisJS v7** backend,
+all backed by the same domain layer.
 
-This project is not just a collection of technologies; it's a foundation engineered for efficiency, scalability, and
-seamless collaboration with AI development partners. The backend is organized into **domain modules** and ships with
-multi-guard authentication, role-based access control (RBAC), **N:N multi-tenancy**, and file management out of the box —
-letting developers (both human and AI) focus on unique business logic instead of boilerplate.
+The current foundation already provides multi-guard authentication, role-based access control (RBAC), **N:N
+multi-tenancy**, auditing, and file management. Legacy legal modules will move incrementally, starting with cases and
+proceedings, always backed by real data and contract tests.
 
 ### 🏗️ Architecture Overview
 
 The backend is **modular (domain-driven)**: each domain (`auth`, `users`, `roles`, `permissions`, `files`, `audits`,
-`tenants`, `health`, `web`) owns its controllers, services, repositories, models, validators, and routes under
+`tenants`, `health`, `web`, and progressively the legal modules) owns its controllers, services, repositories, models, validators, and routes under
 `app/modules/<domain>/`. Cross-cutting code (middleware, JWT guard, base repository/models) lives in `app/shared/`, and
 typed exceptions in `app/exceptions/`.
 
@@ -86,19 +85,12 @@ graph TD
     BE_SERVICES --> CACHE
 ```
 
-## :rocket: AI-First Development
+## Current Status
 
-This starter kit is uniquely designed to maximize the effectiveness of AI-assisted coding.
-
-- **Unified Context (Monorepo)**: Having backend and frontend code in a single repository provides a complete context
-  for AI tools, enabling them to generate more accurate and cohesive code that spans the full stack.
-- **Strongly-Typed Foundation**: End-to-end TypeScript usage creates a clear contract between the frontend, backend, and
-  API layers. This reduces ambiguity and allows AI to understand data structures and function signatures, leading to
-  fewer errors.
-- **Modular, Domain-Driven Architecture**: Each domain is self-contained under `app/modules/<domain>/`, so an AI (or a
-  human) can locate, understand, and modify a feature end to end without spelunking across unrelated layers.
-- **Focus on Business Logic**: With boilerplate for authentication, permissions, and file storage already handled, AI
-  can be directed to solve higher-level business problems from day one.
+- **Foundation available**: authentication, users, tenants, RBAC, auditing, files, the web shell, and API infrastructure.
+- **Next slice**: cases and proceedings end to end, from schema to Inertia screens and the REST contract.
+- **Canonical web**: thin Inertia controllers reuse the same application services as the API.
+- **Mobile**: the Flutter client will connect once the REST v1 contract is stable and covered by tests.
 
 ## 🌟 Key Features
 
@@ -170,8 +162,8 @@ This starter kit is uniquely designed to maximize the effectiveness of AI-assist
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/gabrielmaialva33/adonis-web-kit.git
-   cd adonis-web-kit
+   git clone https://github.com/gabrielmaialva33/benicio.git
+   cd benicio
    ```
 
 2. **Install dependencies:**
@@ -274,5 +266,5 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 ---
 
 <p align="center">
-  Made with ❤️ by the community.
+  Benício — legal operations, organized.
 </p>
