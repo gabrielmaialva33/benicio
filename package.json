@@ -1,9 +1,15 @@
 {
-  "name": "adonis-web-kit",
+  "name": "benicio",
+  "description": "Plataforma jurídica multi-tenant construída com AdonisJS, Inertia e React.",
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "MIT",
+  "author": "Gabriel Maia",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrielmaialva33/benicio.git"
+  },
   "scripts": {
     "start": "node bin/server.js",
     "build": "node --import=@poppinss/ts-exec ace.js build",

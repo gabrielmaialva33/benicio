@@ -10,8 +10,8 @@ const mailConfig = defineConfig({
    * Email
    */
   from: {
-    address: env.get('MAIL_FROM_ADDRESS', 'noreply@example.com'),
-    name: env.get('MAIL_FROM_NAME', 'Adonis Web Kit'),
+    address: env.get('MAIL_FROM_ADDRESS', 'noreply@benicio.local'),
+    name: env.get('MAIL_FROM_NAME', 'Benício'),
   },
 
   /**
