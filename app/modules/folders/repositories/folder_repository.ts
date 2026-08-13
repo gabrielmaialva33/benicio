@@ -1,5 +1,6 @@
 import db from '@adonisjs/lucid/services/db'
 import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 
 import Folder from '#modules/folders/models/folder'
 import type {
@@ -95,8 +96,37 @@ export default class FolderRepository {
     return this.loadRelations(folder)
   }
 
-  async softDelete(folder: Folder): Promise<void> {
+  async findForUpdate(
+    tenantId: number,
+    folderId: number,
+    trx: TransactionClientContract
+  ): Promise<Folder | null> {
+    return Folder.query({ client: trx })
+      .withScopes((scopes) => scopes.withTenant(tenantId))
+      .where('id', folderId)
+      .forUpdate()
+      .first()
+  }
+
+  async softDelete(folder: Folder, trx?: TransactionClientContract): Promise<void> {
+    if (trx) {
+      folder.useTransaction(trx)
+    }
     await folder.softDelete()
+  }
+
+  async hasActiveProcesses(
+    tenantId: number,
+    folderId: number,
+    trx?: TransactionClientContract
+  ): Promise<boolean> {
+    const process = await (trx ?? db)
+      .from('processes')
+      .where('tenant_id', tenantId)
+      .where('folder_id', folderId)
+      .whereNull('deleted_at')
+      .first()
+    return process !== null && process !== undefined
   }
 
   private async loadRelations(folder: Folder): Promise<Folder> {

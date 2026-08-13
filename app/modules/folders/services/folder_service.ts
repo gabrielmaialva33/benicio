@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import db from '@adonisjs/lucid/services/db'
 
 import ConflictException from '#exceptions/conflict_exception'
 import NotFoundException from '#exceptions/not_found_exception'
@@ -75,8 +76,16 @@ export default class FolderService {
   }
 
   async delete(tenantId: number, folderId: number): Promise<void> {
-    const folder = await this.findOrFail(tenantId, folderId)
-    await this.folderRepository.softDelete(folder)
+    await db.transaction(async (trx) => {
+      const folder = await this.folderRepository.findForUpdate(tenantId, folderId, trx)
+      if (!folder) {
+        throw new NotFoundException('Folder not found')
+      }
+      if (await this.folderRepository.hasActiveProcesses(tenantId, folder.id, trx)) {
+        throw new ConflictException('Folder has active processes')
+      }
+      await this.folderRepository.softDelete(folder, trx)
+    })
   }
 
   private async findOrFail(tenantId: number, folderId: number): Promise<Folder> {
