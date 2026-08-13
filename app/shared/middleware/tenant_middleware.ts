@@ -2,7 +2,12 @@ import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import jwt from 'jsonwebtoken'
 
+import BadRequestException from '#exceptions/bad_request_exception'
 import ForbiddenException from '#exceptions/forbidden_exception'
+
+interface TenantMiddlewareOptions {
+  required?: boolean
+}
 
 /**
  * Resolves the active tenant for the request and validates that the
@@ -21,7 +26,7 @@ import ForbiddenException from '#exceptions/forbidden_exception'
  * truly require a tenant should account for `ctx.tenant` being undefined.
  */
 export default class TenantMiddleware {
-  async handle(ctx: HttpContext, next: NextFn) {
+  async handle(ctx: HttpContext, next: NextFn, options: TenantMiddlewareOptions = {}) {
     const user = ctx.auth?.user
     if (!user) {
       // Should be paired with auth() before it; nothing to scope without a user.
@@ -41,9 +46,12 @@ export default class TenantMiddleware {
     }
 
     // Fallback: first tenant the user belongs to.
-    const firstTenant = await user.related('tenants').query().first()
+    const firstTenant = await user.related('tenants').query().where('is_active', true).first()
     if (firstTenant) {
       ctx.tenant = { id: firstTenant.id }
+    } else if (options.required) {
+      const message = ctx.i18n?.t('errors.permission_denied') || 'Tenant context is required'
+      throw new ForbiddenException(message)
     }
 
     return next()
@@ -57,7 +65,10 @@ export default class TenantMiddleware {
     const headerTenantId = ctx.request.header('x-tenant-id')
     if (headerTenantId) {
       const parsed = Number(headerTenantId)
-      return Number.isInteger(parsed) ? parsed : null
+      if (!Number.isInteger(parsed) || parsed <= 0) {
+        throw new BadRequestException('Invalid x-tenant-id header')
+      }
+      return parsed
     }
 
     const claimTenantId = this.#tenantIdFromToken(ctx)
@@ -105,8 +116,10 @@ export default class TenantMiddleware {
     const { default: db } = await import('@adonisjs/lucid/services/db')
     const row = await db
       .from('user_tenants')
+      .innerJoin('tenants', 'tenants.id', 'user_tenants.tenant_id')
       .where('user_id', userId)
       .where('tenant_id', tenantId)
+      .where('tenants.is_active', true)
       .first()
     return row !== null && row !== undefined
   }
@@ -114,6 +127,6 @@ export default class TenantMiddleware {
 
 declare module '@adonisjs/core/http' {
   interface HttpContext {
-    tenant: { id: number }
+    tenant?: { id: number }
   }
 }
