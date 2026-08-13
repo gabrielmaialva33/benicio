@@ -89,7 +89,7 @@ graph TD
 
 - **Foundation available**: authentication, users, tenants, RBAC, auditing, files, the web shell, and API infrastructure.
 - **Legal foundation available**: tenant-safe clients, folders, processes, and normalized parties, with reviewed schema, RBAC, validation, soft delete, and REST contract tests.
-- **Next slice**: source-aware BMG/Daycoval ingestion and human review, keeping external references as a one-to-many relation instead of coupling a process to one origin.
+- **Next slice**: movements, hearings, tasks, and procedural deadlines on top of the canonical process model.
 - **Canonical web**: thin Inertia controllers reuse the same application services as the API.
 - **Mobile**: the Flutter client will connect once the REST v1 contract is stable and covered by tests.
 

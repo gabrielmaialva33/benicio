@@ -1,7 +1,7 @@
 # Legal domain foundation
 
-This document records the decisions behind the first two legal-domain slices. The legacy API and
-RPA exports were used as evidence, not as the target design.
+This document records the decisions behind the first two legal-domain slices. The legacy legal API
+was used as evidence, not as the target design.
 
 ## Implemented slices
 
@@ -53,9 +53,8 @@ The following legacy choices were not carried forward:
 - unvalidated mass assignment and controller-level `try/catch` blocks that leaked errors;
 - `limit`, ignored sorting parameters, and inconsistent single-resource envelopes.
 
-Import source and external identifiers were deliberately kept out of `processes`: the same case can
-appear in BMG, Daycoval, and court enrichment, so the next slice will model source references as a
-one-to-many relation. Favorites will be a `(user, folder)` relation, and legal documents will
+Bank automation and its import lifecycle are separate concerns and are deliberately outside this
+legal-domain foundation. Favorites will be a `(user, folder)` relation, and legal documents will
 reference the existing tenant-aware `files` table.
 
 ## REST contract
@@ -68,6 +67,5 @@ filters. Sort fields are allowlisted.
 
 ## Next slices
 
-1. source-aware BMG/Daycoval ingestion, external references, and human review state;
-2. movements, hearings, tasks, and deadlines;
-3. folder files and per-user favorites.
+1. movements, hearings, tasks, and procedural deadlines;
+2. folder files and per-user favorites.
