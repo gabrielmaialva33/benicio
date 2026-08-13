@@ -88,7 +88,8 @@ graph TD
 ## Current Status
 
 - **Foundation available**: authentication, users, tenants, RBAC, auditing, files, the web shell, and API infrastructure.
-- **Next slice**: cases and proceedings end to end, from schema to Inertia screens and the REST contract.
+- **Legal foundation available**: tenant-safe clients and folders, with reviewed schema, RBAC, validation, soft delete, and REST contract tests.
+- **Next slice**: proceedings and source-aware imports, keeping CNJ, parties, court data, and legal values out of the folder aggregate.
 - **Canonical web**: thin Inertia controllers reuse the same application services as the API.
 - **Mobile**: the Flutter client will connect once the REST v1 contract is stable and covered by tests.
 

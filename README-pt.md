@@ -88,7 +88,8 @@ graph TD
 ## Status atual
 
 - **Fundação disponível**: autenticação, usuários, tenants, RBAC, auditoria, arquivos, shell web e infraestrutura de API.
-- **Próximo slice**: pastas e processos de ponta a ponta, do schema às telas Inertia e ao contrato REST.
+- **Fundação jurídica disponível**: clientes e pastas tenant-safe, com schema revisado, RBAC, validação, soft delete e testes do contrato REST.
+- **Próximo slice**: processos e importações orientadas à origem, mantendo CNJ, partes, tribunal e valores jurídicos fora do agregado de pasta.
 - **Web canônica**: controllers Inertia finos reutilizam os mesmos serviços de aplicação da API.
 - **Mobile**: o cliente Flutter será conectado quando o contrato REST v1 estiver estabilizado e coberto por testes.
 
