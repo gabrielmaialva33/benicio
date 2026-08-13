@@ -2,6 +2,7 @@ import { assert } from '@japa/assert'
 import { apiClient } from '@japa/api-client'
 import { browserClient } from '@japa/browser-client'
 import app from '@adonisjs/core/services/app'
+import { mkdir } from 'node:fs/promises'
 import type { Config } from '@japa/runner/types'
 import { pluginAdonisJS } from '@japa/plugin-adonisjs'
 import testUtils from '@adonisjs/core/services/test_utils'
@@ -41,7 +42,13 @@ export const plugins: Config['plugins'] = [
  * The teardown functions are executed after all the tests
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
-  setup: [() => testUtils.db().migrate(), () => testUtils.db().seed()],
+  setup: [
+    async () => {
+      await mkdir(app.tmpPath(), { recursive: true })
+    },
+    () => testUtils.db().migrate(),
+    () => testUtils.db().seed(),
+  ],
   teardown: [],
 }
 
