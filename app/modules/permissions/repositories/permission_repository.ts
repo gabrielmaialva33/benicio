@@ -121,6 +121,16 @@ export default class PermissionRepository
             IPermission.Actions.LIST,
           ])
       })
+      .orWhere((query) => {
+        query
+          .whereIn('resource', [IPermission.Resources.CLIENTS, IPermission.Resources.FOLDERS])
+          .whereIn('action', [
+            IPermission.Actions.CREATE,
+            IPermission.Actions.READ,
+            IPermission.Actions.UPDATE,
+            IPermission.Actions.LIST,
+          ])
+      })
       .select('id')
 
     return rows.map((row) => row.id)
@@ -134,7 +144,12 @@ export default class PermissionRepository
     const rows = await this.model
       .query({ client: trx })
       .whereIn('action', [IPermission.Actions.READ, IPermission.Actions.LIST])
-      .whereNotIn('resource', [IPermission.Resources.PERMISSIONS, IPermission.Resources.AUDIT])
+      .whereNotIn('resource', [
+        IPermission.Resources.PERMISSIONS,
+        IPermission.Resources.AUDIT,
+        IPermission.Resources.CLIENTS,
+        IPermission.Resources.FOLDERS,
+      ])
       .select('id')
 
     return rows.map((row) => row.id)
