@@ -20,6 +20,7 @@
 @tenantId = 1
 @clientId = 1
 @folderId = 1
+@processId = 1
 
 ###############################################################################
 ### HEALTH ENDPOINTS
@@ -401,6 +402,93 @@ Content-Type: application/json
 
 ### Soft-delete Folder
 DELETE {{baseUrl}}/api/v1/folders/{{folderId}}
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+
+###############################################################################
+### PROCESSES (Requires Authentication, Tenant and Permission)
+###############################################################################
+
+### List Processes Across the Active Tenant
+GET {{baseUrl}}/api/v1/processes?page=1&per_page=20&status=active&party_document=12345678900
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Accept: application/json
+
+### List Processes in a Folder
+GET {{baseUrl}}/api/v1/folders/{{folderId}}/processes?page=1&per_page=20
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Accept: application/json
+
+### Create Process with Parties
+POST {{baseUrl}}/api/v1/folders/{{folderId}}/processes
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Content-Type: application/json
+
+{
+  "cnj_number": "5144506-05.2026.8.09.0112",
+  "internal_code": "INT-2026-001",
+  "status": "active",
+  "instance": "first",
+  "phase": "knowledge",
+  "electronic": true,
+  "is_primary": true,
+  "tribunal": "TJGO",
+  "district": "Goiânia",
+  "case_value": "150000.50",
+  "distribution_date": "2026-05-04",
+  "parties": [
+    {
+      "side": "active",
+      "role": "claimant",
+      "is_primary": true,
+      "name": "Cliente Exemplo",
+      "document": "123.456.789-00"
+    },
+    {
+      "side": "passive",
+      "role": "defendant",
+      "is_primary": true,
+      "name": "Parte Contrária"
+    }
+  ]
+}
+
+### Get Process
+GET {{baseUrl}}/api/v1/processes/{{processId}}
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Accept: application/json
+
+### Update Process and Atomically Replace Parties
+PUT {{baseUrl}}/api/v1/processes/{{processId}}
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Content-Type: application/json
+
+{
+  "phase": "execution",
+  "electronic": null,
+  "parties": [
+    {
+      "side": "active",
+      "is_primary": true,
+      "name": "Cliente Exemplo",
+      "document": "123.456.789-00"
+    }
+  ]
+}
+
+### Mark Process as the Folder Primary
+PUT {{baseUrl}}/api/v1/processes/{{processId}}/primary
+Authorization: Bearer {{token}}
+x-tenant-id: {{tenantId}}
+Accept: application/json
+
+### Soft-delete Process
+DELETE {{baseUrl}}/api/v1/processes/{{processId}}
 Authorization: Bearer {{token}}
 x-tenant-id: {{tenantId}}
 

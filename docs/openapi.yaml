@@ -337,6 +337,306 @@ components:
           type: object
           additionalProperties: true
 
+    ProcessPartyInput:
+      type: object
+      additionalProperties: false
+      required: [side, name]
+      properties:
+        side:
+          type: string
+          enum: [active, passive, third, other]
+        role:
+          type: [string, 'null']
+          maxLength: 80
+          description: Specific procedural role, such as claimant or defendant.
+        is_primary:
+          type: boolean
+          default: false
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+        document:
+          type: [string, 'null']
+          maxLength: 32
+          description: Normalized CPF or alphanumeric CNPJ after validation.
+        person_type:
+          type: [string, 'null']
+          enum: [individual, company, null]
+        metadata:
+          type: object
+          additionalProperties: true
+
+    ProcessParty:
+      type: object
+      additionalProperties: false
+      required:
+        [id, tenant_id, process_id, side, is_primary, name, metadata, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        tenant_id:
+          type: integer
+        process_id:
+          type: integer
+        side:
+          type: string
+          enum: [active, passive, third, other]
+        role:
+          type: [string, 'null']
+        is_primary:
+          type: boolean
+        name:
+          type: string
+        document:
+          type: [string, 'null']
+        person_type:
+          type: [string, 'null']
+          enum: [individual, company, null]
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ProcessMutation:
+      type: object
+      additionalProperties: false
+      properties:
+        cnj_number:
+          type: [string, 'null']
+          maxLength: 32
+          description: CNJ number with or without punctuation; persisted as 20 digits and checked with Mod 97-10.
+          example: '5144506-05.2026.8.09.0112'
+        legacy_number:
+          type: [string, 'null']
+          maxLength: 80
+          description: Original number for proceedings that predate CNJ numbering.
+        internal_code:
+          type: [string, 'null']
+          maxLength: 80
+        status:
+          type: string
+          enum: [active, suspended, archived, closed]
+          default: active
+        instance:
+          type: [string, 'null']
+          enum: [first, second, superior, null]
+        phase:
+          type: [string, 'null']
+          enum: [knowledge, execution, appeal, sentence_compliance, null]
+        distribution_type:
+          type: [string, 'null']
+          enum: [lottery, dependency, prevention, null]
+        electronic:
+          type: [boolean, 'null']
+          description: Null means the source did not provide this fact.
+        is_primary:
+          type: boolean
+          default: false
+        nature:
+          type: [string, 'null']
+          maxLength: 120
+        action_type:
+          type: [string, 'null']
+          maxLength: 160
+        tribunal:
+          type: [string, 'null']
+          maxLength: 160
+        judicial_body:
+          type: [string, 'null']
+          maxLength: 160
+        district:
+          type: [string, 'null']
+          maxLength: 160
+        forum:
+          type: [string, 'null']
+          maxLength: 160
+        court_division:
+          type: [string, 'null']
+          maxLength: 160
+        judge:
+          type: [string, 'null']
+          maxLength: 160
+        case_value:
+          oneOf:
+            - type: string
+              pattern: '^(0|[1-9][0-9]{0,15})(\.[0-9]{1,2})?$'
+            - type: number
+              minimum: 0
+            - type: 'null'
+        conviction_value:
+          oneOf:
+            - type: string
+              pattern: '^(0|[1-9][0-9]{0,15})(\.[0-9]{1,2})?$'
+            - type: number
+              minimum: 0
+            - type: 'null'
+        costs:
+          oneOf:
+            - type: string
+              pattern: '^(0|[1-9][0-9]{0,15})(\.[0-9]{1,2})?$'
+            - type: number
+              minimum: 0
+            - type: 'null'
+        fees:
+          oneOf:
+            - type: string
+              pattern: '^(0|[1-9][0-9]{0,15})(\.[0-9]{1,2})?$'
+            - type: number
+              minimum: 0
+            - type: 'null'
+        distribution_date:
+          type: [string, 'null']
+          format: date
+        citation_date:
+          type: [string, 'null']
+          format: date
+        entry_date:
+          type: [string, 'null']
+          format: date
+        observation:
+          type: [string, 'null']
+        object_detail:
+          type: [string, 'null']
+        metadata:
+          type: object
+          additionalProperties: true
+        parties:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ProcessPartyInput'
+
+    ProcessInput:
+      allOf:
+        - $ref: '#/components/schemas/ProcessMutation'
+        - anyOf:
+            - required: [cnj_number]
+              properties:
+                cnj_number:
+                  type: string
+                  minLength: 1
+            - required: [legacy_number]
+              properties:
+                legacy_number:
+                  type: string
+                  minLength: 1
+            - required: [internal_code]
+              properties:
+                internal_code:
+                  type: string
+                  minLength: 1
+
+    ProcessUpdateInput:
+      allOf:
+        - $ref: '#/components/schemas/ProcessMutation'
+      minProperties: 1
+
+    Process:
+      type: object
+      required:
+        [id, tenant_id, folder_id, status, is_primary, metadata, parties, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        tenant_id:
+          type: integer
+        folder_id:
+          type: integer
+        cnj_number:
+          type: [string, 'null']
+          pattern: '^[0-9]{20}$'
+        cnj_year:
+          type: [integer, 'null']
+        cnj_segment:
+          type: [string, 'null']
+        cnj_tribunal_code:
+          type: [string, 'null']
+        cnj_origin_code:
+          type: [string, 'null']
+        legacy_number:
+          type: [string, 'null']
+        internal_code:
+          type: [string, 'null']
+        status:
+          type: string
+          enum: [active, suspended, archived, closed]
+        instance:
+          type: [string, 'null']
+          enum: [first, second, superior, null]
+        phase:
+          type: [string, 'null']
+          enum: [knowledge, execution, appeal, sentence_compliance, null]
+        distribution_type:
+          type: [string, 'null']
+          enum: [lottery, dependency, prevention, null]
+        electronic:
+          type: [boolean, 'null']
+        is_primary:
+          type: boolean
+        nature:
+          type: [string, 'null']
+        action_type:
+          type: [string, 'null']
+        tribunal:
+          type: [string, 'null']
+        judicial_body:
+          type: [string, 'null']
+        district:
+          type: [string, 'null']
+        forum:
+          type: [string, 'null']
+        court_division:
+          type: [string, 'null']
+        judge:
+          type: [string, 'null']
+        case_value:
+          type: [string, 'null']
+          pattern: '^[0-9]+\.[0-9]{2}$'
+        conviction_value:
+          type: [string, 'null']
+          pattern: '^[0-9]+\.[0-9]{2}$'
+        costs:
+          type: [string, 'null']
+          pattern: '^[0-9]+\.[0-9]{2}$'
+        fees:
+          type: [string, 'null']
+          pattern: '^[0-9]+\.[0-9]{2}$'
+        distribution_date:
+          type: [string, 'null']
+          format: date
+        citation_date:
+          type: [string, 'null']
+          format: date
+        entry_date:
+          type: [string, 'null']
+          format: date
+        observation:
+          type: [string, 'null']
+        object_detail:
+          type: [string, 'null']
+        metadata:
+          type: object
+          additionalProperties: true
+        parties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProcessParty'
+        deleted_at:
+          type: [string, 'null']
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
     ClientEnvelope:
       type: object
       required: [data]
@@ -350,6 +650,13 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/Folder'
+
+    ProcessEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Process'
 
     ClientsPage:
       allOf:
@@ -372,6 +679,17 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Folder'
+
+    ProcessesPage:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Process'
 
     Role:
       type: object
@@ -621,6 +939,8 @@ tags:
     description: Tenant-scoped legal client management
   - name: Folders
     description: Tenant-scoped legal matter and folder management
+  - name: Processes
+    description: Tenant-scoped judicial proceedings and parties
 
 paths:
   /version:
@@ -1628,6 +1948,250 @@ paths:
       responses:
         '204':
           description: Folder deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Folder still has active processes
+
+  /api/v1/processes:
+    get:
+      operationId: listProcesses
+      summary: List processes across folders in the active tenant
+      tags: [Processes]
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/sortByParam'
+        - $ref: '#/components/parameters/orderParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: cnj_number
+          in: query
+          schema:
+            type: string
+          description: Exact CNJ number, with or without punctuation.
+        - name: folder_id
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: client_id
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, suspended, archived, closed]
+        - name: instance
+          in: query
+          schema:
+            type: string
+            enum: [first, second, superior]
+        - name: phase
+          in: query
+          schema:
+            type: string
+            enum: [knowledge, execution, appeal, sentence_compliance]
+        - name: electronic
+          in: query
+          schema:
+            type: boolean
+        - name: is_primary
+          in: query
+          schema:
+            type: boolean
+        - name: tribunal
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: judge
+          in: query
+          schema:
+            type: string
+        - name: party_document
+          in: query
+          schema:
+            type: string
+        - name: distribution_date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: distribution_date_to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Paginated tenant processes with parties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessesPage'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/folders/{folderId}/processes:
+    parameters:
+      - name: folderId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: listFolderProcesses
+      summary: List processes belonging to one folder
+      tags: [Processes]
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/sortByParam'
+        - $ref: '#/components/parameters/orderParam'
+        - $ref: '#/components/parameters/searchParam'
+      responses:
+        '200':
+          description: Paginated folder processes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessesPage'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    post:
+      operationId: createFolderProcess
+      summary: Create a process and its parties inside a folder
+      tags: [Processes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessInput'
+      responses:
+        '201':
+          description: Process created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessEnvelope'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Folder was not found in the active tenant
+        '409':
+          description: An active process already uses this CNJ in the tenant
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/processes/{id}:
+    get:
+      operationId: getProcess
+      summary: Get a process and its parties from the active tenant
+      tags: [Processes]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200':
+          description: Process found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessEnvelope'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: updateProcess
+      summary: Update a process; supplied parties replace its current party list atomically
+      tags: [Processes]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessUpdateInput'
+      responses:
+        '200':
+          description: Process updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessEnvelope'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Another active process uses the requested CNJ
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      operationId: deleteProcess
+      summary: Soft-delete a process in the active tenant
+      tags: [Processes]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '204':
+          description: Process deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/processes/{id}/primary:
+    put:
+      operationId: markPrimaryProcess
+      summary: Atomically make this the folder's primary process
+      tags: [Processes]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200':
+          description: Primary process selected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessEnvelope'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
