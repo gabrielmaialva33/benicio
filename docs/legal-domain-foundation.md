@@ -53,9 +53,8 @@ The following legacy choices were not carried forward:
 - unvalidated mass assignment and controller-level `try/catch` blocks that leaked errors;
 - `limit`, ignored sorting parameters, and inconsistent single-resource envelopes.
 
-Bank automation and its import lifecycle are separate concerns and are deliberately outside this
-legal-domain foundation. Favorites will be a `(user, folder)` relation, and legal documents will
-reference the existing tenant-aware `files` table.
+Favorites will be a `(user, folder)` relation, and legal documents will reference the existing
+tenant-aware `files` table.
 
 ## REST contract
 
@@ -67,5 +66,7 @@ filters. Sort fields are allowlisted.
 
 ## Next slices
 
-1. movements, hearings, tasks, and procedural deadlines;
-2. folder files and per-user favorites.
+1. tenant-safe tasks;
+2. hearings and procedural deadlines, separating concepts conflated by the legacy `hearings` table;
+3. process movements and the folder activity timeline;
+4. folder files and per-user favorites.

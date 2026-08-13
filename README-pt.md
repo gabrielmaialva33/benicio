@@ -89,7 +89,7 @@ graph TD
 
 - **Fundação disponível**: autenticação, usuários, tenants, RBAC, auditoria, arquivos, shell web e infraestrutura de API.
 - **Fundação jurídica disponível**: clientes, pastas, processos e partes normalizadas tenant-safe, com schema revisado, RBAC, validação, soft delete e testes do contrato REST.
-- **Próximo slice**: movimentações, audiências, tarefas e prazos processuais sobre o modelo canônico de processos.
+- **Próximo slice**: tarefas tenant-safe, seguindo o contrato da API e do dashboard do `yol-benicio`.
 - **Web canônica**: controllers Inertia finos reutilizam os mesmos serviços de aplicação da API.
 - **Mobile**: o cliente Flutter será conectado quando o contrato REST v1 estiver estabilizado e coberto por testes.
 
