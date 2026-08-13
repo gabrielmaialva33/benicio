@@ -123,7 +123,11 @@ export default class PermissionRepository
       })
       .orWhere((query) => {
         query
-          .whereIn('resource', [IPermission.Resources.CLIENTS, IPermission.Resources.FOLDERS])
+          .whereIn('resource', [
+            IPermission.Resources.CLIENTS,
+            IPermission.Resources.FOLDERS,
+            IPermission.Resources.PROCESSES,
+          ])
           .whereIn('action', [
             IPermission.Actions.CREATE,
             IPermission.Actions.READ,
@@ -149,6 +153,7 @@ export default class PermissionRepository
         IPermission.Resources.AUDIT,
         IPermission.Resources.CLIENTS,
         IPermission.Resources.FOLDERS,
+        IPermission.Resources.PROCESSES,
       ])
       .select('id')
 

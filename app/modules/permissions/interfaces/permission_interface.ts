@@ -56,6 +56,7 @@ namespace IPermission {
     AUDIT = 'audit',
     CLIENTS = 'clients',
     FOLDERS = 'folders',
+    PROCESSES = 'processes',
   }
 
   export enum Actions {
