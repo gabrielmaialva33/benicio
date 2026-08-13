@@ -15,6 +15,11 @@ import type {
 export default class LegalProcess extends TenantBaseModel {
   static table = 'processes'
 
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
   @column()
   declare folder_id: number
 
@@ -118,6 +123,11 @@ export default class LegalProcess extends TenantBaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updated_at: DateTime
 
+  /**
+   * ------------------------------------------------------
+   * Relationships
+   * ------------------------------------------------------
+   */
   @belongsTo(() => Tenant, { foreignKey: 'tenant_id' })
   declare tenant: BelongsTo<typeof Tenant>
 

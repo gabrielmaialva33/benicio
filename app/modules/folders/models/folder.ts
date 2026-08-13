@@ -11,6 +11,11 @@ import type { FolderStatus } from '#modules/folders/interfaces/folder_interface'
 export default class Folder extends TenantBaseModel {
   static table = 'folders'
 
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
   @column()
   declare code: string
 
@@ -44,6 +49,11 @@ export default class Folder extends TenantBaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updated_at: DateTime
 
+  /**
+   * ------------------------------------------------------
+   * Relationships
+   * ------------------------------------------------------
+   */
   @belongsTo(() => Tenant, { foreignKey: 'tenant_id' })
   declare tenant: BelongsTo<typeof Tenant>
 

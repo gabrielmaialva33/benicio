@@ -13,6 +13,11 @@ export default class ProcessParty extends BaseModel {
   static table = 'process_parties'
   static namingStrategy = new SnakeCaseNamingStrategy()
 
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
   @column({ isPrimary: true })
   declare id: number
 
@@ -49,6 +54,11 @@ export default class ProcessParty extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updated_at: DateTime
 
+  /**
+   * ------------------------------------------------------
+   * Relationships
+   * ------------------------------------------------------
+   */
   @belongsTo(() => Tenant, { foreignKey: 'tenant_id' })
   declare tenant: BelongsTo<typeof Tenant>
 

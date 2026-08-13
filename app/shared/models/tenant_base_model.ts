@@ -15,6 +15,11 @@ import { BaseModel, column, scope, SnakeCaseNamingStrategy } from '@adonisjs/luc
 export default class TenantBaseModel extends BaseModel {
   static namingStrategy = new SnakeCaseNamingStrategy()
 
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
   @column({ isPrimary: true })
   declare id: number
 
@@ -24,6 +29,11 @@ export default class TenantBaseModel extends BaseModel {
   @column.dateTime()
   declare deletedAt: DateTime | null
 
+  /**
+   * ------------------------------------------------------
+   * Query Scopes
+   * ------------------------------------------------------
+   */
   static notDeleted = scope((query) => {
     query.whereNull('deleted_at')
   })
@@ -32,6 +42,11 @@ export default class TenantBaseModel extends BaseModel {
     query.where('tenant_id', tenantId).whereNull('deleted_at')
   })
 
+  /**
+   * ------------------------------------------------------
+   * Methods
+   * ------------------------------------------------------
+   */
   async softDelete() {
     this.deletedAt = DateTime.now()
     await this.save()

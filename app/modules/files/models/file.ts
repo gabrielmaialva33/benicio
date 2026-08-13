@@ -8,6 +8,11 @@ export default class File extends BaseModel {
   static table = 'files'
   static namingStrategy = new SnakeCaseNamingStrategy()
 
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
   @column({ isPrimary: true })
   declare id: number
 

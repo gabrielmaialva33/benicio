@@ -10,6 +10,11 @@ import type { ClientAddress, ClientPersonType } from '#modules/clients/interface
 export default class Client extends TenantBaseModel {
   static table = 'clients'
 
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
   @column()
   declare name: string
 
@@ -40,6 +45,11 @@ export default class Client extends TenantBaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updated_at: DateTime
 
+  /**
+   * ------------------------------------------------------
+   * Relationships
+   * ------------------------------------------------------
+   */
   @belongsTo(() => Tenant, { foreignKey: 'tenant_id' })
   declare tenant: BelongsTo<typeof Tenant>
 
