@@ -20,6 +20,8 @@ import '#modules/permissions/routes'
 import '#modules/files/routes'
 import '#modules/tenants/routes'
 import '#modules/health/routes'
+import '#modules/clients/routes'
+import '#modules/folders/routes'
 
 import '#modules/web/routes'
 
