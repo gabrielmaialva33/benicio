@@ -1,117 +1,37 @@
-# Copilot Instructions for Adonis Web Kit
+# Copilot Instructions for Benício
 
-## 🚨 Critical Rule: Use AdonisJS Commands
+Read and follow the repository-level `AGENTS.md` before changing code. It is the canonical source
+for project structure, commands, tests, and conventions.
 
-**NEVER manually create files.** Always use AdonisJS Ace commands:
+## Architecture
 
-- `node ace make:controller User` for controllers
-- `node ace make:model Post -m` for models with migrations
-- `node ace make:service users/CreateUser` for services
-- `node ace make:middleware Auth` for middleware
+Benício is an AdonisJS 7, React 19, and Inertia application organized as a modular monolith.
 
-## Architecture Overview
+- Backend domains live in `app/modules/<domain>/` and own their controllers, services,
+  repositories, models, validators, and routes.
+- Cross-cutting code lives in `app/shared/`; typed HTTP errors live in `app/exceptions/`.
+- React pages and UI code live under `inertia/`.
+- Web and REST controllers are thin delivery adapters. Business behavior belongs in shared
+  application services, never duplicated between Inertia and `/api/v1`.
+- Tenant-scoped business models use `TenantBaseModel` and every external input is validated at the
+  boundary.
 
-This is an **AdonisJS v6 + React 19 + Inertia.js** monorepo with comprehensive RBAC system.
+## Imports and generators
 
-### Key Patterns
+Use only aliases declared in `package.json`, especially `#modules/*`, `#shared/*`, and
+`#exceptions/*`. Adonis generators use the framework's default layout; move generated files into
+the owning module and fix their imports before continuing.
 
-**Service-Repository Pattern**: Business logic in `/app/services/` organized by domain (users/, roles/, permissions/). Repositories in `/app/repositories/` extend `LucidRepository` base class.
+Run Ace commands through `pnpm ace <command>`, not `node ace`.
 
-**Dependency Injection**: All services use `@inject()` decorator with constructor injection:
+## Validation
 
-```typescript
-@inject()
-export default class CreateUserService {
-  constructor(private userRepository: UsersRepository) {}
-}
+Before handing off a change, run the checks relevant to it:
+
+```sh
+pnpm typecheck
+pnpm lint
+pnpm test:e2e
+pnpm test:ui
+pnpm build
 ```
-
-**Domain Events**: Authentication actions emit events (`auth:login_succeeded`, `auth:user_registered`) handled by `AuthEventService` and logged via `AuthEventsProvider`.
-
-## Import Aliases (Always Use These)
-
-Essential aliases defined in `package.json`:
-
-- `#controllers/*` → `./app/controllers/*.js`
-- `#services/*` → `./app/services/*.js`
-- `#repositories/*` → `./app/repositories/*.js`
-- `#models/*` → `./app/models/*.js`
-- `#middleware/*` → `./app/middleware/*.js`
-- `#validators/*` → `./app/validators/*.js`
-- `#interfaces/*` → `./app/interfaces/*.js`
-- `#config/*` → `./config/*.js`
-
-## Authentication System
-
-**Multi-Guard Setup**: JWT (default), API tokens, session, basic auth in `config/auth.ts`.
-
-**Custom JWT Guard**: Located in `app/shared/jwt/` - handles token generation, verification, and cookie/header extraction.
-
-**Authentication Flow**:
-
-1. Sign-in → `SignInService` → `JwtAuthTokensService` → returns `{ access_token, refresh_token }`
-2. Auth middleware checks JWT via custom guard
-3. Events emitted for login attempts, successes, failures
-
-## Permission System
-
-**RBAC with Inheritance**: Users → Roles → Permissions with caching via Redis.
-
-**Key Middleware**:
-
-- `acl` - Role-based access: `middleware.acl({ role_slugs: [IRole.Slugs.ADMIN] })`
-- `permission` - Permission-based: `middleware.permission({ permissions: ['users.read'] })`
-- `ownership` - Resource ownership validation
-
-**Permission Checking**: Services use `PermissionRepository.checkUserPermission(userId, permission)` with Redis caching.
-
-## Data Layer
-
-**Base Repository**: All repositories extend `LucidRepository` with common CRUD operations, pagination, and soft deletes.
-
-**Model Patterns**:
-
-- Snake_case naming strategy
-- Soft deletes in User model
-- Extensive M:N relationships for RBAC
-- Metadata JSON columns for flexible storage
-
-## Testing Strategy
-
-**Two Test Suites** in `adonisrc.ts`:
-
-- Unit tests: `tests/unit/**/*.spec.ts` (2s timeout)
-- Functional tests: `tests/functional/**/*.spec.ts` (30s timeout)
-
-**Testing Patterns**: Each test wraps in `testUtils.db().withGlobalTransaction()` for isolation.
-
-## File Organization
-
-**Domain-Driven Services**: `/app/services/users/`, `/app/services/permissions/` with specific use cases like `CreateUserService`, `VerifyEmailService`.
-
-**Interface Contracts**: TypeScript interfaces in `/app/interfaces/` define service contracts and data structures.
-
-**Event-Driven**: Authentication events in `/app/events/auth_events.ts` with listeners in `/providers/auth_events_provider.ts`.
-
-## Development Commands
-
-**Essential Commands**:
-
-- `pnpm dev` - Development with HMR
-- `node ace migration:run` - Run migrations
-- `node ace db:seed` - Seed database
-- `pnpm test` - Unit tests only
-- `pnpm test:e2e` - All tests
-
-**Production**:
-
-- `pnpm build` - Build for production
-- `pnpm start` - Production server
-
-## Frontend Integration
-
-**Inertia.js Bridge**: Controllers return `inertia.render('PageName', data)` to React components in `/inertia/pages/`.
-
-**Type Safety**: Shared TypeScript interfaces ensure end-to-end type safety between backend and frontend.
-
-**Auth Service**: Frontend uses `/inertia/services/auth_service.ts` for API authentication calls.
