@@ -35,7 +35,12 @@
     --yol-sidebar: 0 0% 22%;
     --yol-sidebar-muted: 225 3% 53%;
     --yol-orange: 24 94% 53%;
-    --yol-cyan: 188 100% 42.5%;
+    /* #00b8d9 — the shade the UI already used everywhere as a literal. */
+    --yol-cyan: 189 100% 42.5%;
+    /* #00a7c6 — pressed/hover step. */
+    --yol-cyan-hover: 189 100% 38.8%;
+    /* #1cd6f4 — light accent for borders and focus rings. */
+    --yol-cyan-light: 188 91% 53%;
     --yol-page: 210 40% 98%;
     --yol-ink: 220 24% 12%;
 

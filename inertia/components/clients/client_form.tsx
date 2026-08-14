@@ -101,7 +101,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
               Dados usados em pastas, processos e comunicações do escritório.
             </p>
           </div>
-          <span className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-[#00b8d9]">
+          <span className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-yol-cyan">
             {form.data.person_type === 'company' ? (
               <Building2 className="size-5" />
             ) : (
@@ -264,7 +264,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
             value={form.data.notes}
             onChange={(event) => form.setData('notes', event.target.value)}
             placeholder="Contexto de relacionamento, preferências de contato ou observações relevantes"
-            className="min-h-32 resize-y rounded-lg border-gray-300 focus-visible:border-[#1cd6f4] focus-visible:ring-cyan-100"
+            className="min-h-32 resize-y rounded-lg border-gray-300 focus-visible:border-yol-cyan focus-visible:ring-cyan-100"
             maxLength={10_000}
             aria-invalid={!!errors.notes}
           />
@@ -280,7 +280,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Button
             type="submit"
             disabled={form.processing}
-            className="bg-[#00b8d9] text-white shadow-none hover:bg-[#00a7c6]"
+            className="bg-yol-cyan text-white shadow-none hover:bg-yol-cyan-hover"
           >
             <Save className="size-4" />
             {form.processing ? 'Salvando...' : editing ? 'Salvar alterações' : 'Cadastrar cliente'}

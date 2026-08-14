@@ -100,12 +100,12 @@ export function FileUpload() {
           'flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-gray-300 bg-[#f7f8f9] px-6 py-12 text-center transition-colors',
           loading
             ? 'cursor-not-allowed opacity-60'
-            : 'cursor-pointer hover:border-[#1cd6f4] hover:bg-cyan-50/40',
-          isDragActive && 'border-[#1cd6f4] bg-cyan-50'
+            : 'cursor-pointer hover:border-yol-cyan hover:bg-cyan-50/40',
+          isDragActive && 'border-yol-cyan bg-cyan-50'
         )}
       >
         <input {...getInputProps()} />
-        <div className="flex size-12 items-center justify-center rounded-full bg-cyan-50 text-[#00b8d9]">
+        <div className="flex size-12 items-center justify-center rounded-full bg-cyan-50 text-yol-cyan">
           <CloudUpload className="size-6" />
         </div>
         <div className="space-y-1">

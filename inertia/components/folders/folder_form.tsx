@@ -109,7 +109,7 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
             </p>
           </div>
         </CardHeader>
-        <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2 xl:grid-cols-3 [&_[data-slot=input]]:h-12 [&_[data-slot=input]]:rounded-lg [&_[data-slot=input]]:border-gray-300 [&_[data-slot=input]]:px-4 [&_[data-slot=input]]:focus-visible:border-[#00b8d9] [&_[data-slot=input]]:focus-visible:ring-[#00b8d9]/20">
+        <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2 xl:grid-cols-3 [&_[data-slot=input]]:h-12 [&_[data-slot=input]]:rounded-lg [&_[data-slot=input]]:border-gray-300 [&_[data-slot=input]]:px-4 [&_[data-slot=input]]:focus-visible:border-yol-cyan [&_[data-slot=input]]:focus-visible:ring-yol-cyan/20">
           <Field
             label="Código da pasta"
             name="code"
@@ -235,7 +235,7 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
               aria-invalid={!!form.errors.description}
               aria-describedby={form.errors.description ? 'description-error' : undefined}
               placeholder="Contexto, objetivo e observações gerais da pasta"
-              className="min-h-32 resize-y rounded-lg border-gray-300 focus-visible:border-[#00b8d9] focus-visible:ring-[#00b8d9]/20"
+              className="min-h-32 resize-y rounded-lg border-gray-300 focus-visible:border-yol-cyan focus-visible:ring-yol-cyan/20"
               maxLength={10000}
             />
             {form.errors.description && (
@@ -261,7 +261,7 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
             variant="primary"
             type="submit"
             disabled={form.processing || !hasClients}
-            className="h-12 rounded-lg bg-[#00b8d9] px-6 font-semibold text-white hover:bg-[#00a6c5]"
+            className="h-12 rounded-lg bg-yol-cyan px-6 font-semibold text-white hover:bg-yol-cyan-hover"
           >
             <Save className="size-4" />
             {form.processing ? 'Salvando...' : 'Salvar pasta'}

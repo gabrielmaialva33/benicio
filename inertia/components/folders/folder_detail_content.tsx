@@ -165,7 +165,7 @@ function ProcessCard({ folderId, process }: { folderId: number; process: FolderP
   return (
     <Link
       href={`/folders/${folderId}/processes/${process.id}`}
-      className="block rounded-xl border border-gray-200 p-5 transition hover:border-[#1cd6f4] hover:bg-cyan-50/30"
+      className="block rounded-xl border border-gray-200 p-5 transition hover:border-yol-cyan hover:bg-cyan-50/30"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
@@ -250,7 +250,7 @@ function ActivityTimeline({ activities }: { activities: FolderActivity[] }) {
           key={activity.id}
           className="relative grid gap-1 pb-5 ps-7 last:pb-0 before:absolute before:start-[0.45rem] before:top-2 before:h-full before:w-px before:bg-gray-200 last:before:hidden"
         >
-          <span className="absolute start-0 top-1.5 size-4 rounded-full border-4 border-white bg-[#1cd6f4] ring-1 ring-cyan-100" />
+          <span className="absolute start-0 top-1.5 size-4 rounded-full border-4 border-white bg-yol-cyan ring-1 ring-cyan-100" />
           <span className="text-sm font-semibold text-slate-800">{activity.summary}</span>
           <span className="text-xs text-slate-500">
             {[activity.actor_name, formatDateTime(activity.occurred_at)]
@@ -315,7 +315,7 @@ export function FolderDetailContent({
           <Button
             variant="primary"
             asChild
-            className="h-11 rounded-lg bg-[#00b8d9] px-5 text-white shadow-none hover:bg-[#00a7c6]"
+            className="h-11 rounded-lg bg-yol-cyan px-5 text-white shadow-none hover:bg-yol-cyan-hover"
           >
             <Link href={`/folders/${folder.id}/processes/create`}>
               <Plus className="size-4" />
@@ -335,7 +335,7 @@ export function FolderDetailContent({
               value={navigationQuery}
               onChange={(event) => setNavigationQuery(event.target.value)}
               placeholder="Pesquisar"
-              className="h-12 w-full rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-[#1cd6f4] focus:ring-2 focus:ring-cyan-100"
+              className="h-12 w-full rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-yol-cyan focus:ring-2 focus:ring-cyan-100"
             />
           </label>
 
@@ -351,8 +351,8 @@ export function FolderDetailContent({
                   className={cn(
                     'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium transition',
                     active
-                      ? 'bg-[#00b8d9] text-white'
-                      : 'text-gray-500 hover:bg-cyan-50 hover:text-[#00a7c6]'
+                      ? 'bg-yol-cyan text-white'
+                      : 'text-gray-500 hover:bg-cyan-50 hover:text-yol-cyan-hover'
                   )}
                 >
                   <Icon className="size-5" />
@@ -429,7 +429,7 @@ export function FolderDetailContent({
               <Button
                 asChild
                 size="sm"
-                className="h-9 rounded-lg bg-[#00b8d9] px-4 text-white shadow-none hover:bg-[#00a7c6]"
+                className="h-9 rounded-lg bg-yol-cyan px-4 text-white shadow-none hover:bg-yol-cyan-hover"
               >
                 <Link href={`/folders/${folder.id}/processes/create`}>
                   <Plus className="size-4" />

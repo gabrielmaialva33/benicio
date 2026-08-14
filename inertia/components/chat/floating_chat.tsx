@@ -22,7 +22,7 @@ export function FloatingChat() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Abrir assistente IA"
-        className="fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full bg-[#1cd6f4] text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1cd6f4] focus-visible:ring-offset-2"
+        className="fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full bg-yol-cyan text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yol-cyan focus-visible:ring-offset-2"
       >
         <MessageSquare className="size-6" />
       </button>
@@ -34,7 +34,7 @@ export function FloatingChat() {
       aria-label="Assistente IA flutuante"
       className="fixed inset-x-3 bottom-3 z-50 flex h-[min(600px,calc(100vh-1.5rem))] flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-96"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-[#1cd6f4] bg-[#1cd6f4] p-4 text-white">
+      <header className="flex items-center justify-between gap-3 border-b border-yol-cyan bg-yol-cyan p-4 text-white">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/20">
             <MessageSquare className="size-4" />

@@ -287,7 +287,11 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
 
       <div className="space-y-6">
         <div className="flex justify-end">
-          <Button asChild variant="primary" className="bg-[#00b8d9] shadow-none hover:bg-[#00a7c6]">
+          <Button
+            asChild
+            variant="primary"
+            className="bg-yol-cyan shadow-none hover:bg-yol-cyan-hover"
+          >
             <Link href="/users/create">
               <Plus className="size-4" />
               Novo usuário

@@ -58,7 +58,7 @@ export function ChatComposer({
               ? 'Configure o provedor de IA para começar'
               : 'Pergunte sobre um caso, prazo, contrato ou estratégia...'
           }
-          className="max-h-32 min-h-10 flex-1 resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-transparent focus:ring-2 focus:ring-[#1cd6f4] placeholder:text-gray-400 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-50"
+          className="max-h-32 min-h-10 flex-1 resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-transparent focus:ring-2 focus:ring-yol-cyan placeholder:text-gray-400 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-50"
           aria-label="Mensagem para a IA"
         />
         {streaming ? (

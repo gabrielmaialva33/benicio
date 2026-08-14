@@ -85,7 +85,7 @@ function ProfileTab({ profile }: { profile: SettingsProfile }) {
               type="submit"
               variant="primary"
               disabled={processing}
-              className="bg-[#00b8d9] shadow-none hover:bg-[#00a7c6]"
+              className="bg-yol-cyan shadow-none hover:bg-yol-cyan-hover"
             >
               {processing ? 'Salvando...' : 'Salvar alterações'}
             </Button>
@@ -116,7 +116,7 @@ function WorkspacesTab() {
           <ul className="divide-y divide-border">
             {tenants.map((tenant) => (
               <li key={tenant.id} className="flex items-center gap-3 px-5 py-3.5">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-[#00b8d9]">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-yol-cyan">
                   <Building2 className="size-4.5" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -156,14 +156,14 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
         <TabsList className="h-auto w-full flex-col items-stretch gap-2 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_4px_4px_rgba(0,0,0,0.03)]">
           <TabsTrigger
             value="profile"
-            className="justify-start gap-3 rounded-lg px-4 py-3 text-gray-500 data-[state=active]:bg-[#00b8d9] data-[state=active]:text-white"
+            className="justify-start gap-3 rounded-lg px-4 py-3 text-gray-500 data-[state=active]:bg-yol-cyan data-[state=active]:text-white"
           >
             <UserRound className="size-5" />
             Meu perfil
           </TabsTrigger>
           <TabsTrigger
             value="workspaces"
-            className="justify-start gap-3 rounded-lg px-4 py-3 text-gray-500 data-[state=active]:bg-[#00b8d9] data-[state=active]:text-white"
+            className="justify-start gap-3 rounded-lg px-4 py-3 text-gray-500 data-[state=active]:bg-yol-cyan data-[state=active]:text-white"
           >
             <Building2 className="size-5" />
             Escritórios

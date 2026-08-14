@@ -32,6 +32,8 @@
   --color-yol-sidebar-muted: hsl(var(--yol-sidebar-muted));
   --color-yol-orange: hsl(var(--yol-orange));
   --color-yol-cyan: hsl(var(--yol-cyan));
+  --color-yol-cyan-hover: hsl(var(--yol-cyan-hover));
+  --color-yol-cyan-light: hsl(var(--yol-cyan-light));
   --color-yol-page: hsl(var(--yol-page));
   --color-yol-ink: hsl(var(--yol-ink));
 }

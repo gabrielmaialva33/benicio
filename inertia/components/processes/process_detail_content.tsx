@@ -75,7 +75,7 @@ function DetailPanel({
       className={`scroll-mt-6 rounded-2xl border border-gray-100 bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)] ${className ?? ''}`}
     >
       <header className="flex items-center gap-3 border-b border-gray-100 px-6 py-5">
-        <Icon className="size-5 text-[#00b8d9]" />
+        <Icon className="size-5 text-yol-cyan" />
         <h2 className="text-lg font-semibold text-[#1f2a37]">{title}</h2>
       </header>
       <div className="p-6">{children}</div>
@@ -325,14 +325,17 @@ export function ProcessDetailContent({
           <DetailPanel id="cliente" icon={MapPin} title="Pasta e cliente">
             <dl className="grid gap-5">
               <Definition label="Pasta">
-                <Link href={`/folders/${folder.id}`} className="text-[#00a7c6] hover:underline">
+                <Link
+                  href={`/folders/${folder.id}`}
+                  className="text-yol-cyan-hover hover:underline"
+                >
                   {folder.code} · {folder.title}
                 </Link>
               </Definition>
               <Definition label="Cliente">
                 <Link
                   href={`/clients/${folder.client.id}`}
-                  className="text-[#00a7c6] hover:underline"
+                  className="text-yol-cyan-hover hover:underline"
                 >
                   {folder.client.name}
                 </Link>

@@ -383,7 +383,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
               name="is_primary"
               checked={form.data.is_primary}
               onChange={(event) => form.setData('is_primary', event.target.checked)}
-              className="size-4 rounded border-slate-300 accent-[#00b8d9]"
+              className="size-4 rounded border-slate-300 accent-yol-cyan"
             />
             Processo principal da pasta
           </label>
@@ -530,7 +530,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
               variant="outline"
               size="sm"
               onClick={addParty}
-              className="rounded-full border-[#00b8d9]/50 font-bold text-[#00b8d9] hover:bg-[#00b8d9]/5 hover:text-[#00b8d9]"
+              className="rounded-full border-yol-cyan/50 font-bold text-yol-cyan hover:bg-yol-cyan/5 hover:text-yol-cyan"
             >
               <Plus className="size-4" />
               Adicionar parte
@@ -619,7 +619,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
                     name={`parties.${index}.is_primary`}
                     checked={party.is_primary}
                     onChange={(event) => updateParty(index, 'is_primary', event.target.checked)}
-                    className="size-4 rounded border-slate-300 accent-[#00b8d9]"
+                    className="size-4 rounded border-slate-300 accent-yol-cyan"
                   />
                   Parte principal deste polo
                 </label>
@@ -643,7 +643,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
               name="observation"
               value={form.data.observation}
               onChange={(event) => setText('observation', event.target.value)}
-              className="min-h-36 rounded-lg border-gray-300 focus-visible:border-[#00b8d9] focus-visible:ring-[#00b8d9]/20"
+              className="min-h-36 rounded-lg border-gray-300 focus-visible:border-yol-cyan focus-visible:ring-yol-cyan/20"
               maxLength={10_000}
             />
             {errors.observation && <p className="text-xs text-destructive">{errors.observation}</p>}
@@ -655,7 +655,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
               name="object_detail"
               value={form.data.object_detail}
               onChange={(event) => setText('object_detail', event.target.value)}
-              className="min-h-36 rounded-lg border-gray-300 focus-visible:border-[#00b8d9] focus-visible:ring-[#00b8d9]/20"
+              className="min-h-36 rounded-lg border-gray-300 focus-visible:border-yol-cyan focus-visible:ring-yol-cyan/20"
               maxLength={10_000}
             />
             {errors.object_detail && (
@@ -678,7 +678,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
           <Button
             type="submit"
             disabled={form.processing}
-            className="h-12 rounded-lg bg-[#00b8d9] px-6 font-semibold text-white hover:bg-[#00a6c5]"
+            className="h-12 rounded-lg bg-yol-cyan px-6 font-semibold text-white hover:bg-yol-cyan-hover"
           >
             <Save className="size-4" />
             {form.processing ? 'Salvando...' : editing ? 'Salvar alterações' : 'Cadastrar processo'}

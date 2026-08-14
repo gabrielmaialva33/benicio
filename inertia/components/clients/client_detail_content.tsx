@@ -118,7 +118,7 @@ export function ClientDetailContent({
                 Editar
               </Link>
             </Button>
-            <Button asChild className="bg-[#00b8d9] text-white shadow-none hover:bg-[#00a7c6]">
+            <Button asChild className="bg-yol-cyan text-white shadow-none hover:bg-yol-cyan-hover">
               <Link href={`/folders/create?client_id=${client.id}`}>
                 <Plus className="size-4" />
                 Nova pasta
@@ -155,7 +155,7 @@ export function ClientDetailContent({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_4px_4px_rgba(0,0,0,0.03)]">
-          <span className="flex size-11 items-center justify-center rounded-lg bg-cyan-50 text-[#00b8d9]">
+          <span className="flex size-11 items-center justify-center rounded-lg bg-cyan-50 text-yol-cyan">
             <BriefcaseBusiness className="size-5" />
           </span>
           <span>
@@ -229,7 +229,7 @@ export function ClientDetailContent({
                 {client.email ? (
                   <a
                     href={`mailto:${client.email}`}
-                    className="inline-flex items-center gap-2 text-[#00a7c6] hover:underline"
+                    className="inline-flex items-center gap-2 text-yol-cyan-hover hover:underline"
                   >
                     <Mail className="size-4" />
                     {client.email}
@@ -242,7 +242,7 @@ export function ClientDetailContent({
                 {client.phone ? (
                   <a
                     href={`tel:${client.phone}`}
-                    className="inline-flex items-center gap-2 text-[#00a7c6] hover:underline"
+                    className="inline-flex items-center gap-2 text-yol-cyan-hover hover:underline"
                   >
                     <Phone className="size-4" />
                     {client.phone}

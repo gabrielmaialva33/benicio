@@ -148,10 +148,10 @@ function ActiveFoldersCard({ dashboard }: { dashboard: DashboardOverview }) {
             <Line
               type="monotone"
               dataKey="count"
-              stroke="#06b6d4"
+              stroke="#00b8d9"
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: '#06b6d4' }}
+              activeDot={{ r: 4, fill: '#00b8d9' }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -545,7 +545,7 @@ function FavoritesCard({ dashboard }: { dashboard: DashboardOverview }) {
 function ActivityRow({ activity }: { activity: DashboardRecentActivity }) {
   return (
     <li className="relative grid gap-1 pb-5 ps-7 last:pb-0 before:absolute before:start-[0.45rem] before:top-2 before:h-full before:w-px before:bg-slate-200 last:before:hidden dark:before:bg-white/10">
-      <span className="absolute start-0 top-1.5 size-4 rounded-full border-4 border-white bg-[#06b6d4] ring-1 ring-cyan-100 dark:border-card dark:ring-cyan-500/20" />
+      <span className="absolute start-0 top-1.5 size-4 rounded-full border-4 border-white bg-yol-cyan-hover ring-1 ring-cyan-100 dark:border-card dark:ring-cyan-500/20" />
       <span className="text-sm font-semibold text-slate-800 dark:text-white">
         {activity.summary}
       </span>

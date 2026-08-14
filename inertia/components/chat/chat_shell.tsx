@@ -69,8 +69,8 @@ export function ChatShell({
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
             <header className="flex items-center justify-between gap-4 border-b border-[#e1e3ea] bg-white p-4">
               <div className="flex min-w-0 items-center gap-3">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#1cd6f4]/10">
-                  <MessageSquare className="size-5 text-[#1cd6f4]" />
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-yol-cyan/10">
+                  <MessageSquare className="size-5 text-yol-cyan" />
                 </span>
                 <div className="min-w-0">
                   <h1 className="truncate font-semibold text-lg text-slate-900">
