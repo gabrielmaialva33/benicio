@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 import { server } from './mocks/server'
 import { QueryClient } from '@tanstack/react-query'
+import { createElement, type AnchorHTMLAttributes } from 'react'
 import { afterAll, afterEach, beforeAll, vi } from 'vitest'
 
 /**
@@ -19,12 +20,14 @@ const DEFAULT_TEST_PERMISSIONS = [
   'roles.list',
   'permissions.list',
   'notifications.list',
+  'hearings.list',
   'messages.list',
 ]
 
 // Mock InertiaJS
 vi.mock('@inertiajs/react', () => ({
   usePage: vi.fn(() => ({
+    flash: {},
     props: {
       auth: {
         user: null,
@@ -35,7 +38,9 @@ vi.mock('@inertiajs/react', () => ({
       },
     },
   })),
-  Link: vi.fn(({ children }) => children),
+  Link: vi.fn(({ children, href, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) =>
+    createElement('a', { ...props, href }, children)
+  ),
   router: {
     visit: vi.fn(),
     get: vi.fn(),
