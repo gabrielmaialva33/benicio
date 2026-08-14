@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react'
 import { ArrowUpDown, BriefcaseBusiness, Mail, Phone, Users } from 'lucide-react'
+import { useState } from 'react'
 
 import { ClientPersonBadge } from './client_person_badge'
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
@@ -123,6 +124,22 @@ function ClientMobileCard({ client }: { client: ClientItem }) {
 }
 
 export function ClientList({ clients, sortBy, direction, onSort }: ClientListProps) {
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const allSelected = clients.length > 0 && clients.every((client) => selectedIds.has(client.id))
+
+  const toggleAll = () => {
+    setSelectedIds(allSelected ? new Set() : new Set(clients.map((client) => client.id)))
+  }
+
+  const toggleOne = (clientId: number) => {
+    setSelectedIds((current) => {
+      const next = new Set(current)
+      if (next.has(clientId)) next.delete(clientId)
+      else next.add(clientId)
+      return next
+    })
+  }
+
   if (clients.length === 0) {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center">
@@ -145,18 +162,28 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
         ))}
       </div>
       <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[920px] table-fixed text-left text-sm">
+        <table className="w-full min-w-[980px] table-fixed text-left text-sm">
           <colgroup>
-            <col className="w-[31%]" />
+            <col className="w-12" />
+            <col className="w-[29%]" />
             <col className="w-[18%]" />
             <col className="w-[22%]" />
             <col className="w-[12%]" />
             <col className="w-[12%]" />
             <col className="w-14" />
           </colgroup>
-          <thead className="border-y border-gray-200 bg-[#f7f8f9] text-xs font-semibold uppercase text-gray-500">
+          <thead className="border-y border-gray-200 bg-[#f7f8f9] text-xs font-semibold text-gray-500">
             <tr>
-              <th className="px-5 py-3.5">
+              <th className="py-3.5 pl-4">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  aria-label="Selecionar todos os clientes desta página"
+                  className="size-4 rounded border-gray-300 accent-cyan-500"
+                />
+              </th>
+              <th className="px-4 py-3.5">
                 <SortButton field="name" label="Cliente" {...{ sortBy, direction, onSort }} />
               </th>
               <th className="px-5 py-3.5">Tipo</th>
@@ -176,8 +203,23 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
           </thead>
           <tbody className="divide-y divide-gray-100">
             {clients.map((client) => (
-              <tr key={client.id} className="group transition hover:bg-cyan-50/30">
-                <td className="px-5 py-4">
+              <tr
+                key={client.id}
+                className={cn(
+                  'group transition hover:bg-cyan-50/30',
+                  selectedIds.has(client.id) && 'bg-cyan-50/40'
+                )}
+              >
+                <td className="py-4 pl-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(client.id)}
+                    onChange={() => toggleOne(client.id)}
+                    aria-label={`Selecionar cliente ${client.name}`}
+                    className="size-4 rounded border-gray-300 accent-cyan-500"
+                  />
+                </td>
+                <td className="px-4 py-4">
                   <Link href={`/clients/${client.id}`} className="flex min-w-0 items-center gap-3">
                     <Avatar className="size-10 shrink-0 rounded-xl">
                       <AvatarFallback className="rounded-xl bg-cyan-50 text-xs font-bold text-cyan-700">

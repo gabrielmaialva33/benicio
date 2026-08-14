@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Download,
   FilterX,
   FolderOpen,
   Plus,
@@ -14,7 +15,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 
-import { ClientList } from '~/components/clients/client_list'
+import { ClientList, formatClientDocument } from '~/components/clients/client_list'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { MainLayout } from '~/layouts'
@@ -35,6 +36,35 @@ interface ClientsPageProps {
 
 interface SharedFlashProps {
   flash?: { success?: string | null; error?: string | null }
+}
+
+function downloadClientsCsv(clients: ClientItem[]) {
+  const cell = (value: string | number | null | undefined) => {
+    const text = String(value ?? '')
+    const safeText = /^[=+@-]/.test(text) ? `'${text}` : text
+    return `"${safeText.replaceAll('"', '""')}"`
+  }
+  const rows = [
+    ['Cliente', 'Documento', 'Tipo', 'E-mail', 'Telefone', 'Pastas', 'Cadastro'],
+    ...clients.map((client) => [
+      client.name,
+      formatClientDocument(client.document, client.person_type),
+      client.person_type === 'individual' ? 'Pessoa física' : 'Pessoa jurídica',
+      client.email,
+      client.phone,
+      client.folders_total,
+      client.created_at,
+    ]),
+  ]
+  const blob = new Blob([`\uFEFF${rows.map((row) => row.map(cell).join(';')).join('\n')}`], {
+    type: 'text/csv;charset=utf-8',
+  })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = 'clientes.csv'
+  anchor.click()
+  URL.revokeObjectURL(url)
 }
 
 function StatCard({
@@ -128,8 +158,18 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
             {flash.error}
           </div>
         )}
-        <div className="flex justify-end">
-          <Button asChild className="bg-[#00b8d9] text-white shadow-none hover:bg-[#00a7c6]">
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => downloadClientsCsv(clients.data)}
+            disabled={clients.data.length === 0}
+            className="rounded-full border-yol-cyan/50 text-yol-cyan hover:bg-cyan-50 hover:text-yol-cyan"
+          >
+            <Download className="size-4" />
+            Baixar
+          </Button>
+          <Button asChild className="rounded-full">
             <Link href="/clients/create">
               <Plus className="size-4" />
               Novo cliente
