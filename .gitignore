@@ -29,6 +29,7 @@ yarn-error.log
 
 # AdonisJS specific
 storage/uploads/*
+storage/tenants/
 
 # Lucid v7 auto-generated schema classes
 database/schema.ts
@@ -38,6 +39,7 @@ database/schema.ts
 
 # Miscellaneous
 logs
+.winx
 .playwright-report
 .playwright-test-results
 .playwright-mcp
