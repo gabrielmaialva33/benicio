@@ -124,6 +124,9 @@ export default class OpenAiCompatibleProvider implements AiProvider {
           break
         }
       }
+      if (!finished) {
+        throw new AiProviderRequestError('AI provider stream ended before completion')
+      }
     } catch (error) {
       throw this.normalizeError(error)
     } finally {

@@ -11,7 +11,9 @@ import type AiMessage from '#modules/ai/models/ai_message'
 import type {
   AiChatInput,
   AiConversationListInput,
+  AiProvider,
   AiProviderMessage,
+  AiProviderResult,
   ChatMessageDto,
   ConversationDto,
 } from '#modules/ai/interfaces/ai_interface'
@@ -23,21 +25,31 @@ export default class AiChatService {
     private readonly providerFactory: AiProviderFactory
   ) {}
 
-  ensureAvailable(): void {
-    this.providerFactory.getOrFail()
-  }
-
   async chat(tenantId: number, userId: number, input: AiChatInput) {
     const provider = this.providerFactory.getOrFail()
-    const turn = await this.conversationRepository.beginTurn(tenantId, userId, input)
+    const conversation = await this.conversationRepository.beginTurn(tenantId, userId, input)
+
+    let messages: AiProviderMessage[]
+    try {
+      messages = await this.providerMessages(tenantId, conversation.id)
+    } catch (error) {
+      await this.failTurn(tenantId, userId, conversation.id, error)
+      throw error
+    }
+
+    let result: AiProviderResult
+    try {
+      result = await provider.generate(messages)
+    } catch (error) {
+      await this.failTurn(tenantId, userId, conversation.id, error)
+      throw new BadGatewayException('AI provider request failed')
+    }
 
     try {
-      const messages = await this.providerMessages(tenantId, turn.conversation.id)
-      const result = await provider.generate(messages)
       const completed = await this.conversationRepository.completeTurn(
         tenantId,
         userId,
-        turn.conversation.id,
+        conversation.id,
         result
       )
       return {
@@ -45,25 +57,40 @@ export default class AiChatService {
         conversation: this.conversationDto(completed.conversation),
       }
     } catch (error) {
-      await this.failTurn(tenantId, userId, turn.conversation.id, error)
-      if (error instanceof BadGatewayException) throw error
-      throw new BadGatewayException('AI provider request failed')
+      await this.failTurn(tenantId, userId, conversation.id, error)
+      throw error
     }
   }
 
-  async *stream(
+  async stream(
     tenantId: number,
     userId: number,
     input: AiChatInput
-  ): AsyncGenerator<string, void, void> {
+  ): Promise<AsyncGenerator<string, void, void>> {
     const provider = this.providerFactory.getOrFail()
-    const turn = await this.conversationRepository.beginTurn(tenantId, userId, input)
+    const conversation = await this.conversationRepository.beginTurn(tenantId, userId, input)
+
+    try {
+      const messages = await this.providerMessages(tenantId, conversation.id)
+      return this.streamTurn(tenantId, userId, conversation, provider, messages)
+    } catch (error) {
+      await this.failTurn(tenantId, userId, conversation.id, error)
+      throw error
+    }
+  }
+
+  private async *streamTurn(
+    tenantId: number,
+    userId: number,
+    conversation: AiConversation,
+    provider: AiProvider,
+    messages: AiProviderMessage[]
+  ): AsyncGenerator<string, void, void> {
     const abortController = new AbortController()
     let persisted = false
     let failed = false
 
     try {
-      const messages = await this.providerMessages(tenantId, turn.conversation.id)
       let content = ''
 
       for await (const chunk of provider.stream(messages, abortController.signal)) {
@@ -76,7 +103,7 @@ export default class AiChatService {
       const completed = await this.conversationRepository.completeTurn(
         tenantId,
         userId,
-        turn.conversation.id,
+        conversation.id,
         {
           content,
           provider: provider.name,
@@ -95,7 +122,7 @@ export default class AiChatService {
       yield 'data: [DONE]\n\n'
     } catch (error) {
       failed = true
-      await this.failTurn(tenantId, userId, turn.conversation.id, error)
+      await this.failTurn(tenantId, userId, conversation.id, error)
       yield this.sse({ error: { message: 'AI provider request failed' } })
       yield 'data: [DONE]\n\n'
     } finally {
@@ -104,7 +131,7 @@ export default class AiChatService {
         await this.conversationRepository.failTurn(
           tenantId,
           userId,
-          turn.conversation.id,
+          conversation.id,
           'AI stream was cancelled'
         )
       }

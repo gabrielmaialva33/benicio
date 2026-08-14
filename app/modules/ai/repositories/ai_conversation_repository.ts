@@ -11,18 +11,13 @@ import type {
   AiProviderResult,
 } from '#modules/ai/interfaces/ai_interface'
 
-export interface AiTurn {
-  conversation: AiConversation
-  userMessage: AiMessage
-}
-
 export interface CompletedAiTurn {
   conversation: AiConversation
   assistantMessage: AiMessage
 }
 
 export default class AiConversationRepository {
-  async beginTurn(tenantId: number, userId: number, input: AiChatInput): Promise<AiTurn> {
+  async beginTurn(tenantId: number, userId: number, input: AiChatInput): Promise<AiConversation> {
     return db.transaction(async (trx) => {
       let conversation: AiConversation
 
@@ -58,7 +53,7 @@ export default class AiConversationRepository {
       conversation.last_error = null
       await conversation.save()
 
-      const userMessage = await AiMessage.create(
+      await AiMessage.create(
         {
           tenant_id: tenantId,
           conversation_id: conversation.id,
@@ -71,7 +66,7 @@ export default class AiConversationRepository {
         { client: trx }
       )
 
-      return { conversation, userMessage }
+      return conversation
     })
   }
 

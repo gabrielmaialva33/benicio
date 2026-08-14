@@ -19,8 +19,7 @@ export default class AiChatController {
   async stream(ctx: HttpContext) {
     const input = await aiChatValidator.validate(ctx.request.all())
     const service = await app.container.make(AiChatService)
-    service.ensureAvailable()
-    const output = service.stream(requireTenantId(ctx), ctx.auth.getUserOrFail().id, input)
+    const output = await service.stream(requireTenantId(ctx), ctx.auth.getUserOrFail().id, input)
 
     ctx.response.header('Content-Type', 'text/event-stream; charset=utf-8')
     ctx.response.header('Cache-Control', 'no-cache, no-transform')
