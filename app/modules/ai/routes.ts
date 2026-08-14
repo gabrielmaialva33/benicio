@@ -1,7 +1,7 @@
 import router from '@adonisjs/core/services/router'
 
 import { middleware } from '#start/kernel'
-import { apiThrottle } from '#start/limiter'
+import { aiThrottle } from '#start/limiter'
 import IPermission from '#modules/permissions/interfaces/permission_interface'
 
 const AiChatController = () => import('#modules/ai/controllers/ai_chat_controller')
@@ -26,6 +26,6 @@ router
       .where('id', /^[0-9]+$/)
       .use(permission(IPermission.Actions.DELETE))
   })
-  .use([middleware.auth(), middleware.tenant({ required: true }), apiThrottle])
+  .use([middleware.auth(), middleware.tenant({ required: true }), aiThrottle])
   .prefix('/api/v1/ai')
   .as('ai')

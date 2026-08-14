@@ -143,19 +143,31 @@ test.group('Chat Inertia', (group) => {
     const tenant = tenants[0]
     const otherUser = await createTenantMember(tenant.id)
     const repository = new AiConversationRepository()
-    const foreignConversation = await repository.beginTurn(tenant.id, otherUser.id, {
-      message: 'Conversa privada de outro usuário',
-    })
-    await repository.completeTurn(tenant.id, otherUser.id, foreignConversation.id, {
-      content: 'Resposta privada',
-      provider: 'fixture',
-      model: 'fixture',
-      usage: {},
-    })
+    const foreignTurn = await repository.beginTurn(
+      tenant.id,
+      otherUser.id,
+      {
+        message: 'Conversa privada de outro usuário',
+        profile: 'fast',
+      },
+      600_000
+    )
+    await repository.completeTurn(
+      tenant.id,
+      otherUser.id,
+      foreignTurn.conversation.id,
+      foreignTurn.turn.id,
+      {
+        content: 'Resposta privada',
+        provider: 'fixture',
+        model: 'fixture',
+        usage: {},
+      }
+    )
 
     const page = await browserContext.newPage()
     await signIn(page, user.email)
-    const response = await page.goto(`/chat/${foreignConversation.id}`, {
+    const response = await page.goto(`/chat/${foreignTurn.conversation.id}`, {
       waitUntil: 'domcontentloaded',
     })
 

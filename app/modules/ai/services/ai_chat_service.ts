@@ -1,11 +1,13 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
 
+import aiConfig from '#config/ai'
 import BadGatewayException from '#exceptions/bad_gateway_exception'
 import NotFoundException from '#exceptions/not_found_exception'
-import env from '#start/env'
 import AiProviderFactory from '#modules/ai/services/ai_provider_factory'
+import { AiProviderRequestError } from '#modules/ai/providers/openai_compatible_provider'
 import AiConversationRepository from '#modules/ai/repositories/ai_conversation_repository'
+import type { FailedTurnPartial } from '#modules/ai/repositories/ai_conversation_repository'
 import type AiConversation from '#modules/ai/models/ai_conversation'
 import type AiMessage from '#modules/ai/models/ai_message'
 import type {
@@ -26,22 +28,36 @@ export default class AiChatService {
   ) {}
 
   async chat(tenantId: number, userId: number, input: AiChatInput) {
-    const provider = this.providerFactory.getOrFail()
-    const conversation = await this.conversationRepository.beginTurn(tenantId, userId, input)
+    const profile = input.profile ?? aiConfig.defaultProfile
+    const provider = this.providerFactory.getOrFail(profile)
+    const begun = await this.conversationRepository.beginTurn(
+      tenantId,
+      userId,
+      { ...input, profile },
+      aiConfig.turnLeaseMs
+    )
+    if (begun.replay) {
+      return {
+        message: this.messageDto(begun.replay.assistantMessage),
+        conversation: this.conversationDto(begun.replay.conversation),
+      }
+    }
+    const { conversation, turn } = begun
 
     let messages: AiProviderMessage[]
     try {
-      messages = await this.providerMessages(tenantId, conversation.id)
+      messages = await this.providerMessages(tenantId, conversation.id, input.message)
     } catch (error) {
-      await this.failTurn(tenantId, userId, conversation.id, error)
+      await this.failTurn(tenantId, userId, conversation.id, turn.id, error)
       throw error
     }
 
     let result: AiProviderResult
     try {
       result = await provider.generate(messages)
+      result.usage = { ...result.usage, prompt_version: aiConfig.promptVersion }
     } catch (error) {
-      await this.failTurn(tenantId, userId, conversation.id, error)
+      await this.failTurn(tenantId, userId, conversation.id, turn.id, error)
       throw new BadGatewayException('AI provider request failed')
     }
 
@@ -50,6 +66,7 @@ export default class AiChatService {
         tenantId,
         userId,
         conversation.id,
+        turn.id,
         result
       )
       return {
@@ -57,7 +74,7 @@ export default class AiChatService {
         conversation: this.conversationDto(completed.conversation),
       }
     } catch (error) {
-      await this.failTurn(tenantId, userId, conversation.id, error)
+      await this.failTurn(tenantId, userId, conversation.id, turn.id, error)
       throw error
     }
   }
@@ -67,20 +84,33 @@ export default class AiChatService {
     userId: number,
     input: AiChatInput
   ): Promise<AsyncGenerator<string, void, void>> {
-    const provider = this.providerFactory.getOrFail()
-    const conversation = await this.conversationRepository.beginTurn(tenantId, userId, input)
+    const profile = input.profile ?? aiConfig.defaultProfile
+    const provider = this.providerFactory.getOrFail(profile)
+    const begun = await this.conversationRepository.beginTurn(
+      tenantId,
+      userId,
+      { ...input, profile },
+      aiConfig.turnLeaseMs
+    )
+    if (begun.replay) return this.replayStream(begun.replay)
+    const { conversation, turn } = begun
 
     try {
-      const messages = await this.providerMessages(tenantId, conversation.id)
-      return this.streamTurn(tenantId, userId, conversation, provider, messages)
+      const messages = await this.providerMessages(tenantId, conversation.id, input.message)
+      return this.streamTurn(tenantId, userId, conversation, turn.id, provider, messages)
     } catch (error) {
-      await this.failTurn(tenantId, userId, conversation.id, error)
+      await this.failTurn(tenantId, userId, conversation.id, turn.id, error)
       throw error
     }
   }
 
   async list(tenantId: number, userId: number, input: AiConversationListInput) {
-    const conversations = await this.conversationRepository.paginate(tenantId, userId, input)
+    const conversations = await this.conversationRepository.paginate(
+      tenantId,
+      userId,
+      input,
+      aiConfig.turnLeaseMs
+    )
     return {
       data: conversations.all().map((conversation) => {
         const lastMessage = conversation.messages[0]
@@ -95,7 +125,12 @@ export default class AiChatService {
   }
 
   async get(tenantId: number, userId: number, conversationId: number): Promise<ConversationDto> {
-    const conversation = await this.conversationRepository.find(tenantId, userId, conversationId)
+    const conversation = await this.conversationRepository.find(
+      tenantId,
+      userId,
+      conversationId,
+      aiConfig.turnLeaseMs
+    )
     if (!conversation) throw new NotFoundException('AI conversation not found')
     return this.conversationDto(
       conversation,
@@ -104,27 +139,43 @@ export default class AiChatService {
   }
 
   delete(tenantId: number, userId: number, conversationId: number): Promise<void> {
-    return this.conversationRepository.delete(tenantId, userId, conversationId)
+    return this.conversationRepository.delete(
+      tenantId,
+      userId,
+      conversationId,
+      aiConfig.turnLeaseMs
+    )
   }
 
   private async *streamTurn(
     tenantId: number,
     userId: number,
     conversation: AiConversation,
+    turnId: string,
     provider: AiProvider,
     messages: AiProviderMessage[]
   ): AsyncGenerator<string, void, void> {
     const abortController = new AbortController()
     let persisted = false
     let failed = false
+    let content = ''
+    let providerName = provider.name
+    let providerModel = provider.model
+    let usage: Record<string, unknown> = {}
+    let nextHeartbeatAt = Date.now() + 30_000
 
     try {
-      let content = ''
-
       for await (const chunk of provider.stream(messages, abortController.signal)) {
+        if (chunk.provider) providerName = chunk.provider
+        if (chunk.model) providerModel = chunk.model
+        if (chunk.usage) usage = chunk.usage
         if (!chunk.content) continue
         content += chunk.content
         yield this.sse({ content: chunk.content })
+        if (Date.now() >= nextHeartbeatAt) {
+          await this.conversationRepository.touchTurn(tenantId, userId, turnId)
+          nextHeartbeatAt = Date.now() + 30_000
+        }
       }
       if (!content.trim()) throw new Error('AI provider returned empty content')
 
@@ -132,11 +183,12 @@ export default class AiChatService {
         tenantId,
         userId,
         conversation.id,
+        turnId,
         {
           content,
-          provider: provider.name,
-          model: provider.model,
-          usage: {},
+          provider: providerName,
+          model: providerModel,
+          usage: { ...usage, prompt_version: aiConfig.promptVersion },
         }
       )
       persisted = true
@@ -150,7 +202,14 @@ export default class AiChatService {
       yield 'data: [DONE]\n\n'
     } catch (error) {
       failed = true
-      await this.failTurn(tenantId, userId, conversation.id, error)
+      await this.failTurn(
+        tenantId,
+        userId,
+        conversation.id,
+        turnId,
+        error,
+        this.partialResult(content, providerName, providerModel, usage)
+      )
       yield this.sse({ error: { message: 'AI provider request failed' } })
       yield 'data: [DONE]\n\n'
     } finally {
@@ -160,7 +219,9 @@ export default class AiChatService {
           tenantId,
           userId,
           conversation.id,
-          'AI stream was cancelled'
+          turnId,
+          'AI stream was cancelled',
+          this.partialResult(content, providerName, providerModel, usage)
         )
       }
     }
@@ -168,20 +229,35 @@ export default class AiChatService {
 
   private async providerMessages(
     tenantId: number,
-    conversationId: number
+    conversationId: number,
+    currentMessage: string
   ): Promise<AiProviderMessage[]> {
-    const maxMessages = env.get('AI_MAX_CONTEXT_MESSAGES') ?? 24
     const context = await this.conversationRepository.contextMessages(
       tenantId,
       conversationId,
-      maxMessages
+      aiConfig.maxContextMessages
     )
-    const messages: AiProviderMessage[] = context.map((message) => ({
-      role: message.role,
-      content: message.content,
-    }))
-    const systemPrompt = env.get('AI_SYSTEM_PROMPT')?.trim()
-    if (systemPrompt) messages.unshift({ role: 'system', content: systemPrompt })
+    const messages: AiProviderMessage[] = []
+    const currentMessageBudget = Math.max(
+      1,
+      aiConfig.maxContextChars - aiConfig.systemPrompt.length
+    )
+    const currentContent = currentMessage.slice(0, currentMessageBudget)
+    let remainingChars = Math.max(
+      0,
+      aiConfig.maxContextChars - aiConfig.systemPrompt.length - currentContent.length
+    )
+
+    for (const message of context.toReversed()) {
+      if (message.content.length > remainingChars && messages.length > 0) break
+      messages.unshift({ role: message.role, content: message.content.slice(0, remainingChars) })
+      remainingChars = Math.max(0, remainingChars - message.content.length)
+      if (remainingChars === 0) break
+    }
+
+    messages.push({ role: 'user', content: currentContent })
+
+    messages.unshift({ role: 'system', content: aiConfig.systemPrompt })
     return messages
   }
 
@@ -189,15 +265,31 @@ export default class AiChatService {
     tenantId: number,
     userId: number,
     conversationId: number,
-    error: unknown
+    turnId: string,
+    error: unknown,
+    partial?: FailedTurnPartial
   ): Promise<void> {
-    logger.error({ err: error, tenantId, userId, conversationId }, 'AI chat turn failed')
+    logger.error(
+      {
+        tenantId,
+        userId,
+        conversationId,
+        turnId,
+        errorName: error instanceof Error ? error.name : 'unknown',
+        errorCode: error instanceof AiProviderRequestError ? error.code : undefined,
+        status: error instanceof AiProviderRequestError ? error.status : undefined,
+        requestId: error instanceof AiProviderRequestError ? error.requestId : undefined,
+      },
+      'AI chat turn failed'
+    )
     try {
       await this.conversationRepository.failTurn(
         tenantId,
         userId,
         conversationId,
-        'AI provider request failed'
+        turnId,
+        'AI provider request failed',
+        partial
       )
     } catch (stateError) {
       logger.error(
@@ -213,6 +305,7 @@ export default class AiChatService {
       conversation_id: message.conversation_id,
       role: message.role,
       content: message.content,
+      status: message.status,
       created_at: message.created_at.toUTC().toISO()!,
     }
   }
@@ -238,5 +331,37 @@ export default class AiChatService {
 
   private sse(payload: unknown): string {
     return `data: ${JSON.stringify(payload)}\n\n`
+  }
+
+  private partialResult(
+    content: string,
+    provider: string,
+    model: string,
+    usage: Record<string, unknown>
+  ): FailedTurnPartial | undefined {
+    if (!content.trim()) return undefined
+    return {
+      content,
+      provider,
+      model,
+      usage: { ...usage, prompt_version: aiConfig.promptVersion },
+      status: 'truncated',
+    }
+  }
+
+  private async *replayStream(completed: {
+    conversation: AiConversation
+    assistantMessage: AiMessage
+  }): AsyncGenerator<string, void, void> {
+    yield this.sse({ content: completed.assistantMessage.content, replayed: true })
+    yield this.sse({
+      content: '',
+      conversation: {
+        id: completed.conversation.id,
+        title: completed.conversation.title,
+      },
+      replayed: true,
+    })
+    yield 'data: [DONE]\n\n'
   }
 }
