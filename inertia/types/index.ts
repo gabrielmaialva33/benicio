@@ -45,6 +45,18 @@ export interface AppFlashData {
   info?: string
 }
 
+/**
+ * Everything `InertiaMiddleware.share()` puts on every page. Pass it to
+ * `usePage<AppSharedProps>()` instead of casting `props`, so a change on the
+ * middleware surfaces as a type error rather than as `undefined` at runtime.
+ */
+export interface AppSharedProps {
+  auth?: AuthSharedProps
+  errors?: Record<string, string>
+
+  [key: string]: unknown
+}
+
 // Extend shared props with our app-specific props (declaration merging)
 declare module '@adonisjs/inertia/types' {
   export interface SharedProps {
