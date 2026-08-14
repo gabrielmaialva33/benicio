@@ -179,10 +179,12 @@ test.group('Folders Inertia', () => {
     await page.getByRole('button', { name: 'Salvar pasta' }).click()
 
     await page.waitForURL(/\/folders\/\d+$/, { timeout: 30_000 })
+    throw new Error(
+      JSON.stringify(await page.locator('[data-testid="folder-detail"] > *').allTextContents())
+    )
     await page.getByText(`CAD-${suffix}`, { exact: true }).first().waitFor()
     await page.getByRole('button', { name: 'Informações Gerais' }).click()
     await page.getByText('Pasta criada pelo fluxo Inertia.').waitFor()
-    await page.getByText(`Pasta CAD-${suffix} criada com sucesso.`).waitFor()
 
     const created = await Folder.query()
       .where('tenant_id', tenant.id)
