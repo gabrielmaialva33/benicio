@@ -154,7 +154,7 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
             type="button"
             onClick={() => setFoldersOpen((value) => !value)}
             className={cn(
-              'group flex w-full items-center gap-3 rounded-[10px] px-3 py-[14px] font-semibold text-base text-white transition-colors hover:bg-gray-700',
+              'group flex w-full items-center gap-3 rounded-[10px] px-3 py-[14px] font-semibold text-base text-white transition-colors hover:bg-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yol-sidebar',
               collapsed && 'justify-center'
             )}
           >
@@ -167,7 +167,7 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
             title={collapsed ? item.title : undefined}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'group flex w-full items-center gap-3 rounded-[10px] px-3 py-[14px] font-semibold text-base text-white transition-colors hover:bg-gray-700',
+              'group flex w-full items-center gap-3 rounded-[10px] px-3 py-[14px] font-semibold text-base text-white transition-colors hover:bg-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yol-sidebar',
               collapsed && 'justify-center',
               active && !collapsed && 'bg-orange-500 hover:bg-orange-500',
               active && collapsed && '[&_img]:brightness-100 [&_img]:invert-0'
@@ -177,8 +177,13 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
           </Link>
         )}
 
+        {/*
+          The bottom margin is what keeps an expanded submenu from crowding the
+          next top-level entry: without it the highlighted child sits flush
+          against the following row and the two read as one control.
+        */}
         {open && !collapsed && (
-          <ul className="mt-2 space-y-2 pl-8">
+          <ul className="mt-2 mb-3 space-y-2 pl-8">
             {item.children?.map((child) => {
               const childActive = currentPath(url) === child.href
               return (
@@ -187,7 +192,7 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
                     href={child.href}
                     onClick={onNavigate}
                     className={cn(
-                      'flex items-center rounded-md p-2 font-medium text-sm text-gray-400 transition-colors hover:bg-gray-700 hover:text-white',
+                      'flex items-center rounded-md p-2 font-medium text-sm text-gray-400 transition-colors hover:bg-gray-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yol-sidebar',
                       childActive && 'bg-orange-500 text-white hover:bg-orange-500'
                     )}
                   >
