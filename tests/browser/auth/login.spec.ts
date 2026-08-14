@@ -4,7 +4,7 @@ import { createLegalAdmin } from '#tests/helpers/legal_context'
 test.group('Auth login', () => {
   test('should display login page correctly', async ({ browserContext }) => {
     const page = await browserContext.newPage()
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
     // Check page title
     await page.waitForSelector('h1')
@@ -25,7 +25,7 @@ test.group('Auth login', () => {
     const { user } = await createLegalAdmin()
 
     const page = await browserContext.newPage()
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
     // Fill login form
     await page.fill('input[name="uid"]', user.email)
@@ -63,7 +63,7 @@ test.group('Auth login', () => {
 
   test('should show error with invalid credentials', async ({ browserContext }) => {
     const page = await browserContext.newPage()
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
     // Fill form with invalid credentials
     await page.fill('input[name="uid"]', 'invalid@example.com')
@@ -88,7 +88,7 @@ test.group('Auth login', () => {
 
   test('should show validation errors for empty fields', async ({ browserContext }) => {
     const page = await browserContext.newPage()
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
     // Submit form without filling fields
     await page.click('button[type="submit"]:has-text("Sign in")')
@@ -103,7 +103,7 @@ test.group('Auth login', () => {
 
   test('should navigate to register page', async ({ browserContext }) => {
     const page = await browserContext.newPage()
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
     // Click on register link
     await page.click('a:has-text("Sign up")')
@@ -119,7 +119,7 @@ test.group('Auth login', () => {
     const page = await browserContext.newPage()
 
     // First login through the UI
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
     await page.fill('input[name="uid"]', user.email)
     await page.fill('input[name="password"]', 'password123')
     await page.click('button[type="submit"]:has-text("Sign in")')
@@ -128,7 +128,7 @@ test.group('Auth login', () => {
     await page.waitForURL('**/dashboard', { timeout: 30000 })
 
     // Now try to access login page again
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
     // Should be redirected to dashboard since user is authenticated
     await page.waitForURL('**/dashboard', { timeout: 30000 })
@@ -138,7 +138,7 @@ test.group('Auth login', () => {
     const { user } = await createLegalAdmin()
     const page = await browserContext.newPage()
 
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
     await page.fill('input[name="uid"]', user.email)
     await page.fill('input[name="password"]', 'password123')
     await page.click('button[type="submit"]:has-text("Sign in")')
@@ -158,7 +158,7 @@ test.group('Auth login', () => {
 
   test('should handle form submission loading state', async ({ browserContext }) => {
     const page = await browserContext.newPage()
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
     // Fill form
     await page.fill('input[name="uid"]', 'test@example.com')
