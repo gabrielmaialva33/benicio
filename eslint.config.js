@@ -67,6 +67,13 @@ export default [
     rules: {
       // Reabilitar junto do TuyauProvider e da migração para contratos de rota gerados.
       '@adonisjs/prefer-adonisjs-inertia-link': 'off',
+
+      // `#permissions` resolves to app/modules/permissions/interfaces/permission_catalog.ts,
+      // which is deliberately import-free (enums plus one helper). It is the single
+      // source of the `resource.action` vocabulary for both the backend routes and
+      // the frontend menu/ACL; this exception is what stops those strings from being
+      // retyped inside Inertia. No other backend path belongs in this list.
+      '@adonisjs/no-backend-import-in-frontend': ['error', { allowed: ['#permissions'] }],
     },
   },
   {
