@@ -805,9 +805,9 @@ components:
             next_page_url:
               type: string
               example: '/?page=2'
-            previous_page_url:
-              type: string
-              example: null
+        previous_page_url:
+          type: [string, 'null']
+          example: null
 
     FileUploadResponse:
       type: object
@@ -962,7 +962,8 @@ components:
 
     Deadline:
       type: object
-      required: [id, tenant_id, folder_id, creator_id, title, kind, status, priority, is_fatal, due_at]
+      required:
+        [id, tenant_id, folder_id, creator_id, title, kind, status, priority, is_fatal, due_at]
       properties:
         id: { type: integer }
         tenant_id: { type: integer }
@@ -1051,7 +1052,8 @@ components:
 
     LegalDocument:
       type: object
-      required: [id, tenant_id, folder_id, file_id, created_by, document_type, title, version, is_signed]
+      required:
+        [id, tenant_id, folder_id, file_id, created_by, document_type, title, version, is_signed]
       properties:
         id: { type: integer }
         tenant_id: { type: integer }
@@ -1197,6 +1199,114 @@ components:
         hearings: { type: object, additionalProperties: true }
         deadlines: { type: object, additionalProperties: true }
         clients: { type: object, additionalProperties: true }
+
+    TaskUpdateInput:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 10000 }
+        status: { type: string, enum: [pending, in_progress, completed, cancelled] }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        due_date: { type: [string, 'null'], format: date-time }
+        folder_id: { type: [integer, 'null'], minimum: 1 }
+        process_id: { type: [integer, 'null'], minimum: 1 }
+        assignee_id: { type: [integer, 'null'], minimum: 1 }
+        tags: { type: array, maxItems: 50, items: { type: string, maxLength: 80 } }
+        metadata: { type: object, additionalProperties: true }
+
+    HearingUpdateInput:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        process_id: { type: integer, minimum: 1 }
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 10000 }
+        type:
+          type: string
+          enum: [audience, judgment, conciliation, instruction, other]
+        status: { type: string, enum: [scheduled, completed, cancelled, postponed] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        location: { type: [string, 'null'], maxLength: 500 }
+        online_url: { type: [string, 'null'], format: uri, maxLength: 2048 }
+        judge: { type: [string, 'null'], maxLength: 255 }
+        notes: { type: [string, 'null'], maxLength: 20000 }
+        result: { type: [string, 'null'], maxLength: 20000 }
+        attendees:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/HearingAttendeeInput' }
+        metadata: { type: object, additionalProperties: true }
+
+    HearingForProcessInput:
+      type: object
+      additionalProperties: false
+      required: [title, type, starts_at]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 10000 }
+        type:
+          type: string
+          enum: [audience, judgment, conciliation, instruction, other]
+        status: { type: string, enum: [scheduled, completed, cancelled, postponed] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        location: { type: [string, 'null'], maxLength: 500 }
+        online_url: { type: [string, 'null'], format: uri, maxLength: 2048 }
+        judge: { type: [string, 'null'], maxLength: 255 }
+        notes: { type: [string, 'null'], maxLength: 20000 }
+        result: { type: [string, 'null'], maxLength: 20000 }
+        attendees:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/HearingAttendeeInput' }
+        metadata: { type: object, additionalProperties: true }
+
+    DeadlineUpdateInput:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        folder_id: { type: [integer, 'null'], minimum: 1 }
+        process_id: { type: [integer, 'null'], minimum: 1 }
+        assignee_id: { type: [integer, 'null'], minimum: 1 }
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 10000 }
+        kind: { type: string, enum: [judicial, extrajudicial, administrative, internal] }
+        status: { type: string, enum: [pending, in_progress, completed, cancelled] }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        is_fatal: { type: boolean }
+        due_at: { type: string, format: date-time }
+        legal_basis: { type: [string, 'null'], maxLength: 20000 }
+        notes: { type: [string, 'null'], maxLength: 20000 }
+        metadata: { type: object, additionalProperties: true }
+
+    MovementUpdateInput:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        occurred_at: { type: string, format: date-time }
+        kind: { type: string, minLength: 1, maxLength: 80 }
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 20000 }
+        metadata: { type: object, additionalProperties: true }
+
+    LegalDocumentUpdateInput:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        process_id: { type: [integer, 'null'], minimum: 1 }
+        document_type: { type: string, minLength: 1, maxLength: 80 }
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 20000 }
+        version: { type: integer, minimum: 1, maximum: 10000 }
+        is_signed: { type: boolean }
+        metadata: { type: object, additionalProperties: true }
 
   parameters:
     pathId:
@@ -1650,6 +1760,7 @@ paths:
   /api/v1/users:
     get:
       operationId: listUsers
+      x-permission: users.list
       summary: List users
       description: Get a paginated list of users with optional search and sorting
       tags:
@@ -1679,6 +1790,7 @@ paths:
 
     post:
       operationId: createUser
+      x-permission: users.create
       summary: Create user
       description: Create a new user account (requires USER role)
       tags:
@@ -1724,6 +1836,7 @@ paths:
   /api/v1/users/{id}:
     get:
       operationId: getUserById
+      x-permission: users.read
       summary: Get user by ID
       description: Retrieve a specific user's details
       tags:
@@ -1744,6 +1857,7 @@ paths:
 
     put:
       operationId: updateUser
+      x-permission: users.update
       summary: Update user
       description: Update user details (email and username cannot be changed)
       tags:
@@ -1783,6 +1897,7 @@ paths:
 
     delete:
       operationId: deleteUser
+      x-permission: users.delete
       summary: Delete user
       description: Soft delete a user (marks as deleted)
       tags:
@@ -1872,6 +1987,7 @@ paths:
   /api/v1/admin/permissions:
     get:
       operationId: listPermissions
+      x-permission: permissions.list
       summary: List permissions
       description: Get a paginated list of permissions
       tags:
@@ -1888,6 +2004,7 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
     post:
       operationId: createPermission
+      x-permission: permissions.create
       summary: Create permission
       description: Create a new permission
       tags:
@@ -1924,6 +2041,7 @@ paths:
   /api/v1/admin/roles/permissions/sync:
     put:
       operationId: syncRolePermissions
+      x-permission: permissions.update
       summary: Sync role permissions
       description: Sync all permissions for a specific role
       tags:
@@ -1959,6 +2077,7 @@ paths:
   /api/v1/admin/roles/permissions/attach:
     put:
       operationId: attachRolePermissions
+      x-permission: permissions.update
       summary: Attach permissions to role
       description: Attach one or more permissions to a role
       tags:
@@ -1994,6 +2113,7 @@ paths:
   /api/v1/admin/roles/permissions/detach:
     put:
       operationId: detachRolePermissions
+      x-permission: permissions.update
       summary: Detach permissions from role
       description: Detach one or more permissions from a role
       tags:
@@ -2029,6 +2149,7 @@ paths:
   /api/v1/admin/users/permissions/sync:
     put:
       operationId: syncUserPermissions
+      x-permission: permissions.update
       summary: Sync user permissions
       description: Sync all direct permissions for a specific user
       tags:
@@ -2064,6 +2185,7 @@ paths:
   /api/v1/admin/users/{id}/permissions:
     get:
       operationId: getUserPermissions
+      x-permission: permissions.list
       summary: Get user's direct permissions
       description: Get a list of direct permissions for a specific user
       tags:
@@ -2081,6 +2203,7 @@ paths:
   /api/v1/admin/users/{id}/permissions/check:
     post:
       operationId: checkUserPermissions
+      x-permission: permissions.list
       summary: Check user permissions
       description: Check if a user has specific permissions
       tags:
@@ -2114,6 +2237,7 @@ paths:
   /api/v1/clients:
     get:
       operationId: listClients
+      x-permission: clients.list
       summary: List clients in the active tenant
       tags: [Clients]
       parameters:
@@ -2143,6 +2267,7 @@ paths:
           $ref: '#/components/responses/ValidationError'
     post:
       operationId: createClient
+      x-permission: clients.create
       summary: Create a client in the active tenant
       tags: [Clients]
       parameters:
@@ -2172,6 +2297,7 @@ paths:
   /api/v1/clients/{id}:
     get:
       operationId: getClient
+      x-permission: clients.read
       summary: Get a client from the active tenant
       tags: [Clients]
       parameters:
@@ -2192,6 +2318,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     put:
       operationId: updateClient
+      x-permission: clients.update
       summary: Update a client in the active tenant
       tags: [Clients]
       parameters:
@@ -2222,6 +2349,7 @@ paths:
           $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteClient
+      x-permission: clients.delete
       summary: Soft-delete a client in the active tenant
       tags: [Clients]
       parameters:
@@ -2242,6 +2370,7 @@ paths:
   /api/v1/folders:
     get:
       operationId: listFolders
+      x-permission: folders.list
       summary: List folders in the active tenant
       tags: [Folders]
       parameters:
@@ -2285,6 +2414,7 @@ paths:
           $ref: '#/components/responses/ValidationError'
     post:
       operationId: createFolder
+      x-permission: folders.create
       summary: Create a folder in the active tenant
       tags: [Folders]
       parameters:
@@ -2316,6 +2446,7 @@ paths:
   /api/v1/folders/{id}:
     get:
       operationId: getFolder
+      x-permission: folders.read
       summary: Get a folder from the active tenant
       tags: [Folders]
       parameters:
@@ -2336,6 +2467,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     put:
       operationId: updateFolder
+      x-permission: folders.update
       summary: Update a folder in the active tenant
       tags: [Folders]
       parameters:
@@ -2366,6 +2498,7 @@ paths:
           $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteFolder
+      x-permission: folders.delete
       summary: Soft-delete a folder in the active tenant
       tags: [Folders]
       parameters:
@@ -2386,6 +2519,7 @@ paths:
   /api/v1/processes:
     get:
       operationId: listProcesses
+      x-permission: processes.list
       summary: List processes across folders in the active tenant
       tags: [Processes]
       parameters:
@@ -2484,6 +2618,7 @@ paths:
       - $ref: '#/components/parameters/tenantIdHeader'
     get:
       operationId: listFolderProcesses
+      x-permission: processes.list
       summary: List processes belonging to one folder
       tags: [Processes]
       parameters:
@@ -2509,6 +2644,7 @@ paths:
           $ref: '#/components/responses/ValidationError'
     post:
       operationId: createFolderProcess
+      x-permission: processes.create
       summary: Create a process and its parties inside a folder
       tags: [Processes]
       requestBody:
@@ -2538,6 +2674,7 @@ paths:
   /api/v1/processes/{id}:
     get:
       operationId: getProcess
+      x-permission: processes.read
       summary: Get a process and its parties from the active tenant
       tags: [Processes]
       parameters:
@@ -2558,6 +2695,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     put:
       operationId: updateProcess
+      x-permission: processes.update
       summary: Update a process; supplied parties replace its current party list atomically
       tags: [Processes]
       parameters:
@@ -2588,6 +2726,7 @@ paths:
           $ref: '#/components/responses/ValidationError'
     delete:
       operationId: deleteProcess
+      x-permission: processes.delete
       summary: Soft-delete a process in the active tenant
       tags: [Processes]
       parameters:
@@ -2606,6 +2745,7 @@ paths:
   /api/v1/processes/{id}/primary:
     put:
       operationId: markPrimaryProcess
+      x-permission: processes.update
       summary: Atomically make this the folder's primary process
       tags: [Processes]
       parameters:
@@ -2628,6 +2768,7 @@ paths:
   /api/v1/files/upload:
     post:
       operationId: uploadFile
+      x-permission: files.create
       summary: Upload file
       description: |
         Upload a file to the server. Files are automatically categorized based on their type.
@@ -2677,3 +2818,1331 @@ paths:
                   - message: 'File size should be less than 10MB'
                     field: 'file'
                     rule: 'size'
+
+  /api/v1/sessions/refresh:
+    post:
+      operationId: refreshSession
+      summary: Rotate a refresh token and mint a new token pair
+      tags: [Authentication]
+      security: []
+      description: The previous refresh token becomes unusable. Replaying it revokes its entire token family.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token: { type: string, pattern: '^rt_' }
+      responses:
+        '200':
+          description: Rotated token pair
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthTokens' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '429': { description: Too many refresh attempts }
+
+  /api/v1/sessions/logout:
+    post:
+      operationId: logoutSession
+      summary: Revoke the current refresh-token family and clear the access cookie
+      tags: [Authentication]
+      responses:
+        '204': { description: Session revoked }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+
+  /api/v1/tenants/me:
+    get:
+      operationId: listMyTenants
+      summary: List the authenticated user's tenant memberships
+      tags: [Tenants]
+      responses:
+        '200':
+          description: Tenant memberships
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/TenantMembership' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+
+  /api/v1/tenants/switch:
+    post:
+      operationId: switchTenant
+      summary: Select an active tenant and mint a new token family
+      tags: [Tenants]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [tenant_id]
+              properties:
+                tenant_id: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Active tenant and replacement token pair
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tenant, auth]
+                properties:
+                  tenant: { $ref: '#/components/schemas/TenantMembership' }
+                  auth: { $ref: '#/components/schemas/AuthTokens' }
+        '400': { description: Invalid tenant ID }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
+
+  /api/v1/tasks:
+    get:
+      operationId: listTasks
+      summary: List tasks in the active tenant
+      tags: [Tasks]
+      x-permission: tasks.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: status
+          in: query
+          schema: { type: string, enum: [pending, in_progress, completed, cancelled] }
+        - name: priority
+          in: query
+          schema: { type: string, enum: [low, medium, high, urgent] }
+        - name: folder_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: process_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: assignee_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: overdue
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Paginated tasks
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Task' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
+    post:
+      operationId: createTask
+      summary: Create a task in the active tenant
+      tags: [Tasks]
+      x-permission: tasks.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TaskInput' }
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Task' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
+        '404': { description: 'Referenced folder, process, or assignee was not found in the tenant' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/tasks/{id}:
+    parameters:
+      - $ref: '#/components/parameters/pathId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: getTask
+      summary: Get a task from the active tenant
+      tags: [Tasks]
+      x-permission: tasks.read
+      responses:
+        '200':
+          description: Task found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Task' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    put:
+      operationId: updateTask
+      summary: Update a task
+      tags: [Tasks]
+      x-permission: tasks.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TaskUpdateInput' }
+      responses:
+        '200':
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Task' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      operationId: deleteTask
+      summary: Soft-delete a task
+      tags: [Tasks]
+      x-permission: tasks.delete
+      responses:
+        '204': { description: Task deleted }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/tasks/{id}/status:
+    patch:
+      operationId: updateTaskStatus
+      summary: Transition a task status and maintain its completion timestamp
+      tags: [Tasks]
+      x-permission: tasks.update
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [pending, in_progress, completed, cancelled] }
+      responses:
+        '200': { description: Task status updated }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/hearings:
+    get:
+      operationId: listHearings
+      summary: List hearings in the active tenant
+      tags: [Hearings]
+      x-permission: hearings.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: status
+          in: query
+          schema: { type: string, enum: [scheduled, completed, cancelled, postponed] }
+        - name: process_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: folder_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Paginated hearings
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Hearing' } }
+    post:
+      operationId: createHearing
+      summary: Create a hearing
+      tags: [Hearings]
+      x-permission: hearings.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/HearingInput' }
+      responses:
+        '201': { description: Hearing created }
+        '404': { description: Process or attendee was not found in the tenant }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/hearings/{id}:
+    parameters:
+      - $ref: '#/components/parameters/pathId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: getHearing
+      summary: Get a hearing
+      tags: [Hearings]
+      x-permission: hearings.read
+      responses:
+        '200': { description: Hearing found }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    put:
+      operationId: updateHearing
+      summary: Update a hearing and atomically replace supplied attendees
+      tags: [Hearings]
+      x-permission: hearings.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/HearingUpdateInput' }
+      responses:
+        '200': { description: Hearing updated }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      operationId: deleteHearing
+      summary: Soft-delete a hearing
+      tags: [Hearings]
+      x-permission: hearings.delete
+      responses:
+        '204': { description: Hearing deleted }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/hearings/{id}/status:
+    patch:
+      operationId: updateHearingStatus
+      summary: Transition hearing status and maintain its completion timestamp
+      tags: [Hearings]
+      x-permission: hearings.update
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [scheduled, completed, cancelled, postponed] }
+      responses:
+        '200': { description: Hearing status updated }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/processes/{processId}/hearings:
+    post:
+      operationId: createProcessHearing
+      summary: Create a hearing for a process from the active tenant
+      tags: [Hearings]
+      x-permission: hearings.create
+      parameters:
+        - $ref: '#/components/parameters/processId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/HearingForProcessInput' }
+      responses:
+        '201': { description: Hearing created }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/deadlines:
+    get:
+      operationId: listDeadlines
+      summary: List deadlines in the active tenant
+      tags: [Deadlines]
+      x-permission: deadlines.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: kind
+          in: query
+          schema: { type: string, enum: [judicial, extrajudicial, administrative, internal] }
+        - name: status
+          in: query
+          schema: { type: string, enum: [pending, in_progress, completed, cancelled] }
+        - name: priority
+          in: query
+          schema: { type: string, enum: [low, medium, high, urgent] }
+        - name: overdue
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Paginated deadlines
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Deadline' } }
+    post:
+      operationId: createDeadline
+      summary: Create a deadline
+      tags: [Deadlines]
+      x-permission: deadlines.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeadlineInput' }
+      responses:
+        '201': { description: Deadline created }
+        '404': { description: 'Folder, process, or assignee was not found in the tenant' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/deadlines/{id}:
+    parameters:
+      - $ref: '#/components/parameters/pathId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: getDeadline
+      summary: Get a deadline
+      tags: [Deadlines]
+      x-permission: deadlines.read
+      responses:
+        '200': { description: Deadline found }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    put:
+      operationId: updateDeadline
+      summary: Update a deadline
+      tags: [Deadlines]
+      x-permission: deadlines.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeadlineUpdateInput' }
+      responses:
+        '200': { description: Deadline updated }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      operationId: deleteDeadline
+      summary: Soft-delete a deadline
+      tags: [Deadlines]
+      x-permission: deadlines.delete
+      responses:
+        '204': { description: Deadline deleted }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/deadlines/{id}/complete:
+    patch:
+      operationId: completeDeadline
+      summary: Complete or reopen a deadline and maintain its completion timestamp
+      tags: [Deadlines]
+      x-permission: deadlines.update
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                completed: { type: boolean, default: true }
+      responses:
+        '200': { description: Deadline completion state updated }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/movements:
+    get:
+      operationId: listMovements
+      summary: List canonical process movements across the active tenant
+      tags: [Movements]
+      x-permission: movements.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: kind
+          in: query
+          schema: { type: string, maxLength: 80 }
+        - name: source
+          in: query
+          schema: { type: string, enum: [manual, court, integration, import] }
+        - name: process_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: folder_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Paginated movements
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Movement' } }
+
+  /api/v1/movements/{id}:
+    parameters:
+      - $ref: '#/components/parameters/pathId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: getMovement
+      summary: Get a canonical process movement
+      tags: [Movements]
+      x-permission: movements.read
+      responses:
+        '200': { description: Movement found }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    put:
+      operationId: updateMovement
+      summary: Update mutable fields of a movement
+      description: Source and external ID are immutable so imported movements retain provenance and idempotency.
+      tags: [Movements]
+      x-permission: movements.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MovementUpdateInput' }
+      responses:
+        '200': { description: Movement updated }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      operationId: deleteMovement
+      summary: Soft-delete a movement while retaining its activity event
+      tags: [Movements]
+      x-permission: movements.delete
+      responses:
+        '204': { description: Movement deleted }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/processes/{processId}/movements:
+    parameters:
+      - $ref: '#/components/parameters/processId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: listProcessMovements
+      summary: List movements for one process
+      tags: [Movements]
+      x-permission: movements.list
+      responses:
+        '200': { description: Paginated process movements }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    post:
+      operationId: createProcessMovement
+      summary: Create or idempotently ingest a process movement
+      description: Non-null `(source, external_id)` values are unique per tenant among active rows.
+      tags: [Movements]
+      x-permission: movements.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MovementInput' }
+      responses:
+        '201': { description: Movement created or existing idempotent movement returned }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/folders/{folderId}/movements:
+    get:
+      operationId: listFolderMovements
+      summary: List movements across all active processes in a folder
+      tags: [Movements]
+      x-permission: movements.list
+      parameters:
+        - $ref: '#/components/parameters/folderId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+      responses:
+        '200': { description: Paginated folder movements }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/folders/{folderId}/activities:
+    get:
+      operationId: listFolderActivities
+      summary: Read the append-only folder activity timeline
+      tags: [Movements]
+      x-permission: movements.read
+      parameters:
+        - $ref: '#/components/parameters/folderId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/cursorParam'
+        - name: event_type
+          in: query
+          schema: { type: string, maxLength: 100 }
+      responses:
+        '200':
+          description: Keyset-paginated timeline
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Activity' } }
+                  meta:
+                    type: object
+                    properties:
+                      has_more: { type: boolean }
+                      next_cursor: { type: [string, 'null'] }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { description: Malformed activity cursor }
+
+  /api/v1/processes/{processId}/activities:
+    get:
+      operationId: listProcessActivities
+      summary: Read the append-only process activity timeline
+      tags: [Movements]
+      x-permission: movements.read
+      parameters:
+        - $ref: '#/components/parameters/processId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/cursorParam'
+      responses:
+        '200': { description: Keyset-paginated timeline }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { description: Malformed activity cursor }
+
+  /api/v1/documents:
+    get:
+      operationId: listLegalDocuments
+      summary: List legal documents in the active tenant
+      tags: [Documents]
+      x-permission: documents.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: folder_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: process_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: document_type
+          in: query
+          schema: { type: string, maxLength: 80 }
+        - name: is_signed
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Paginated legal documents
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/LegalDocument' } }
+    post:
+      operationId: createLegalDocument
+      summary: Link legal metadata to an existing canonical file
+      tags: [Documents]
+      x-permission: documents.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LegalDocumentInput' }
+      responses:
+        '201': { description: Legal document created }
+        '404': { description: 'Folder, process, or file was not found in the tenant' }
+        '409': { description: The file is already linked to an active legal document }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/documents/{id}:
+    parameters:
+      - $ref: '#/components/parameters/pathId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: getLegalDocument
+      summary: Get legal metadata and its linked file
+      tags: [Documents]
+      x-permission: documents.read
+      responses:
+        '200': { description: Legal document found }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    put:
+      operationId: updateLegalDocument
+      summary: Update legal document metadata without replacing its file
+      tags: [Documents]
+      x-permission: documents.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LegalDocumentUpdateInput' }
+      responses:
+        '200': { description: Legal document updated }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      operationId: deleteLegalDocument
+      summary: Soft-delete legal metadata without deleting the canonical file
+      tags: [Documents]
+      x-permission: documents.delete
+      responses:
+        '204': { description: Legal document deleted }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/folders/{folderId}/documents:
+    parameters:
+      - $ref: '#/components/parameters/folderId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: listFolderDocuments
+      summary: List legal documents for a folder
+      tags: [Documents]
+      x-permission: documents.list
+      responses:
+        '200': { description: Paginated folder documents }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    post:
+      operationId: createFolderDocument
+      summary: Link a file to this folder with legal metadata
+      tags: [Documents]
+      x-permission: documents.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [file_id, document_type, title]
+              properties:
+                process_id: { type: [integer, 'null'], minimum: 1 }
+                file_id: { type: integer, minimum: 1 }
+                document_type: { type: string, minLength: 1, maxLength: 80 }
+                title: { type: string, minLength: 1, maxLength: 255 }
+                description: { type: [string, 'null'], maxLength: 20000 }
+                version: { type: integer, minimum: 1, maximum: 10000 }
+                is_signed: { type: boolean }
+                metadata: { type: object, additionalProperties: true }
+      responses:
+        '201': { description: Legal document created }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { description: File is already linked }
+
+  /api/v1/processes/{processId}/documents:
+    get:
+      operationId: listProcessDocuments
+      summary: List legal documents for a process
+      tags: [Documents]
+      x-permission: documents.list
+      parameters:
+        - $ref: '#/components/parameters/processId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200': { description: Paginated process documents }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/me/favorites/folders:
+    get:
+      operationId: listFavoriteFolders
+      summary: List the authenticated user's favorite folders
+      tags: [Favorites]
+      x-permission: folders.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200':
+          description: Favorite folders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Folder' } }
+
+  /api/v1/folders/{folderId}/favorite:
+    parameters:
+      - $ref: '#/components/parameters/folderId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: getFolderFavoriteState
+      summary: Check whether a folder is a favorite for the current user
+      tags: [Favorites]
+      x-permission: folders.read
+      responses:
+        '200': { description: Favorite state }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    put:
+      operationId: addFolderFavorite
+      summary: Idempotently add a folder to the current user's favorites
+      tags: [Favorites]
+      x-permission: folders.update
+      responses:
+        '200': { description: Folder is now a favorite }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    patch:
+      operationId: toggleFolderFavorite
+      summary: Toggle the current user's favorite state for a folder
+      tags: [Favorites]
+      x-permission: folders.update
+      responses:
+        '200': { description: Updated favorite state }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    delete:
+      operationId: removeFolderFavorite
+      summary: Idempotently remove a folder from the current user's favorites
+      tags: [Favorites]
+      x-permission: folders.update
+      responses:
+        '200': { description: Folder is no longer a favorite }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/dashboard:
+    get:
+      operationId: getDashboardOverview
+      summary: Get the complete tenant dashboard in one request
+      tags: [Dashboard]
+      x-permission: dashboard.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200':
+          description: Summary plus urgent tasks, upcoming hearings/deadlines, favorites, and activity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    allOf:
+                      - $ref: '#/components/schemas/DashboardSummary'
+                      - type: object
+                        properties:
+                          generated_at: { type: string, format: date-time }
+                          urgent_tasks: { type: array, items: { type: object } }
+                          upcoming_hearings: { type: array, items: { type: object } }
+                          upcoming_deadlines: { type: array, items: { type: object } }
+                          favorite_folders: { type: array, items: { type: object } }
+                          recent_activity: { type: array, items: { type: object } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
+
+  /api/v1/dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      summary: Get tenant dashboard aggregates
+      tags: [Dashboard]
+      x-permission: dashboard.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200':
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/DashboardSummary' }
+
+  /api/v1/dashboard/urgent-tasks:
+    get:
+      operationId: getDashboardUrgentTasks
+      summary: Get open high-priority and urgent tasks
+      tags: [Dashboard]
+      x-permission: dashboard.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200': { description: Urgent task widget rows }
+
+  /api/v1/dashboard/upcoming-hearings:
+    get:
+      operationId: getDashboardUpcomingHearings
+      summary: Get upcoming scheduled or postponed hearings
+      tags: [Dashboard]
+      x-permission: dashboard.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200': { description: Upcoming hearing widget rows }
+
+  /api/v1/dashboard/upcoming-deadlines:
+    get:
+      operationId: getDashboardUpcomingDeadlines
+      summary: Get open deadlines ordered by due date
+      tags: [Dashboard]
+      x-permission: dashboard.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200': { description: Upcoming deadline widget rows }
+
+  /api/v1/dashboard/favorite-folders:
+    get:
+      operationId: getDashboardFavoriteFolders
+      summary: Get the current user's favorite folder widget
+      tags: [Dashboard]
+      x-permission: dashboard.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200': { description: Favorite folder widget rows }
+
+  /api/v1/dashboard/recent-activity:
+    get:
+      operationId: getDashboardRecentActivity
+      summary: Get recent append-only tenant activity
+      tags: [Dashboard]
+      x-permission: dashboard.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200': { description: Recent activity widget rows }
+
+  /api/v1/notifications:
+    get:
+      operationId: listNotifications
+      summary: List notifications owned by the current recipient
+      tags: [Notifications]
+      x-permission: notifications.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - name: unread
+          in: query
+          schema: { type: boolean }
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [info, success, warning, error, task, hearing, deadline, message, system]
+      responses:
+        '200':
+          description: Paginated notifications
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+    post:
+      operationId: createNotification
+      summary: Create and deliver a notification to a tenant member
+      description: Regular users do not receive this permission by default; admin/root and system flows may deliver notifications.
+      tags: [Notifications]
+      x-permission: notifications.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NotificationInput' }
+      responses:
+        '201': { description: Notification persisted and broadcast }
+        '404': { description: Recipient was not found in the tenant }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/notifications/recent:
+    get:
+      operationId: listRecentNotifications
+      summary: Get recent notifications for the current recipient
+      tags: [Notifications]
+      x-permission: notifications.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200': { description: Recent notifications }
+
+  /api/v1/notifications/unread-count:
+    get:
+      operationId: countUnreadNotifications
+      summary: Count unread notifications for the current recipient
+      tags: [Notifications]
+      x-permission: notifications.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200': { description: Envelope containing `data.count` }
+
+  /api/v1/notifications/read-all:
+    put:
+      operationId: readAllNotifications
+      summary: Mark all current-recipient notifications as read
+      tags: [Notifications]
+      x-permission: notifications.update
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200': { description: Envelope containing `data.updated` }
+
+  /api/v1/notifications/{id}:
+    parameters:
+      - $ref: '#/components/parameters/pathId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: getNotification
+      summary: Get a notification owned by the current recipient
+      tags: [Notifications]
+      x-permission: notifications.read
+      responses:
+        '200': { description: Notification found }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    delete:
+      operationId: deleteNotification
+      summary: Soft-delete a notification owned by the current recipient
+      tags: [Notifications]
+      x-permission: notifications.delete
+      responses:
+        '204': { description: Notification deleted }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/notifications/{id}/read:
+    put:
+      operationId: readNotification
+      summary: Mark one current-recipient notification as read
+      tags: [Notifications]
+      x-permission: notifications.update
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200': { description: Updated notification }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/messages:
+    get:
+      operationId: listInternalMessages
+      summary: List internal messages visible to the current user
+      tags: [Messages]
+      x-permission: messages.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - name: box
+          in: query
+          schema: { type: string, enum: [inbox, sent, all], default: inbox }
+        - name: unread
+          in: query
+          schema: { type: boolean }
+        - name: priority
+          in: query
+          schema: { type: string, enum: [low, normal, high] }
+        - $ref: '#/components/parameters/searchParam'
+      responses:
+        '200':
+          description: Paginated internal messages
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/InternalMessage' } }
+    post:
+      operationId: createInternalMessage
+      summary: Send a persisted internal message to a tenant member
+      tags: [Messages]
+      x-permission: messages.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/InternalMessageInput' }
+      responses:
+        '201': { description: Message persisted and broadcast }
+        '404': { description: Recipient was not found in the tenant }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/messages/recent:
+    get:
+      operationId: listRecentInternalMessages
+      summary: Get recent inbox messages for the current user
+      tags: [Messages]
+      x-permission: messages.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200': { description: Recent inbox messages }
+
+  /api/v1/messages/unread-count:
+    get:
+      operationId: countUnreadInternalMessages
+      summary: Count unread inbox messages
+      tags: [Messages]
+      x-permission: messages.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200': { description: Envelope containing `data.count` }
+
+  /api/v1/messages/read-all:
+    put:
+      operationId: readAllInternalMessages
+      summary: Mark all inbox messages as read
+      tags: [Messages]
+      x-permission: messages.update
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200': { description: Envelope containing `data.updated` }
+
+  /api/v1/messages/{id}:
+    parameters:
+      - $ref: '#/components/parameters/pathId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: getInternalMessage
+      summary: Get an inbox or sent message visible to the current user
+      tags: [Messages]
+      x-permission: messages.read
+      responses:
+        '200': { description: Internal message found }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    delete:
+      operationId: deleteInternalMessage
+      summary: Soft-delete an inbox message as its recipient
+      tags: [Messages]
+      x-permission: messages.delete
+      responses:
+        '204': { description: Message deleted }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/messages/{id}/read:
+    put:
+      operationId: readInternalMessage
+      summary: Mark an inbox message as read as its recipient
+      tags: [Messages]
+      x-permission: messages.update
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200': { description: Updated message }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/ai/chat:
+    post:
+      operationId: createAiChatTurn
+      summary: Persist a user turn and generate a complete assistant response
+      tags: [AI]
+      x-permission: ai.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiChatInput' }
+      responses:
+        '200':
+          description: Persisted assistant message and conversation
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiChatResponse' }
+        '404': { description: Conversation was not found for this tenant and user }
+        '409': { description: The conversation is already generating another response }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '502': { description: Configured AI provider failed }
+        '503': { description: 'AI provider is disabled, incomplete, or invalid' }
+
+  /api/v1/ai/chat/stream:
+    post:
+      operationId: streamAiChatTurn
+      summary: Persist a user turn and stream the assistant response as SSE
+      description: |
+        Emits `data: {"content":"..."}` chunks, then a conversation event containing
+        `{ "content": "", "conversation": { "id", "title" } }`, followed by
+        `data: [DONE]`. If an upstream error occurs after streaming starts, an error event is
+        emitted before `[DONE]` and the conversation is marked `error`.
+      tags: [AI]
+      x-permission: ai.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiChatInput' }
+      responses:
+        '200':
+          description: Server-Sent Events stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '404': { description: Conversation was not found for this tenant and user }
+        '409': { description: The conversation is already generating another response }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '503':
+          { description: 'AI provider is disabled, incomplete, or invalid before streaming starts' }
+
+  /api/v1/ai/conversations:
+    get:
+      operationId: listAiConversations
+      summary: List the current user's persisted conversations
+      tags: [AI]
+      x-permission: ai.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+      responses:
+        '200':
+          description: Paginated conversations with each last message
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/AiConversation' }
+
+  /api/v1/ai/conversations/{id}:
+    parameters:
+      - $ref: '#/components/parameters/pathId'
+      - $ref: '#/components/parameters/tenantIdHeader'
+    get:
+      operationId: getAiConversation
+      summary: Get one current-user conversation with ordered messages
+      tags: [AI]
+      x-permission: ai.read
+      responses:
+        '200':
+          description: Conversation and messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/AiConversation' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    delete:
+      operationId: deleteAiConversation
+      summary: Soft-delete a current-user conversation
+      tags: [AI]
+      x-permission: ai.delete
+      responses:
+        '204': { description: Conversation deleted }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { description: Conversation is currently generating }
+
+  /__transmit/events:
+    get:
+      operationId: openRealtimeEventStream
+      summary: Open the authenticated Transmit event stream
+      description: |
+        Browser EventSource clients authenticate through the HTTP-only access-token cookie set at
+        sign-in/refresh. API clients may use Bearer authentication. The active tenant must match
+        `x-tenant-id` or the signed JWT tenant claim.
+      tags: [Realtime]
+      parameters:
+        - name: uid
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200':
+          description: Transmit SSE stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+
+  /__transmit/subscribe:
+    post:
+      operationId: subscribeRealtimeChannel
+      summary: Subscribe a Transmit UID to an authorized private channel
+      description: |
+        Allowed channels are `tenants/{tenantId}/users/{userId}/notifications`,
+        `tenants/{tenantId}/users/{userId}/messages`, and `tenants/{tenantId}/activity`.
+        User channels require the authenticated user ID; every channel requires the active tenant.
+      tags: [Realtime]
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [uid, channel]
+              properties:
+                uid: { type: string, minLength: 1 }
+                channel: { type: string, minLength: 1 }
+      responses:
+        '204': { description: Channel subscribed }
+        '400': { description: Invalid or unauthorized channel }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+
+  /__transmit/unsubscribe:
+    post:
+      operationId: unsubscribeRealtimeChannel
+      summary: Unsubscribe a Transmit UID from an authorized private channel
+      tags: [Realtime]
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [uid, channel]
+              properties:
+                uid: { type: string, minLength: 1 }
+                channel: { type: string, minLength: 1 }
+      responses:
+        '204': { description: Channel unsubscribed }
+        '400': { description: Invalid or unauthorized channel }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
