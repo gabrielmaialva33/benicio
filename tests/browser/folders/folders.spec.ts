@@ -116,13 +116,13 @@ test.group('Folders Inertia', () => {
     await page.goto('/folders')
     await page.getByTestId('folders-index').waitFor()
 
-    await page.locator('table').getByText(folder.code, { exact: true }).waitFor()
-    assert.equal(await page.getByText(`FOREIGN-${suffix}`, { exact: true }).count(), 0)
+    await page.getByRole('link', { name: `Abrir pasta ${folder.code}` }).waitFor()
+    assert.equal(await page.getByRole('link', { name: `Abrir pasta FOREIGN-${suffix}` }).count(), 0)
 
     await page.fill('input[name="search"]', folder.code)
     await page.getByRole('button', { name: 'Buscar' }).click()
     await page.waitForURL((url) => url.pathname === '/folders' && url.searchParams.has('search'))
-    await page.locator('table').getByText(folder.code, { exact: true }).waitFor()
+    await page.getByRole('link', { name: `Abrir pasta ${folder.code}` }).waitFor()
 
     await page.goto('/folders/create')
     await page.getByTestId('folder-create-form').waitFor()
@@ -138,12 +138,14 @@ test.group('Folders Inertia', () => {
     )
 
     await page.goto('/folders')
-    await page.locator(`table a[href="/folders/${folder.id}"]`).first().click()
+    await page.getByRole('link', { name: `Abrir pasta ${folder.code}` }).click()
     await page.waitForURL(`**/folders/${folder.id}`)
     await page.getByTestId('folder-detail').waitFor()
     await page.getByText(folder.title, { exact: true }).waitFor()
     await page.getByText(`PROC-${suffix}`, { exact: true }).waitFor()
+    await page.getByRole('button', { name: 'Prazos' }).click()
     await page.getByText(`Prazo ${suffix}`).waitFor()
+    await page.getByRole('button', { name: 'Atividade' }).click()
     await page.getByText(`Processo ${suffix} cadastrado`, { exact: true }).waitFor()
   })
 
@@ -178,6 +180,7 @@ test.group('Folders Inertia', () => {
 
     await page.waitForURL(/\/folders\/\d+$/, { timeout: 30_000 })
     await page.getByText(`CAD-${suffix}`, { exact: true }).first().waitFor()
+    await page.getByRole('button', { name: 'Informações Gerais' }).click()
     await page.getByText('Pasta criada pelo fluxo Inertia.').waitFor()
     await page.getByText(`Pasta CAD-${suffix} criada com sucesso.`).waitFor()
 

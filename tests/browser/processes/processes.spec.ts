@@ -53,7 +53,7 @@ test.group('Processes Inertia', () => {
     await signIn(page, user.email)
     await page.goto(`/folders/${folder.id}`)
     await page.getByTestId('folder-detail').waitFor()
-    await page.getByRole('link', { name: 'Novo processo' }).click()
+    await page.getByRole('link', { name: 'Novo processo' }).first().click()
     await page.waitForURL(`**/folders/${folder.id}/processes/create`)
     await page.getByTestId('process-form').waitFor()
 

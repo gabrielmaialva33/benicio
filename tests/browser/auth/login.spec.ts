@@ -7,17 +7,15 @@ test.group('Auth login', () => {
     const page = await browserContext.newPage()
     await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
-    // Check page title
-    await page.waitForSelector('h1')
-    await page.locator('h1:has-text("Sign In")').waitFor()
+    // Check the legacy YOL login title
+    await page.getByRole('heading', { name: 'Fazer login' }).waitFor()
 
     // Check form elements are present
     await page.locator('input[name="uid"]').waitFor()
     await page.locator('input[name="password"]').waitFor()
     await page.locator('button[type="submit"]:has-text("Entrar")').waitFor()
 
-    // Check navigation links
-    await page.locator('a:has-text("Sign up")').waitFor()
+    // Check the navigation preserved by the legacy login
     await page.locator('a:has-text("Esqueci minha senha")').waitFor()
   })
 
@@ -102,15 +100,12 @@ test.group('Auth login', () => {
     await page.locator('input[name="password"]').waitFor()
   })
 
-  test('should navigate to register page', async ({ browserContext }) => {
+  test('should render the register route', async ({ browserContext }) => {
     const page = await browserContext.newPage()
-    await page.goto('/login', { waitUntil: 'domcontentloaded' })
+    await page.goto('/register', { waitUntil: 'domcontentloaded' })
 
-    // Click on register link
-    await page.click('a:has-text("Sign up")')
-
-    // Should navigate to register page
-    await page.waitForURL('/register')
+    await page.getByRole('heading', { name: 'Criar conta' }).waitFor()
+    await page.locator('form').waitFor()
   })
 
   test('should redirect authenticated user to dashboard', async ({ browserContext }) => {
@@ -146,11 +141,13 @@ test.group('Auth login', () => {
     await page.click('button[type="submit"]:has-text("Entrar")')
     await page.waitForURL('**/dashboard', { timeout: 30000 })
 
-    await page.getByRole('button', { name: new RegExp(firstTenant.name) }).click()
+    await page.getByRole('button', { name: 'Abrir menu do usuário' }).click()
     await page.getByRole('menuitem', { name: new RegExp(secondTenant.name) }).click()
 
+    await page.getByRole('button', { name: 'Abrir menu do usuário' }).click()
     await page
-      .getByRole('button', { name: new RegExp(secondTenant.name) })
+      .getByRole('menuitem', { name: new RegExp(secondTenant.name) })
+      .and(page.locator('[aria-current="true"]'))
       .waitFor({ timeout: 30_000 })
   })
 
@@ -170,8 +167,7 @@ test.group('Auth login', () => {
       .whereNull('revoked_at')
     assert.isAbove(activeSessions.length, 0)
 
-    await page.getByRole('button', { name: 'Abrir menu do usuário' }).click()
-    await page.getByRole('menuitem', { name: 'Sair' }).click()
+    await page.getByRole('button', { name: 'Sair' }).click()
     await page.waitForURL('**/login', { timeout: 30000 })
 
     const cookies = await browserContext.cookies()
