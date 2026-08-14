@@ -11,7 +11,6 @@ import type AiMessage from '#modules/ai/models/ai_message'
 import type {
   AiChatInput,
   AiConversationListInput,
-  AiProvider,
   AiProviderMessage,
   ChatMessageDto,
   ConversationDto,
