@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 import IPermission from '#modules/permissions/interfaces/permission_interface'
 import { authThrottle } from '#start/limiter'
+import { resolveHomeRoute } from '#shared/http/resolve_home_route'
 
 const InertiaAuthController = () => import('#modules/web/controllers/auth_controller')
 const InertiaPasswordResetController = () =>
@@ -67,8 +68,8 @@ router
 router
   .get('/', async ({ auth, response }) => {
     try {
-      await auth.use('jwt').authenticate()
-      return response.redirect('/dashboard')
+      const usuarioAutenticado = await auth.use('jwt').authenticate()
+      return response.redirect(await resolveHomeRoute(usuarioAutenticado.id))
     } catch {
       return response.redirect('/login')
     }

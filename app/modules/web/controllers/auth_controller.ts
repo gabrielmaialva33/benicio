@@ -5,6 +5,7 @@ import SignInService from '#modules/auth/services/sign_in_service'
 import SignUpService from '#modules/auth/services/sign_up_service'
 import LogoutSessionService from '#modules/auth/services/logout_session_service'
 import { inertiaRedirectBack, inertiaRedirectTo } from '#shared/http/inertia_redirect'
+import { resolveHomeRoute } from '#shared/http/resolve_home_route'
 
 @inject()
 export default class InertiaAuthController {
@@ -27,9 +28,14 @@ export default class InertiaAuthController {
     const { uid, password } = await request.validateUsing(signInValidator)
 
     try {
-      await this.signInService.run({ uid, password, ctx, accessTokenLifetime: '1h' })
+      const usuarioAutenticado = await this.signInService.run({
+        uid,
+        password,
+        ctx,
+        accessTokenLifetime: '1h',
+      })
 
-      return inertiaRedirectTo(ctx, '/dashboard')
+      return inertiaRedirectTo(ctx, await resolveHomeRoute(usuarioAutenticado.id))
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Invalid credentials'
       session.flash('errors', { general: message })
