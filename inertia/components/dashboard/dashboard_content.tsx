@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react'
 import {
   CalendarDays,
   CheckCircle2,
@@ -127,9 +128,14 @@ function ActiveFoldersCard({ dashboard }: { dashboard: DashboardOverview }) {
   return (
     <DashboardCard title="Pastas ativas" className="justify-between">
       <div>
-        <strong className="block text-5xl font-bold text-[#1f2a37]">
-          {formatNumber(dashboard.folders.active)}
-        </strong>
+        <Link
+          href="/folders?status=active"
+          className="inline-block rounded-lg transition hover:text-yol-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yol-cyan/40"
+        >
+          <strong className="block text-5xl font-bold text-yol-ink transition-colors hover:text-yol-cyan">
+            {formatNumber(dashboard.folders.active)}
+          </strong>
+        </Link>
         <span className="mt-1 block text-sm text-slate-500">
           {formatNumber(dashboard.folders.new_this_month)} novas neste mês
         </span>
@@ -305,9 +311,60 @@ function PriorityBadge({ priority }: { priority: string }) {
   )
 }
 
+/**
+ * Every list on this page names a folder or a process, and until now none of
+ * them went anywhere — the overview told you a deadline was overdue and then
+ * made you go find it by hand.
+ *
+ * A process lives inside its folder, so the deeper route wins when both ids are
+ * present. Rows without either stay inert rather than linking somewhere wrong.
+ */
+function resourceHref(folderId: number | null, processId?: number | null): string | null {
+  if (folderId && processId) return `/folders/${folderId}/processes/${processId}`
+  if (folderId) return `/folders/${folderId}`
+  return null
+}
+
+/**
+ * Keeps each row a single list item whether or not it has a destination, so the
+ * markup does not fork between "clickable" and "not clickable" variants.
+ */
+function DashboardRow({
+  href,
+  label,
+  className,
+  children,
+}: {
+  href: string | null
+  label: string
+  className: string
+  children: ReactNode
+}) {
+  if (!href) return <li className={className}>{children}</li>
+
+  return (
+    <li>
+      <Link
+        href={href}
+        aria-label={label}
+        className={cn(
+          className,
+          'w-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yol-cyan/40'
+        )}
+      >
+        {children}
+      </Link>
+    </li>
+  )
+}
+
 function TaskRow({ task }: { task: DashboardUrgentTask }) {
   return (
-    <li className="flex items-start gap-3 rounded-xl border border-slate-100 px-3.5 py-3 transition hover:border-slate-200 hover:bg-slate-50/70 dark:border-white/10 dark:hover:bg-white/5">
+    <DashboardRow
+      href={resourceHref(task.folder_id, task.process_id)}
+      label={`Abrir ${task.title}`}
+      className="flex items-start gap-3 rounded-xl border border-slate-100 px-3.5 py-3 transition hover:border-slate-200 hover:bg-slate-50/70 dark:border-white/10 dark:hover:bg-white/5"
+    >
       <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#fff4eb] text-[#f97316] dark:bg-orange-500/10">
         <ListTodo className="size-4" />
       </span>
@@ -322,7 +379,7 @@ function TaskRow({ task }: { task: DashboardUrgentTask }) {
         </span>
       </span>
       <PriorityBadge priority={task.priority} />
-    </li>
+    </DashboardRow>
   )
 }
 
@@ -353,7 +410,11 @@ function DeadlineRow({ deadline }: { deadline: DashboardUpcomingDeadline }) {
   const overdue = isPast(deadline.due_at)
 
   return (
-    <li className="flex items-start gap-3 rounded-xl border border-slate-100 px-3.5 py-3 dark:border-white/10">
+    <DashboardRow
+      href={resourceHref(deadline.folder_id)}
+      label={`Abrir ${deadline.title}`}
+      className="flex items-start gap-3 rounded-xl border border-slate-100 px-3.5 py-3 transition hover:border-slate-200 hover:bg-slate-50/70 dark:border-white/10 dark:hover:bg-white/5"
+    >
       <span
         className={cn(
           'mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg',
@@ -387,7 +448,7 @@ function DeadlineRow({ deadline }: { deadline: DashboardUpcomingDeadline }) {
       >
         {formatDateTime(deadline.due_at)}
       </span>
-    </li>
+    </DashboardRow>
   )
 }
 
@@ -421,7 +482,11 @@ function HearingRow({ hearing }: { hearing: DashboardUpcomingHearing }) {
   const validDate = !Number.isNaN(date.getTime())
 
   return (
-    <li className="flex items-center gap-4 rounded-xl border border-slate-100 px-4 py-3.5 dark:border-white/10">
+    <DashboardRow
+      href={resourceHref(hearing.folder_id, hearing.process_id)}
+      label={`Abrir ${hearing.title}`}
+      className="flex items-center gap-4 rounded-xl border border-slate-100 px-4 py-3.5 transition hover:border-slate-200 hover:bg-slate-50/70 dark:border-white/10 dark:hover:bg-white/5"
+    >
       <time
         dateTime={hearing.starts_at}
         className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#fff4eb] text-[#f97316] dark:bg-orange-500/10"
@@ -456,7 +521,7 @@ function HearingRow({ hearing }: { hearing: DashboardUpcomingHearing }) {
         </span>
       </span>
       <CalendarDays className="hidden size-5 text-slate-300 sm:block" />
-    </li>
+    </DashboardRow>
   )
 }
 
@@ -489,9 +554,15 @@ function ClientsCard({ dashboard }: { dashboard: DashboardOverview }) {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold tracking-[-0.025em]">Clientes ativos</h2>
-          <strong className="mt-3 block text-4xl font-black tracking-[-0.05em]">
-            {formatNumber(dashboard.clients.active)}
-          </strong>
+          <Link
+            href="/clients"
+            aria-label="Ver clientes"
+            className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30"
+          >
+            <strong className="mt-3 block text-4xl font-black tracking-[-0.05em] underline-offset-4 hover:underline">
+              {formatNumber(dashboard.clients.active)}
+            </strong>
+          </Link>
           <p className="mt-1 text-sm opacity-70">
             {dashboard.clients.new_this_month} novos neste mês
           </p>
