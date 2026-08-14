@@ -188,8 +188,9 @@ export default class PermissionRepository
   }
 
   /**
-   * Permission ids granted to the GUEST role: read/list on everything except
-   * permissions and audit.
+   * Permission ids granted to the GUEST role: read/list restrito ao próprio
+   * perfil. O convidado é o cliente do escritório — não pode enxergar o
+   * cadastro de usuários, papéis nem o repositório de arquivos internos.
    */
   async findGuestPermissionIds(trx?: TransactionClientContract): Promise<number[]> {
     const rows = await this.model
@@ -198,6 +199,9 @@ export default class PermissionRepository
       .whereNotIn('resource', [
         IPermission.Resources.PERMISSIONS,
         IPermission.Resources.AUDIT,
+        IPermission.Resources.USERS,
+        IPermission.Resources.ROLES,
+        IPermission.Resources.FILES,
         IPermission.Resources.CLIENTS,
         IPermission.Resources.FOLDERS,
         IPermission.Resources.PROCESSES,
