@@ -214,6 +214,11 @@ repository directly.
    pnpm ace db:seed
    ```
 
+   In development, the seed is deterministic and idempotent. It creates the tenant-aware legal
+   demo scenario and the primary local account `admin@benicio.com.br` / `benicio123`. Running it
+   again updates the managed fixture instead of duplicating records; access tokens, refresh tokens,
+   and rate-limit state are intentionally not seeded.
+
 6. **Start the development server:**
    ```sh
    pnpm dev

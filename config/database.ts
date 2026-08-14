@@ -17,6 +17,7 @@ const dbConfig = defineConfig({
         paths: ['database/migrations'],
       },
       seeders: {
+        naturalSort: true,
         paths: ['database/seeders'],
       },
     },
@@ -34,6 +35,7 @@ const dbConfig = defineConfig({
         paths: ['database/migrations'],
       },
       seeders: {
+        naturalSort: true,
         paths: ['database/seeders'],
       },
     },

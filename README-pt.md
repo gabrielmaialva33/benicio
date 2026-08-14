@@ -215,6 +215,11 @@ importando um repositório diretamente.
    pnpm ace db:seed
    ```
 
+   Em desenvolvimento, o seed é determinístico e idempotente. Ele cria o cenário jurídico
+   multi-tenant e o acesso local principal `admin@benicio.com.br` / `benicio123`. Uma nova execução
+   atualiza a fixture gerenciada sem duplicar registros; tokens de acesso, refresh tokens e estado
+   de rate limit não são populados de propósito.
+
 6. **Inicie o servidor de desenvolvimento:**
    ```sh
    pnpm dev
