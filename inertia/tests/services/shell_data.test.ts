@@ -75,7 +75,15 @@ describe('shell data service', () => {
       }
       if (url.includes('/messages/unread-count')) return jsonResponse({ data: { count: 1 } })
       return jsonResponse({
-        data: [{ id: 3, code: 'CIV-003', title: 'Ação indenizatória', area: 'Cível' }],
+        data: [
+          {
+            id: 3,
+            code: 'CIV-003',
+            title: 'Ação indenizatória',
+            area: 'Cível',
+            processes_count: 2,
+          },
+        ],
       })
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -85,7 +93,7 @@ describe('shell data service', () => {
       items: [{ id: 9, subject: 'Peça revisada' }],
     })
     await expect(getFavoriteFolders()).resolves.toEqual([
-      { id: 3, code: 'CIV-003', title: 'Ação indenizatória', area: 'Cível' },
+      { id: 3, code: 'CIV-003', title: 'Ação indenizatória', area: 'Cível', processes_count: 2 },
     ])
   })
 

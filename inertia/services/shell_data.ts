@@ -44,6 +44,7 @@ const favoriteFolderSchema = z.object({
   code: z.string(),
   title: z.string(),
   area: z.string(),
+  processes_count: z.number().nonnegative(),
 })
 
 const unreadCountSchema = z.object({

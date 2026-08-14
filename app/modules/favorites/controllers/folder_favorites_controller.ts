@@ -7,7 +7,21 @@ import FolderFavoriteService from '#modules/favorites/services/folder_favorite_s
 export default class FolderFavoritesController {
   async index(ctx: HttpContext) {
     const service = await app.container.make(FolderFavoriteService)
-    const data = await service.list(requireTenantId(ctx), ctx.auth.getUserOrFail().id)
+    const folders = await service.list(requireTenantId(ctx), ctx.auth.getUserOrFail().id)
+
+    /**
+     * Shaped explicitly instead of serialising the model: the sidebar needs
+     * four fields plus the process count, and the count only exists in
+     * `$extras` because it comes from a select subquery.
+     */
+    const data = folders.map((folder) => ({
+      id: folder.id,
+      code: folder.code,
+      title: folder.title,
+      area: folder.area,
+      processes_count: Number(folder.$extras.processes_count ?? 0),
+    }))
+
     return ctx.response.ok({ data })
   }
 

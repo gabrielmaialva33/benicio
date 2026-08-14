@@ -253,63 +253,73 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
         </section>
       )}
 
+      {/* Favourites sit between the two menus, and the section stays put when
+          the list is empty: a heading that vanishes makes the sidebar look like
+          it lost a feature rather than like there is nothing starred yet. */}
+      {!collapsed && can('folders.list') && (
+        <section className="w-full border-b border-[#babbc1] px-10 pb-[25px] pr-[60px]">
+          <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Favoritos</h2>
+          {favoriteFolders.isPending || favoriteFolders.isError ? (
+            <p className="text-xs text-white/55">
+              {favoriteFolders.isPending ? 'Carregando favoritos...' : 'Não foi possível carregar.'}
+            </p>
+          ) : visibleFavorites.length === 0 ? (
+            <p className="text-xs leading-5 text-white/55">
+              {searchQuery
+                ? 'Nenhum favorito corresponde à busca.'
+                : 'Marque uma pasta com a estrela para vê-la aqui.'}
+            </p>
+          ) : (
+            <div>
+              {displayedFavorites.map((folder, index) => (
+                <Link
+                  key={folder.id}
+                  href={`/folders/${folder.id}`}
+                  onClick={onNavigate}
+                  className="flex min-h-[50px] items-center gap-3 rounded-[10px] px-3 py-2 font-semibold text-base text-white transition-colors hover:bg-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yol-sidebar"
+                >
+                  <span
+                    className="size-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: favoriteColors[index % favoriteColors.length] }}
+                  />
+                  <span className="flex min-w-0 flex-1 truncate">
+                    <span>{folder.code}</span>
+                    <span aria-hidden="true">&nbsp;-&nbsp;</span>
+                    <span className="truncate">{folder.title}</span>
+                  </span>
+                  <span
+                    className="shrink-0 rounded-md bg-white/10 px-1.5 py-0.5 text-xs tabular-nums text-white/70"
+                    aria-label={`${folder.processes_count} processos`}
+                  >
+                    {folder.processes_count}
+                  </span>
+                </Link>
+              ))}
+              {!searchQuery && visibleFavorites.length > 3 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllFavorites((value) => !value)}
+                  className="mt-2 flex items-center gap-2 px-3 font-semibold text-sm text-[#a1a5b7] hover:text-white"
+                >
+                  <img
+                    src="/yol/icons/down.svg"
+                    alt=""
+                    width={16}
+                    height={16}
+                    className={cn('size-4 transition-transform', showAllFavorites && 'rotate-180')}
+                  />
+                  {showAllFavorites ? 'Mostrar menos' : 'Mostrar mais'}
+                </button>
+              )}
+            </div>
+          )}
+        </section>
+      )}
+
       {!collapsed && visibleManagement.length > 0 && (
         <section className="w-full border-b border-[#babbc1] px-10 pb-[25px] pr-[60px]">
           <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Gestão</h2>
           <div>{visibleManagement.map(renderMenuItem)}</div>
-        </section>
-      )}
-
-      {!collapsed &&
-        can('folders.list') &&
-        (favoriteFolders.isPending || favoriteFolders.isError) && (
-          <section className="px-10 pr-[60px]">
-            <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Favoritos</h2>
-            <p className="text-xs text-white/55">
-              {favoriteFolders.isPending ? 'Carregando favoritos...' : 'Não foi possível carregar.'}
-            </p>
-          </section>
-        )}
-
-      {!collapsed && visibleFavorites.length > 0 && (
-        <section className="px-10 pr-[60px]">
-          <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Favoritos</h2>
-          <div>
-            {displayedFavorites.map((folder, index) => (
-              <Link
-                key={folder.id}
-                href={`/folders/${folder.id}`}
-                onClick={onNavigate}
-                className="flex min-h-[50px] items-center gap-3 rounded-[10px] px-3 py-2 font-semibold text-base text-white transition-colors hover:bg-gray-700"
-              >
-                <span
-                  className="size-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: favoriteColors[index % favoriteColors.length] }}
-                />
-                <span className="flex min-w-0 truncate">
-                  <span>{folder.code}</span>
-                  <span aria-hidden="true">&nbsp;-&nbsp;</span>
-                  <span className="truncate">{folder.title}</span>
-                </span>
-              </Link>
-            ))}
-          </div>
-          {!searchQuery && visibleFavorites.length > 3 && (
-            <button
-              type="button"
-              onClick={() => setShowAllFavorites((value) => !value)}
-              className="mt-2 flex items-center gap-2 px-3 font-semibold text-sm text-[#a1a5b7] hover:text-white"
-            >
-              <img
-                src="/yol/icons/down.svg"
-                alt=""
-                width={16}
-                height={16}
-                className={cn('size-4 transition-transform', showAllFavorites && 'rotate-180')}
-              />
-              {showAllFavorites ? 'Mostrar menos' : 'Mostrar mais'}
-            </button>
-          )}
         </section>
       )}
     </nav>

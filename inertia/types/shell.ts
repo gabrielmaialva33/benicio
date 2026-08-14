@@ -33,6 +33,8 @@ export interface ShellFavoriteFolder {
   code: string
   title: string
   area: string
+  /** Processes filed under the folder; shown as the sidebar badge. */
+  processes_count: number
 }
 
 export interface ShellFeed<TItem> {
