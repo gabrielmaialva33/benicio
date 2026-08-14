@@ -32,7 +32,8 @@ export default class TenantsController {
    * Switches the active tenant: validates membership and mints a fresh token
    * pair carrying the requested tenant as the active one.
    */
-  async switch({ auth, request, response }: HttpContext) {
+  async switch(ctx: HttpContext) {
+    const { auth, request, response } = ctx
     const user = auth.getUserOrFail()
     const tenantIdInput: unknown = request.input('tenant_id')
     const tenantId = Number(tenantIdInput)
@@ -46,7 +47,10 @@ export default class TenantsController {
       throw new ForbiddenException('You do not belong to this tenant')
     }
 
-    const tokens = await this.jwtAuthTokensService.run({ userId: user.id, tenantId: tenant.id })
+    const tokens = await this.jwtAuthTokensService.run(
+      { userId: user.id, tenantId: tenant.id },
+      ctx
+    )
 
     return response.ok({
       tenant: {

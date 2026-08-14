@@ -36,7 +36,10 @@ export default class SignInService {
       // undefined when the user belongs to no tenant; that is acceptable.
       const tenant = await user.related('tenants').query().first()
 
-      const auth = await this.jwtAuthTokensService.run({ userId: user.id, tenantId: tenant?.id })
+      const auth = await this.jwtAuthTokensService.run(
+        { userId: user.id, tenantId: tenant?.id },
+        ctx
+      )
       const userJson = user.toJSON()
 
       // Check if the user is admin

@@ -24,7 +24,7 @@ export default class SignUpService {
     // Send verification email
     await this.sendVerificationEmailService.handle(user)
 
-    const auth = await this.jwtAuthTokensService.run({ userId: user.id })
+    const auth = await this.jwtAuthTokensService.run({ userId: user.id }, ctx)
 
     // Emit user registered event
     AuthEventService.emitUserRegistered(user, 'sign-up', false, ctx)

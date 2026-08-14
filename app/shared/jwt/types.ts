@@ -48,6 +48,12 @@ export type BaseJwtContent = {
    * that case the tenant middleware falls back to the user's first tenant.
    */
   tenantId?: number
+  /** Token purpose. Older/Japa-issued tokens omit it for compatibility. */
+  typ?: 'access'
+  /** Unique access-token identifier. */
+  jti?: string
+  /** Refresh-token family backing this authenticated session. */
+  sid?: string
 }
 
 export type JwtGuardOptions<RealUser extends any = unknown> = {

@@ -47,6 +47,11 @@ export const authThrottle = limiter.define('auth', (ctx) => {
     })
 })
 
+/** Rate limit for refresh/logout traffic, keyed by client IP. */
+export const sessionThrottle = limiter.define('session', (ctx) => {
+  return limiter.allowRequests(30).every('1 minute').usingKey(`session_${ctx.request.ip()}`)
+})
+
 /**
  * API throttle for protected API endpoints
  * - 100 requests per minute for authenticated users

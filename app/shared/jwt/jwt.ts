@@ -148,6 +148,34 @@ export class JwtGuard<
       })
     }
 
+    if ('typ' in payload && payload.typ !== 'access') {
+      const message = this.#ctx.i18n?.t('errors.unauthorized_access') || 'Unauthorized access'
+      throw new errors.E_UNAUTHORIZED_ACCESS(message, {
+        guardDriverName: this.driverName,
+      })
+    }
+
+    // Stateful sessions back newly-issued JWTs. Keeping tokens without `sid`
+    // valid preserves Japa's loginAs tokens and tokens minted before this
+    // migration; all newly-issued access tokens are revoked with their family.
+    if ('sid' in payload && typeof payload.sid === 'string') {
+      const { default: db } = await import('@adonisjs/lucid/services/db')
+      const activeSession = await db
+        .from('refresh_tokens')
+        .where('family_id', payload.sid)
+        .where('user_id', payload.userId)
+        .whereNull('revoked_at')
+        .where('expires_at', '>', new Date())
+        .first()
+
+      if (!activeSession) {
+        const message = this.#ctx.i18n?.t('errors.unauthorized_access') || 'Unauthorized access'
+        throw new errors.E_UNAUTHORIZED_ACCESS(message, {
+          guardDriverName: this.driverName,
+        })
+      }
+    }
+
     /**
      * Fetch the user by user ID and save a reference to it
      */
