@@ -1,6 +1,5 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
-import db from '@adonisjs/lucid/services/db'
 
 import Role from '#modules/roles/models/role'
 import Permission from '#modules/permissions/models/permission'
@@ -49,11 +48,6 @@ test.group('Users list', (group) => {
       password: 'password123',
     })
 
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
-    })
-
     // Assign list permission to user role
     await assignPermissions(userRole, [IPermission.Actions.LIST])
 
@@ -92,11 +86,6 @@ test.group('Users list', (group) => {
       email: 'auth@example.com',
       username: 'authuser',
       password: 'password123',
-    })
-
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
     })
 
     // Assign list permission to user role
@@ -143,11 +132,6 @@ test.group('Users list', (group) => {
       email: 'john@example.com',
       username: 'johndoe',
       password: 'password123',
-    })
-
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
     })
 
     // Assign list permission to user role
@@ -197,11 +181,6 @@ test.group('Users list', (group) => {
       email: 'auth@example.com',
       username: 'authuser',
       password: 'password123',
-    })
-
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
     })
 
     // Assign list permission to user role
@@ -269,16 +248,7 @@ test.group('Users list', (group) => {
       password: 'password123',
     })
 
-    await db.table('user_roles').insert([
-      {
-        user_id: user.id,
-        role_id: userRole.id,
-      },
-      {
-        user_id: user.id,
-        role_id: adminRole.id,
-      },
-    ])
+    await user.related('roles').attach([adminRole.id])
 
     // Assign list permission to user role (admin inherits this too)
     await assignPermissions(userRole, [IPermission.Actions.LIST])

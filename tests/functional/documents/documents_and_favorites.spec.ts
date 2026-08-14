@@ -46,7 +46,7 @@ async function createFile(tenantId: number, ownerId: number, suffix: string) {
     file_size: 1_024,
     file_type: 'application/pdf',
     file_category: 'document',
-    url: `https://files.example.test/peticao-${suffix}.pdf`,
+    storage_disk: 'fs',
   })
 }
 

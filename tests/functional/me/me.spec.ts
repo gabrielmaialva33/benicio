@@ -29,7 +29,7 @@ test.group('Me endpoints', (group) => {
         description: 'Regular user',
       }
     )
-    await user.related('roles').attach([role.id])
+    await user.related('roles').sync([role.id])
 
     const response = await client.get('/api/v1/me').loginAs(user)
 
@@ -57,7 +57,7 @@ test.group('Me endpoints', (group) => {
         description: 'Regular user',
       }
     )
-    await user.related('roles').attach([role.id])
+    await user.related('roles').sync([role.id])
 
     // Add direct permission
     const permission = await Permission.firstOrCreate(

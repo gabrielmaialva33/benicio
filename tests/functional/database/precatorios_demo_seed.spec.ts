@@ -135,14 +135,14 @@ test.group('Precatórios demo database seed', (group) => {
       .from('files')
       .where('tenant_id', tenantId)
       .whereLike('file_name', 'demo/precatorios/%')
-      .select('file_name', 'file_size', 'file_type', 'url')
+      .select('file_name', 'file_size', 'file_type', 'storage_disk')
     assert.lengthOf(documents, EXPECTED_SUMMARY.files)
     assert.isTrue(
       documents.every(
         (document) =>
           Number(document.file_size) > 0 &&
           document.file_type === 'text/markdown' &&
-          document.url.startsWith('/yol/demo-documents/')
+          document.storage_disk === 'fs'
       )
     )
 

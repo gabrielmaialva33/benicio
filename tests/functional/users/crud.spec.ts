@@ -49,11 +49,6 @@ test.group('Users CRUD', (group) => {
       password: 'password123',
     })
 
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
-    })
-
     // Assign read permission to user role
     await assignPermissions(userRole, [IPermission.Actions.READ])
 
@@ -92,11 +87,6 @@ test.group('Users CRUD', (group) => {
       password: 'password123',
     })
 
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
-    })
-
     // Assign read permission to user role
     await assignPermissions(userRole, [IPermission.Actions.READ])
 
@@ -123,11 +113,6 @@ test.group('Users CRUD', (group) => {
       email: 'auth@example.com',
       username: 'authuser',
       password: 'password123',
-    })
-
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
     })
 
     // Assign create permission to user role
@@ -169,11 +154,6 @@ test.group('Users CRUD', (group) => {
       email: 'auth@example.com',
       username: 'authuser',
       password: 'password123',
-    })
-
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
     })
 
     // Assign create permission to user role
@@ -226,11 +206,6 @@ test.group('Users CRUD', (group) => {
       password: 'password123',
     })
 
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
-    })
-
     // Assign update permission to user role
     await assignPermissions(userRole, [IPermission.Actions.UPDATE])
 
@@ -279,11 +254,6 @@ test.group('Users CRUD', (group) => {
       password: 'password123',
     })
 
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
-    })
-
     // Assign update permission to user role
     await assignPermissions(userRole, [IPermission.Actions.UPDATE])
 
@@ -329,11 +299,6 @@ test.group('Users CRUD', (group) => {
       email: 'auth@example.com',
       username: 'authuser',
       password: 'password123',
-    })
-
-    await db.table('user_roles').insert({
-      user_id: authUser.id,
-      role_id: userRole.id,
     })
 
     // Assign delete permission to user role

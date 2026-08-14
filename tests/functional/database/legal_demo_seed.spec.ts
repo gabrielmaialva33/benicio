@@ -386,11 +386,10 @@ test.group('Legal demo database seed', (group) => {
       .from('files')
       .where('tenant_id', tenantId)
       .whereLike('file_name', 'demo/%')
-      .select('file_name', 'file_type', 'url')
+      .select('file_name', 'file_type', 'storage_disk')
     assert.isTrue(
       documents.every(
-        (document) =>
-          document.file_type === 'text/markdown' && document.url.startsWith('/yol/demo-documents/')
+        (document) => document.file_type === 'text/markdown' && document.storage_disk === 'fs'
       )
     )
   })

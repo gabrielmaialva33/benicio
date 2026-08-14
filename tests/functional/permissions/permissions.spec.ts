@@ -6,6 +6,7 @@ import User from '#modules/users/models/user'
 import Role from '#modules/roles/models/role'
 import Permission from '#modules/permissions/models/permission'
 import File from '#modules/files/models/file'
+import Tenant from '#modules/tenants/models/tenant'
 import PermissionService from '#modules/permissions/services/permission_service'
 
 import IRole from '#modules/roles/interfaces/role_interface'
@@ -70,26 +71,33 @@ test.group('Permissions', (group) => {
       password: 'password123',
     })
     await owner.related('roles').sync([role.id])
+    const tenant = await Tenant.create({
+      name: 'Ownership Tenant',
+      slug: 'ownership-tenant',
+      is_active: true,
+    })
+    await owner.related('tenants').attach({ [tenant.id]: { role: 'member' } })
+    await otherUser.related('tenants').attach({ [tenant.id]: { role: 'member' } })
 
     const ownedFile = await File.create({
       owner_id: owner.id,
-      tenant_id: null,
+      tenant_id: tenant.id,
       client_name: 'owned.txt',
       file_name: 'owned-file.txt',
       file_size: 1,
       file_type: 'text/plain',
       file_category: 'file',
-      url: '/files/owned-file.txt',
+      storage_disk: 'fs',
     })
     const foreignFile = await File.create({
       owner_id: otherUser.id,
-      tenant_id: null,
+      tenant_id: tenant.id,
       client_name: 'foreign.txt',
       file_name: 'foreign-file.txt',
       file_size: 1,
       file_type: 'text/plain',
       file_category: 'file',
-      url: '/files/foreign-file.txt',
+      storage_disk: 'fs',
     })
 
     const redis = await import('@adonisjs/redis/services/main')
@@ -360,7 +368,7 @@ test.group('Permissions', (group) => {
       }
     )
 
-    await user.related('roles').attach([userRole.id])
+    await user.related('roles').sync([userRole.id])
 
     // Create permissions
     const readPermission = await Permission.firstOrCreate(
@@ -461,7 +469,7 @@ test.group('Permissions', (group) => {
       }
     )
 
-    await user.related('roles').attach([userRole.id])
+    await user.related('roles').sync([userRole.id])
 
     // Ensure the user role has no permissions for this test
     await userRole.related('permissions').detach()
