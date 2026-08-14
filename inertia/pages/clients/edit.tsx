@@ -8,15 +8,7 @@ export default function EditClientPage({ client }: { client: ClientItem }) {
   return (
     <MainLayout>
       <Head title={`Editar ${client.name}`} />
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div>
-          <h2 className="text-2xl font-black tracking-[-0.035em] text-slate-900 dark:text-white">
-            Editar cliente
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Atualize os dados centrais sem perder os vínculos jurídicos.
-          </p>
-        </div>
+      <div className="w-full">
         <ClientForm client={client} />
       </div>
     </MainLayout>

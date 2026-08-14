@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react'
-import { ArrowRight, ArrowUpDown, BriefcaseBusiness, Mail, Phone, Users } from 'lucide-react'
+import { ArrowUpDown, BriefcaseBusiness, Mail, Phone, Users } from 'lucide-react'
 
 import { ClientPersonBadge } from './client_person_badge'
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
@@ -64,8 +64,8 @@ function SortButton({
       type="button"
       onClick={() => onSort(field)}
       className={cn(
-        'inline-flex items-center gap-1.5 font-semibold transition hover:text-slate-900 dark:hover:text-white',
-        active && 'text-slate-900 dark:text-white'
+        'inline-flex items-center gap-1.5 font-semibold transition hover:text-[#1f2a37]',
+        active && 'text-[#1f2a37]'
       )}
       aria-label={`Ordenar por ${label}${active ? `, ordem ${direction === 'asc' ? 'crescente' : 'decrescente'}` : ''}`}
     >
@@ -79,16 +79,16 @@ function ClientMobileCard({ client }: { client: ClientItem }) {
   return (
     <Link
       href={`/clients/${client.id}`}
-      className="block min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md dark:border-white/10 dark:bg-card"
+      className="block min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_4px_4px_rgba(0,0,0,0.03)] transition hover:border-cyan-200"
     >
       <div className="flex min-w-0 items-start gap-3">
         <Avatar className="size-11 shrink-0 rounded-xl">
-          <AvatarFallback className="rounded-xl bg-emerald-50 text-xs font-black text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+          <AvatarFallback className="rounded-xl bg-cyan-50 text-xs font-bold text-cyan-700">
             {initialsOf(client.name)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-bold text-slate-900 dark:text-white">{client.name}</h3>
+          <h3 className="truncate font-semibold text-[#1f2a37]">{client.name}</h3>
           <p className="mt-1 font-mono text-xs text-slate-500">
             {formatClientDocument(client.document, client.person_type)}
           </p>
@@ -101,7 +101,7 @@ function ClientMobileCard({ client }: { client: ClientItem }) {
         </span>
       </div>
       {(client.email || client.phone) && (
-        <div className="mt-4 space-y-1.5 border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-white/10">
+        <div className="mt-4 space-y-1.5 border-t border-gray-100 pt-3 text-xs text-slate-500">
           {client.email && (
             <span className="flex min-w-0 items-center gap-2">
               <Mail className="size-3.5 shrink-0" />
@@ -124,12 +124,10 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
   if (clients.length === 0) {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
+        <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-[#00b8d9]">
           <Users className="size-7" />
         </span>
-        <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
-          Nenhum cliente encontrado
-        </h3>
+        <h3 className="mt-4 text-base font-semibold text-[#1f2a37]">Nenhum cliente encontrado</h3>
         <p className="mt-1 max-w-sm text-sm text-slate-500">
           Ajuste os filtros ou cadastre o primeiro cliente deste escritório.
         </p>
@@ -154,7 +152,7 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
             <col className="w-[12%]" />
             <col className="w-14" />
           </colgroup>
-          <thead className="border-y border-slate-200/80 bg-slate-50/80 text-xs text-slate-500 dark:border-white/10 dark:bg-white/[0.03]">
+          <thead className="border-y border-gray-200 bg-[#f7f8f9] text-xs font-semibold uppercase text-gray-500">
             <tr>
               <th className="px-5 py-3.5">
                 <SortButton field="name" label="Cliente" {...{ sortBy, direction, onSort }} />
@@ -174,21 +172,18 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-white/10">
+          <tbody className="divide-y divide-gray-100">
             {clients.map((client) => (
-              <tr
-                key={client.id}
-                className="group transition hover:bg-orange-50/30 dark:hover:bg-white/[0.025]"
-              >
+              <tr key={client.id} className="group transition hover:bg-cyan-50/30">
                 <td className="px-5 py-4">
                   <Link href={`/clients/${client.id}`} className="flex min-w-0 items-center gap-3">
                     <Avatar className="size-10 shrink-0 rounded-xl">
-                      <AvatarFallback className="rounded-xl bg-emerald-50 text-xs font-black text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                      <AvatarFallback className="rounded-xl bg-cyan-50 text-xs font-bold text-cyan-700">
                         {initialsOf(client.name)}
                       </AvatarFallback>
                     </Avatar>
                     <span className="min-w-0">
-                      <span className="block truncate font-semibold text-slate-900 dark:text-white">
+                      <span className="block truncate font-semibold text-[#1f2a37]">
                         {client.name}
                       </span>
                       <span className="mt-0.5 block font-mono text-xs text-slate-500">
@@ -202,14 +197,14 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
                 </td>
                 <td className="px-5 py-4">
                   <div className="min-w-0 space-y-1 text-xs text-slate-500">
-                    <span className="block max-w-56 truncate font-medium text-slate-700 dark:text-slate-200">
+                    <span className="block max-w-56 truncate font-medium text-slate-700">
                       {client.email ?? 'Sem e-mail'}
                     </span>
                     <span>{client.phone ?? 'Sem telefone'}</span>
                   </div>
                 </td>
                 <td className="px-5 py-4">
-                  <span className="flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
+                  <span className="flex items-center gap-2 font-semibold text-slate-700">
                     <BriefcaseBusiness className="size-4 text-slate-400" />
                     {client.folders_total}
                   </span>
@@ -228,7 +223,13 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
                     aria-label={`Abrir cliente ${client.name}`}
                   >
                     <Link href={`/clients/${client.id}`}>
-                      <ArrowRight className="size-4 transition group-hover:translate-x-0.5 group-hover:text-[#f97316]" />
+                      <img
+                        src="/yol/icons/arrow-right.svg"
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="size-4 transition group-hover:translate-x-0.5"
+                      />
                     </Link>
                   </Button>
                 </td>

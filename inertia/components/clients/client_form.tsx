@@ -92,15 +92,15 @@ export function ClientForm({ client }: { client?: ClientItem }) {
         </p>
       )}
 
-      <Card className="overflow-hidden rounded-2xl">
-        <CardHeader className="min-h-16 bg-slate-50/60 dark:bg-white/[0.025]">
+      <Card className="overflow-hidden rounded-2xl border-gray-100">
+        <CardHeader className="min-h-0 bg-white px-8 pt-8">
           <div>
             <CardTitle>Identificação e contato</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
               Dados usados em pastas, processos e comunicações do escritório.
             </p>
           </div>
-          <span className="flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
+          <span className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-[#00b8d9]">
             {form.data.person_type === 'company' ? (
               <Building2 className="size-5" />
             ) : (
@@ -108,7 +108,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
             )}
           </span>
         </CardHeader>
-        <CardContent className="grid gap-5 pt-6 md:grid-cols-2 xl:grid-cols-3">
+        <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2 xl:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="person_type">Tipo de pessoa</Label>
             <select
@@ -118,7 +118,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
               onChange={(event) =>
                 form.setData('person_type', event.target.value as ClientPersonType)
               }
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+              className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-[#1f2a37] outline-none transition focus:border-[#1cd6f4] focus:ring-2 focus:ring-cyan-100"
             >
               <option value="individual">Pessoa física</option>
               <option value="company">Pessoa jurídica</option>
@@ -169,8 +169,8 @@ export function ClientForm({ client }: { client?: ClientItem }) {
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden rounded-2xl">
-        <CardHeader className="min-h-16 bg-slate-50/60 dark:bg-white/[0.025]">
+      <Card className="overflow-hidden rounded-2xl border-gray-100">
+        <CardHeader className="min-h-0 bg-white px-8 pt-8">
           <div>
             <CardTitle>Endereço</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -179,7 +179,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           </div>
           <MapPin className="size-5 text-slate-400" />
         </CardHeader>
-        <CardContent className="grid gap-5 pt-6 md:grid-cols-2 xl:grid-cols-4">
+        <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2 xl:grid-cols-4">
           <Field
             label="CEP"
             name="address.postal_code"
@@ -248,12 +248,12 @@ export function ClientForm({ client }: { client?: ClientItem }) {
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden rounded-2xl">
-        <CardHeader className="min-h-16 bg-slate-50/60 dark:bg-white/[0.025]">
+      <Card className="overflow-hidden rounded-2xl border-gray-100">
+        <CardHeader className="min-h-0 bg-white px-8 pt-8">
           <CardTitle>Observações internas</CardTitle>
           <StickyNote className="size-5 text-slate-400" />
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className="px-8 pb-8 pt-6">
           <Label htmlFor="notes" className="sr-only">
             Observações internas
           </Label>
@@ -263,13 +263,13 @@ export function ClientForm({ client }: { client?: ClientItem }) {
             value={form.data.notes}
             onChange={(event) => form.setData('notes', event.target.value)}
             placeholder="Contexto de relacionamento, preferências de contato ou observações relevantes"
-            className="min-h-32 resize-y"
+            className="min-h-32 resize-y rounded-lg border-gray-300 focus-visible:border-[#1cd6f4] focus-visible:ring-cyan-100"
             maxLength={10_000}
             aria-invalid={!!errors.notes}
           />
           {errors.notes && <p className="mt-2 text-xs text-destructive">{errors.notes}</p>}
         </CardContent>
-        <CardFooter className="justify-between gap-3 bg-slate-50/40 py-4 dark:bg-white/[0.02]">
+        <CardFooter className="justify-between gap-3 bg-white px-8 py-5">
           <Button variant="outline" type="button" asChild>
             <Link href={client ? `/clients/${client.id}` : '/clients'}>
               <ArrowLeft className="size-4" />
@@ -279,7 +279,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Button
             type="submit"
             disabled={form.processing}
-            className="bg-[#f97316] text-white hover:bg-[#ea680c]"
+            className="bg-[#00b8d9] text-white shadow-none hover:bg-[#00a7c6]"
           >
             <Save className="size-4" />
             {form.processing ? 'Salvando...' : editing ? 'Salvar alterações' : 'Cadastrar cliente'}

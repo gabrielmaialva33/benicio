@@ -49,12 +49,12 @@ function StatCard({
   tone: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-card">
-      <span className={`flex size-10 items-center justify-center rounded-xl ${tone}`}>
+    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-[#f7f8f9] p-4">
+      <span className={`flex size-10 items-center justify-center rounded-lg ${tone}`}>
         <Icon className="size-5" />
       </span>
       <span>
-        <strong className="block text-xl font-black text-slate-900 dark:text-white">{value}</strong>
+        <strong className="block text-xl font-semibold text-[#1f2a37]">{value}</strong>
         <span className="text-xs font-medium text-slate-500">{label}</span>
       </span>
     </div>
@@ -117,27 +117,19 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
       <Head title="Clientes" />
       <div className="space-y-6" data-testid="clients-index">
         {flash?.success && (
-          <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+          <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
             <CheckCircle2 className="size-4" />
             {flash.success}
           </div>
         )}
         {flash?.error && (
-          <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+          <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
             <AlertTriangle className="size-4" />
             {flash.error}
           </div>
         )}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-black tracking-[-0.035em] text-slate-900 dark:text-white">
-              Clientes do escritório
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Cadastro central para pastas, processos e contatos jurídicos.
-            </p>
-          </div>
-          <Button asChild className="bg-[#f97316] text-white hover:bg-[#ea680c]">
+        <div className="flex justify-end">
+          <Button asChild className="bg-[#00b8d9] text-white shadow-none hover:bg-[#00a7c6]">
             <Link href="/clients/create">
               <Plus className="size-4" />
               Novo cliente
@@ -153,35 +145,35 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
             icon={Users}
             label="Clientes cadastrados"
             value={stats.total}
-            tone="bg-slate-100 text-slate-600 dark:bg-white/10"
+            tone="bg-slate-100 text-slate-600"
           />
           <StatCard
             icon={UserRound}
             label="Pessoas físicas"
             value={stats.individuals}
-            tone="bg-violet-50 text-violet-600 dark:bg-violet-500/10"
+            tone="bg-violet-50 text-violet-600"
           />
           <StatCard
             icon={Building2}
             label="Pessoas jurídicas"
             value={stats.companies}
-            tone="bg-cyan-50 text-cyan-600 dark:bg-cyan-500/10"
+            tone="bg-cyan-50 text-cyan-600"
           />
           <StatCard
             icon={FolderOpen}
             label="Com pasta ativa"
             value={stats.with_active_folders}
-            tone="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
+            tone="bg-emerald-50 text-emerald-600"
           />
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-card">
+        <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)]">
           <form
             onSubmit={(event) => {
               event.preventDefault()
               visit({ page: 1 })
             }}
-            className="grid gap-3 border-b border-slate-100 p-4 dark:border-white/10 sm:grid-cols-[minmax(240px,1fr)_220px_auto] sm:p-6"
+            className="grid gap-3 border-b border-gray-100 p-4 sm:grid-cols-[minmax(240px,1fr)_220px_auto] sm:p-6"
           >
             <div className="relative">
               <Search className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
@@ -191,7 +183,7 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Nome, documento ou e-mail"
-                className="h-10 ps-10"
+                className="h-12 ps-10"
               />
             </div>
             <select
@@ -202,7 +194,7 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
                 setPersonType(value)
                 visit({ person_type: value, page: 1 })
               }}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+              className="h-12 rounded-lg border border-gray-300 bg-white px-4 text-sm text-[#1f2a37] outline-none transition focus:border-[#1cd6f4] focus:ring-2 focus:ring-cyan-100"
             >
               <option value="">Todos os tipos</option>
               <option value="individual">Pessoa física</option>
@@ -234,7 +226,7 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
             onSort={sort}
           />
 
-          <footer className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <footer className="flex flex-col gap-3 border-t border-gray-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div className="flex items-center gap-2 text-sm text-slate-500">
               <span>{clients.meta.total} resultado(s)</span>
               <span className="text-slate-300">·</span>
