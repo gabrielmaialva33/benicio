@@ -14,6 +14,8 @@ import Role from '#modules/roles/models/role'
 import Tenant from '#modules/tenants/models/tenant'
 import User from '#modules/users/models/user'
 
+const MANAGED_SYSTEM_ROLE_SLUGS = ['root', 'admin', 'editor', 'user', 'guest'] as const
+
 export interface LegalDemoAccessContext {
   tenantId: number
   userIds: Record<LegalDemoUserKey, number>
@@ -37,7 +39,7 @@ export function seedDemoAccess<UserKey extends string>(
     const roleIds = new Map<string, number>()
 
     const fixtures = Object.values(users) as DemoUserFixture[]
-    for (const slug of new Set(fixtures.flatMap((user) => user.systemRoles))) {
+    for (const slug of MANAGED_SYSTEM_ROLE_SLUGS) {
       const role = await Role.findByOrFail('slug', slug, { client: trx })
       roleIds.set(slug, role.id)
     }
