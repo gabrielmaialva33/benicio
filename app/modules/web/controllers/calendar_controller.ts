@@ -7,12 +7,12 @@ import { requireTenantId } from '#shared/http/tenant_context'
 
 @inject()
 export default class InertiaCalendarController {
-  constructor(private agendaPageService: CalendarPageService) {}
+  constructor(private calendarPageService: CalendarPageService) {}
 
   async index(ctx: HttpContext) {
     const { month, view } = await calendarQueryValidator.validate(ctx.request.qs())
-    const page = await this.agendaPageService.index(requireTenantId(ctx), month, view ?? 'all')
+    const page = await this.calendarPageService.index(requireTenantId(ctx), month, view ?? 'all')
 
-    return ctx.inertia.render('agenda/index', page)
+    return ctx.inertia.render('calendar/index', page)
   }
 }

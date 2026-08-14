@@ -52,7 +52,7 @@ declare module '@adonisjs/inertia/types' {
     'dashboard': { dashboard: DashboardOverview }
 
     // Agenda
-    'agenda/index': WebCalendarData
+    'calendar/index': WebCalendarData
 
     // Folders
     'folders/index': {
