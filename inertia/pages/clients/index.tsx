@@ -4,25 +4,22 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  FilterX,
   FolderOpen,
   Plus,
-  Search,
   UserRound,
   Users,
 } from 'lucide-react'
-import { useState } from 'react'
 
 import { ClientList, formatClientDocument } from '~/components/clients/client_list'
+import { FilterBar } from '~/components/shared/filter_bar'
 import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
 import { NativeSelect } from '~/components/ui/native-select'
+import { CLIENT_PERSON_TYPE_LABELS } from '~/lib/labels'
 import { MainLayout } from '~/layouts'
 import type {
   ClientFilters,
   ClientItem,
   ClientPaginationMeta,
-  ClientPersonType,
   ClientSortField,
   ClientStats,
 } from '~/types/client'
@@ -89,29 +86,22 @@ function StatCard({
 }
 
 export default function ClientsPage({ clients, filters, stats }: ClientsPageProps) {
-  const [search, setSearch] = useState(filters.search)
-  const [personType, setPersonType] = useState<ClientPersonType | ''>(filters.person_type ?? '')
-
   const visit = (
     overrides: {
       page?: number
       per_page?: number
       sort_by?: ClientSortField
       order?: 'asc' | 'desc'
-      search?: string
-      person_type?: ClientPersonType | ''
     } = {}
   ) => {
-    const nextSearch = overrides.search ?? search
-    const nextType = overrides.person_type ?? personType
     const query: Record<string, string | number> = {
       page: overrides.page ?? clients.meta.current_page,
       per_page: overrides.per_page ?? filters.per_page,
       sort_by: overrides.sort_by ?? filters.sort_by,
       order: overrides.order ?? filters.order,
     }
-    if (nextSearch.trim()) query.search = nextSearch.trim()
-    if (nextType) query.person_type = nextType
+    if (filters.search.trim()) query.search = filters.search.trim()
+    if (filters.person_type) query.person_type = filters.person_type
 
     router.get('/clients', query, {
       preserveState: true,
@@ -126,16 +116,6 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
       order: filters.sort_by === field && filters.order === 'asc' ? 'desc' : 'asc',
       page: 1,
     })
-  }
-
-  const clearFilters = () => {
-    setSearch('')
-    setPersonType('')
-    router.get(
-      '/clients',
-      { per_page: filters.per_page, sort_by: filters.sort_by, order: filters.order },
-      { preserveState: true, preserveScroll: true, replace: true }
-    )
   }
 
   return (
@@ -192,56 +172,26 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)]">
-          <form
-            onSubmit={(event) => {
-              event.preventDefault()
-              visit({ page: 1 })
+          <FilterBar
+            baseUrl="/clients"
+            currentFilters={filters}
+            searchPlaceholder="Nome, documento ou e-mail"
+            preserveParams={{
+              per_page: filters.per_page,
+              sort_by: filters.sort_by,
+              order: filters.order,
             }}
-            className="grid items-center gap-3 border-b border-gray-100 p-4 sm:grid-cols-[minmax(240px,1fr)_220px_auto] sm:p-6"
-          >
-            <div className="relative">
-              <Search className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-              <Input
-                type="search"
-                name="search"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Nome, documento ou e-mail"
-                className="h-12 ps-10"
-              />
-            </div>
-            <NativeSelect
-              name="person_type"
-              value={personType}
-              onChange={(event) => {
-                const value = event.target.value as ClientPersonType | ''
-                setPersonType(value)
-                visit({ person_type: value, page: 1 })
-              }}
-              selectSize="lg"
-            >
-              <option value="">Todos os tipos</option>
-              <option value="individual">Pessoa física</option>
-              <option value="company">Pessoa jurídica</option>
-            </NativeSelect>
-            <div className="flex gap-2">
-              <Button type="submit" variant="outline" className="flex-1 sm:flex-none">
-                <Search className="size-4" />
-                Buscar
-              </Button>
-              {(search || personType) && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  mode="icon"
-                  onClick={clearFilters}
-                  aria-label="Limpar filtros"
-                >
-                  <FilterX className="size-4" />
-                </Button>
-              )}
-            </div>
-          </form>
+            fields={[
+              {
+                key: 'person_type',
+                label: 'Todos os tipos',
+                options: [
+                  { value: 'individual', label: CLIENT_PERSON_TYPE_LABELS.individual },
+                  { value: 'company', label: CLIENT_PERSON_TYPE_LABELS.company },
+                ],
+              },
+            ]}
+          />
 
           <ClientList
             clients={clients.data}
