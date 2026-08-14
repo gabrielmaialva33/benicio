@@ -1,10 +1,19 @@
-import { Link, router, usePage } from '@inertiajs/react'
-import { Check, Menu, Settings, User } from 'lucide-react'
+import { Link, router } from '@inertiajs/react'
+import { Check, Menu, Search, Settings, User } from 'lucide-react'
 import { useState } from 'react'
 
 import { BrandLogo } from '~/components/brand_logo'
+import { openCommandPalette } from '~/components/shared/command_palette'
 import { HeaderActivity } from '~/components/shell/header_activity'
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +22,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
+import { Kbd } from '~/components/ui/kbd'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '~/components/ui/sheet'
 import { useAuth } from '~/hooks/use_auth'
+import { usePageCopy } from '~/hooks/use_menu'
 import { SidebarNav } from './sidebar'
 
 function initialsOf(name: string) {
@@ -25,76 +36,6 @@ function initialsOf(name: string) {
     .slice(0, 2)
     .join('')
     .toUpperCase()
-}
-
-function pageCopy(url: string) {
-  const path = url.split('?', 1)[0] ?? '/dashboard'
-
-  if (path === '/dashboard') {
-    return { title: 'Visão Geral', description: 'Suas tarefas principais estão nessa seção.' }
-  }
-  if (path === '/folders/create') {
-    return { title: 'Cadastro de Pasta', description: 'Preencha os dados da nova pasta.' }
-  }
-  if (/^\/folders\/\d+\/processes\/create$/.test(path)) {
-    return { title: 'Novo Processo', description: 'Cadastre o processo dentro da pasta.' }
-  }
-  if (/^\/folders\/\d+\/processes\/\d+\/edit$/.test(path)) {
-    return { title: 'Editar Processo', description: 'Atualize dados, valores e partes.' }
-  }
-  if (/^\/folders\/\d+\/processes\/\d+$/.test(path)) {
-    return {
-      title: 'Detalhes do Processo',
-      description: 'Consulte o contexto processual completo.',
-    }
-  }
-  if (/^\/folders\/\d+$/.test(path)) {
-    return {
-      title: 'Detalhes da Pasta',
-      description: 'Acompanhe o contexto jurídico e operacional.',
-    }
-  }
-  if (path.startsWith('/folders')) {
-    return { title: 'Consulta de pastas', description: 'Pastas › Consulta' }
-  }
-  if (path === '/clients/create') {
-    return { title: 'Novo Cliente', description: 'Cadastre uma pessoa física ou jurídica.' }
-  }
-  if (path.startsWith('/clients/') && path.endsWith('/edit')) {
-    return { title: 'Editar Cliente', description: 'Atualize os dados cadastrais e de contato.' }
-  }
-  if (/^\/clients\/\d+$/.test(path)) {
-    return { title: 'Detalhes do Cliente', description: 'Consulte dados e vínculos jurídicos.' }
-  }
-  if (path.startsWith('/clients')) {
-    return { title: 'Clientes', description: 'Gerencie a base de clientes do escritório.' }
-  }
-  if (path.startsWith('/calendar')) {
-    return { title: 'Agenda', description: 'Audiências e prazos do escritório.' }
-  }
-  if (path.startsWith('/notifications')) {
-    return { title: 'Notificações', description: 'Tudo que pediu sua atenção.' }
-  }
-  if (path.startsWith('/chat')) {
-    return { title: 'Chat IA', description: 'Seu assistente jurídico inteligente.' }
-  }
-  if (path.startsWith('/users')) {
-    return { title: 'Usuários', description: 'Gerencie as pessoas com acesso à plataforma.' }
-  }
-  if (path.startsWith('/files')) {
-    return { title: 'Arquivos', description: 'Envie e organize os documentos do escritório.' }
-  }
-  if (path.startsWith('/roles')) {
-    return { title: 'Papéis', description: 'Organize os níveis de acesso da equipe.' }
-  }
-  if (path.startsWith('/permissions')) {
-    return { title: 'Permissões', description: 'Consulte as capacidades disponíveis no sistema.' }
-  }
-  if (path.startsWith('/settings')) {
-    return { title: 'Configurações', description: 'Ajuste seu perfil e o escritório ativo.' }
-  }
-
-  return { title: 'Benício', description: 'Gestão jurídica em um só lugar.' }
 }
 
 function UserMenu() {
@@ -168,9 +109,8 @@ function UserMenu() {
 }
 
 export function Header() {
-  const { url } = usePage()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const copy = pageCopy(url)
+  const copy = usePageCopy()
 
   return (
     <header className="shrink-0 bg-yol-page px-4 py-4 font-['Work_Sans'] sm:px-6 lg:px-[30px]">
@@ -199,6 +139,27 @@ export function Header() {
           </Sheet>
 
           <div className="min-w-0">
+            {copy.breadcrumb.length > 0 && (
+              <Breadcrumb className="mb-1 hidden sm:block">
+                <BreadcrumbList className="text-xs">
+                  {copy.breadcrumb.map((crumb) => (
+                    <BreadcrumbItem key={crumb.label}>
+                      {crumb.href ? (
+                        <BreadcrumbLink asChild>
+                          <Link href={crumb.href}>{crumb.label}</Link>
+                        </BreadcrumbLink>
+                      ) : (
+                        crumb.label
+                      )}
+                      <BreadcrumbSeparator />
+                    </BreadcrumbItem>
+                  ))}
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>{copy.title}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            )}
             <h1 className="truncate font-semibold text-2xl text-yol-ink">{copy.title}</h1>
             {copy.description && (
               <p className="mt-1 hidden truncate text-sm text-gray-500 sm:block">
@@ -209,6 +170,16 @@ export function Header() {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-6">
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            className="hidden items-center gap-2 rounded-md bg-white px-3 py-2 text-sm text-gray-500 shadow-sm transition hover:text-gray-700 md:flex"
+          >
+            <Search className="size-4" />
+            Buscar
+            <Kbd>⌘K</Kbd>
+          </button>
+
           <HeaderActivity />
           <UserMenu />
           <button

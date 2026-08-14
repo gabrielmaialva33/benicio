@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react'
 import { type ReactNode, useState } from 'react'
 import { FloatingChat } from '~/components/chat/floating_chat'
+import { CommandPalette } from '~/components/shared/command_palette'
 import { useFlashToast } from '~/hooks/use_flash_toast'
 import { useShellRealtime } from '~/hooks/use_shell_realtime'
 import { Header } from './main/components/header'
@@ -32,6 +33,8 @@ export function MainLayout({ children }: MainLayoutProps) {
           </div>
         </main>
       </div>
+
+      <CommandPalette />
 
       {!isChatPage && <FloatingChat />}
     </div>
