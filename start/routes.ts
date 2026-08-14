@@ -31,8 +31,12 @@ import '#modules/activities/routes'
 import '#modules/documents/routes'
 import '#modules/favorites/routes'
 import '#modules/dashboard/routes'
+import '#modules/notifications/routes'
+import '#modules/messages/routes'
 
-import '#modules/web/routes'
+// Register transport endpoints before the Inertia wildcard routes.
+await import('#start/transmit')
+await import('#modules/web/routes')
 
 router
   .get('/version', async () => {
