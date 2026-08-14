@@ -210,7 +210,15 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
           cell: ({ row }) => (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" mode="icon" size="sm">
+                {/* The trigger carried no accessible name at all, so a screen
+                    reader announced an unlabelled button on every row. */}
+                <Button
+                  variant="ghost"
+                  mode="icon"
+                  size="sm"
+                  aria-label={`Ações para ${row.original.full_name}`}
+                  className="text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                >
                   <MoreVertical className="size-4" />
                 </Button>
               </DropdownMenuTrigger>

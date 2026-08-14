@@ -79,7 +79,7 @@ export function ConversationSidebar({
       <div className="border-b border-[#e1e3ea] p-4">
         <Button
           asChild
-          className="w-full justify-center rounded-lg bg-orange-500 px-4 py-2 font-semibold text-white hover:bg-orange-600"
+          className="w-full justify-center rounded-lg bg-yol-cyan px-4 py-2 font-semibold text-white hover:bg-yol-cyan-hover"
           aria-disabled={disabled}
         >
           <Link href="/chat" className={cn(disabled && 'pointer-events-none opacity-60')}>

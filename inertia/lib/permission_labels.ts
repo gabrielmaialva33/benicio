@@ -86,3 +86,23 @@ const CONTEXT_LABELS: Record<string, string> = {
 export function contextLabel(context: string): string {
   return CONTEXT_LABELS[context.toLowerCase()] ?? humanize(context)
 }
+
+/**
+ * Most descriptions in the database are machine-made from the slugs
+ * (`Create ai`, `Delete clients`) by the default-permissions service, so they
+ * are both English and a restatement of the title above them. Curated ones
+ * ("Exportar análises") say something real and are kept.
+ *
+ * Detecting the generated shape is what lets both live in the same column
+ * without a migration: it is exactly `<Capitalised action> <resource>`.
+ */
+export function meaningfulDescription(
+  description: string | null,
+  resource: string,
+  action: string
+): string | null {
+  if (!description) return null
+
+  const generated = `${action.charAt(0).toUpperCase()}${action.slice(1)} ${resource}`
+  return description.trim().toLowerCase() === generated.toLowerCase() ? null : description
+}

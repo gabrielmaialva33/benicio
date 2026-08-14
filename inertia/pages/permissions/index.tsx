@@ -13,7 +13,12 @@ import {
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { actionBadgeVariant } from '~/lib/permission_badges'
-import { actionLabel, contextLabel, resourceLabel } from '~/lib/permission_labels'
+import {
+  actionLabel,
+  contextLabel,
+  meaningfulDescription,
+  resourceLabel,
+} from '~/lib/permission_labels'
 import { Input } from '~/components/ui/input'
 
 interface PermissionRow {
@@ -106,9 +111,17 @@ export default function PermissionsPage({ permissions }: PermissionsPageProps) {
                         <p className="truncate text-sm font-medium first-letter:uppercase">
                           {actionLabel(permission.action)}
                         </p>
-                        {permission.description && (
+                        {meaningfulDescription(
+                          permission.description,
+                          permission.resource,
+                          permission.action
+                        ) && (
                           <p className="truncate text-xs text-muted-foreground">
-                            {permission.description}
+                            {meaningfulDescription(
+                              permission.description,
+                              permission.resource,
+                              permission.action
+                            )}
                           </p>
                         )}
                       </div>

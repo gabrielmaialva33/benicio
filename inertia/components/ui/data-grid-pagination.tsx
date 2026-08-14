@@ -30,12 +30,12 @@ function DataGridPagination(props: DataGridPaginationProps) {
 
   const defaultProps: Partial<DataGridPaginationProps> = {
     sizes: [5, 10, 25, 50, 100],
-    sizesLabel: 'Show',
-    sizesDescription: 'per page',
+    sizesLabel: 'Exibir',
+    sizesDescription: 'por página',
     sizesSkeleton: <Skeleton className="h-8 w-44" />,
     moreLimit: 5,
     more: false,
-    info: '{from} - {to} of {count}',
+    info: '{from} - {to} de {count}',
     infoSkeleton: <Skeleton className="h-8 w-60" />,
   }
 
@@ -55,7 +55,7 @@ function DataGridPagination(props: DataGridPaginationProps) {
         .replace('{from}', from.toString())
         .replace('{to}', to.toString())
         .replace('{count}', recordCount.toString())
-    : `${from} - ${to} of ${recordCount}`
+    : `${from} - ${to} de ${recordCount}`
 
   // Pagination limit logic
   const paginationMoreLimit = mergedProps?.moreLimit || 5
@@ -139,7 +139,7 @@ function DataGridPagination(props: DataGridPaginationProps) {
           mergedProps?.sizesSkeleton
         ) : (
           <>
-            <div className="text-sm text-muted-foreground">Rows per page</div>
+            <div className="text-sm text-muted-foreground">Por página</div>
             <Select
               value={`${pageSize}`}
               indicatorPosition="right"
