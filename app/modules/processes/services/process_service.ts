@@ -1,5 +1,4 @@
 import { inject } from '@adonisjs/core'
-import db from '@adonisjs/lucid/services/db'
 
 import ConflictException from '#exceptions/conflict_exception'
 import NotFoundException from '#exceptions/not_found_exception'
@@ -16,12 +15,14 @@ import type {
   UpdateProcessData,
 } from '#modules/processes/interfaces/process_interface'
 import type LegalProcess from '#modules/processes/models/process'
+import UnitOfWork from '#shared/lucid/unit_of_work'
 
 @inject()
 export default class ProcessService {
   constructor(
     private processRepository: ProcessRepository,
-    private folderRepository: FolderRepository
+    private folderRepository: FolderRepository,
+    private unitOfWork: UnitOfWork
   ) {}
 
   async list(tenantId: number, input: ProcessListInput) {
@@ -53,7 +54,7 @@ export default class ProcessService {
     const parties = this.prepareParties(input.parties ?? [])
 
     try {
-      const processId = await db.transaction(async (trx) => {
+      const processId = await this.unitOfWork.run(async (trx) => {
         if (!(await this.processRepository.lockFolder(tenantId, folderId, trx))) {
           throw new NotFoundException('Folder not found')
         }
@@ -89,7 +90,7 @@ export default class ProcessService {
     const parties = input.parties === undefined ? undefined : this.prepareParties(input.parties)
 
     try {
-      await db.transaction(async (trx) => {
+      await this.unitOfWork.run(async (trx) => {
         if (!(await this.processRepository.lockFolder(tenantId, current.folder_id, trx))) {
           throw new NotFoundException('Folder not found')
         }
@@ -114,7 +115,7 @@ export default class ProcessService {
     const current = await this.findOrFail(tenantId, processId)
 
     try {
-      await db.transaction(async (trx) => {
+      await this.unitOfWork.run(async (trx) => {
         if (!(await this.processRepository.lockFolder(tenantId, current.folder_id, trx))) {
           throw new NotFoundException('Folder not found')
         }
@@ -135,7 +136,7 @@ export default class ProcessService {
   }
 
   async delete(tenantId: number, processId: number): Promise<void> {
-    await db.transaction(async (trx) => {
+    await this.unitOfWork.run(async (trx) => {
       const process = await this.processRepository.find(tenantId, processId, trx)
       if (!process) {
         throw new NotFoundException('Process not found')

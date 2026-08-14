@@ -1,5 +1,4 @@
 import { inject } from '@adonisjs/core'
-import db from '@adonisjs/lucid/services/db'
 
 import ConflictException from '#exceptions/conflict_exception'
 import NotFoundException from '#exceptions/not_found_exception'
@@ -12,12 +11,14 @@ import type {
   UpdateFolderData,
 } from '#modules/folders/interfaces/folder_interface'
 import type Folder from '#modules/folders/models/folder'
+import UnitOfWork from '#shared/lucid/unit_of_work'
 
 @inject()
 export default class FolderService {
   constructor(
     private folderRepository: FolderRepository,
-    private clientRepository: ClientRepository
+    private clientRepository: ClientRepository,
+    private unitOfWork: UnitOfWork
   ) {}
 
   async list(tenantId: number, input: FolderListInput) {
@@ -76,7 +77,7 @@ export default class FolderService {
   }
 
   async delete(tenantId: number, folderId: number): Promise<void> {
-    await db.transaction(async (trx) => {
+    await this.unitOfWork.run(async (trx) => {
       const folder = await this.folderRepository.findForUpdate(tenantId, folderId, trx)
       if (!folder) {
         throw new NotFoundException('Folder not found')
