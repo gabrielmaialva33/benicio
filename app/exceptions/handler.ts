@@ -32,6 +32,10 @@ function toInputErrorsBag(messages: unknown): Record<string, string[]> {
     : { general: ['Não foi possível validar os dados enviados.'] }
 }
 
+function expectsJson(ctx: HttpContext): boolean {
+  return ctx.request.url().startsWith('/api/') || ctx.request.accepts(['html', 'json']) === 'json'
+}
+
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
    * In debug mode, the exception handler will display verbose errors
@@ -89,7 +93,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       error.code === 'E_VALIDATION_ERROR'
     ) {
       const validationError = error as { messages?: unknown }
-      if (ctx.request.accepts(['html', 'json']) === 'json') {
+      if (expectsJson(ctx)) {
         return ctx.response.status(422).json({
           errors: validationError.messages || [],
         })
@@ -107,7 +111,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       typeof error === 'object' &&
       'status' in error &&
       error.status === 403 &&
-      ctx.request.accepts(['html', 'json']) !== 'json'
+      !expectsJson(ctx)
     ) {
       return this.#handleForbidden(ctx)
     }

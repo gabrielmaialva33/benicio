@@ -5,6 +5,7 @@ import limiter from '@adonisjs/limiter/services/main'
 import User from '#modules/users/models/user'
 import Permission from '#modules/permissions/models/permission'
 import Role from '#modules/roles/models/role'
+import Tenant from '#modules/tenants/models/tenant'
 
 import IRole from '#modules/roles/interfaces/role_interface'
 import IPermission from '#modules/permissions/interfaces/permission_interface'
@@ -118,6 +119,12 @@ test.group('Rate Limiting', (group) => {
     })
 
     await user.related('roles').sync([userRole.id])
+    const tenant = await Tenant.create({
+      name: 'Upload Rate Limit',
+      slug: `upload-rate-limit-${user.id}`,
+      is_active: true,
+    })
+    await user.related('tenants').attach({ [tenant.id]: { role: 'member' } })
 
     // Create file upload permission
 

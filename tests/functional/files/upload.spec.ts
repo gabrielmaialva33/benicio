@@ -15,7 +15,7 @@ import Tenant from '#modules/tenants/models/tenant'
 import IPermission from '#modules/permissions/interfaces/permission_interface'
 import IRole from '#modules/roles/interfaces/role_interface'
 
-test.group('Files upload', (group) => {
+test.group('Files', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
   group.each.setup(() => {
@@ -93,7 +93,7 @@ test.group('Files upload', (group) => {
     const uploadedFile = await File.findBy('owner_id', user.id)
     assert.isNotNull(uploadedFile)
     assert.equal(uploadedFile!.owner_id, user.id)
-    assert.equal(uploadedFile!.file_category, 'file')
+    assert.equal(uploadedFile!.file_category, 'document')
 
     // Clean up test file
     await import('node:fs').then((fs) => fs.promises.unlink(testFilePath))
@@ -488,6 +488,63 @@ test.group('Files upload', (group) => {
 
     response.assertStatus(403)
 
+    await import('node:fs').then((fs) => fs.promises.unlink(testFilePath))
+  })
+
+  test('should authorize private downloads inside the active tenant', async ({
+    client,
+    assert,
+  }) => {
+    const userRole = await Role.firstOrCreate(
+      { slug: IRole.Slugs.USER },
+      {
+        name: 'User',
+        slug: IRole.Slugs.USER,
+        description: 'Regular user role',
+      }
+    )
+    const user = await User.create({
+      full_name: 'Download User',
+      email: 'download@example.com',
+      username: 'download-user',
+      password: 'password123',
+    })
+    const tenant = await attachTenant(user)
+    const otherTenant = await Tenant.create({
+      name: 'Other download tenant',
+      slug: `other-download-${user.id}`,
+      is_active: true,
+    })
+    await user.related('tenants').attach({ [otherTenant.id]: { role: 'member' } })
+    await assignPermissions(userRole, [IPermission.Actions.CREATE, IPermission.Actions.READ])
+
+    const testFilePath = join(app.tmpPath(), `private-${randomUUID()}.txt`)
+    await import('node:fs').then((fs) => fs.promises.writeFile(testFilePath, 'private content'))
+    const uploaded = await client
+      .post('/api/v1/files/upload')
+      .header('x-tenant-id', String(tenant.id))
+      .file('file', testFilePath)
+      .loginAs(user)
+    uploaded.assertStatus(201)
+
+    const fileId = uploaded.body().id as number
+    const download = await client
+      .get(`/api/v1/files/${fileId}/download`)
+      .header('x-tenant-id', String(tenant.id))
+      .redirects(0)
+      .loginAs(user)
+    download.assertStatus(302)
+    assert.include(download.header('location'), '/uploads/tenants/')
+
+    const crossTenant = await client
+      .get(`/api/v1/files/${fileId}/download`)
+      .header('x-tenant-id', String(otherTenant.id))
+      .redirects(0)
+      .loginAs(user)
+    crossTenant.assertStatus(404)
+
+    const anonymous = await client.get(`/api/v1/files/${fileId}/download`).redirects(0)
+    anonymous.assertStatus(401)
     await import('node:fs').then((fs) => fs.promises.unlink(testFilePath))
   })
 
