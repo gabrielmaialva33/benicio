@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
 import { APP_TIME_ZONE } from '~/lib/date'
+import { EmptyState } from '~/components/shared/empty_state'
 import { cn } from '~/lib/utils'
 import type { FolderItem, FolderSortField } from '~/types/folder'
 import { FolderStatusBadge } from './folder_status_badge'
@@ -121,15 +122,11 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
 
   if (folders.length === 0) {
     return (
-      <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-yol-cyan">
-          <BriefcaseBusiness className="size-7" />
-        </span>
-        <h3 className="mt-4 text-base font-bold text-slate-900">Nenhuma pasta encontrada</h3>
-        <p className="mt-1 max-w-sm text-sm text-slate-500">
-          Ajuste os filtros ou cadastre a primeira pasta deste escritório.
-        </p>
-      </div>
+      <EmptyState
+        icon={BriefcaseBusiness}
+        message="Nenhuma pasta encontrada"
+        description="Ajuste os filtros ou cadastre a primeira pasta deste escritório."
+      />
     )
   }
 
