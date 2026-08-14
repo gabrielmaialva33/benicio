@@ -7,6 +7,7 @@ import { Field } from '~/components/forms/field'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import type { FolderFormOptions, FolderStatus } from '~/types/folder'
+import { NativeSelect } from '~/components/ui/native-select'
 
 interface FolderFormData {
   code: string
@@ -39,7 +40,7 @@ function SelectField({
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
-      <select
+      <NativeSelect
         id={id}
         name={id}
         value={value}
@@ -47,10 +48,10 @@ function SelectField({
         required={required}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
-        className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-[#00b8d9] focus:ring-2 focus:ring-[#00b8d9]/20 aria-invalid:border-red-500"
+        selectSize="lg"
       >
         {children}
-      </select>
+      </NativeSelect>
       {error && (
         <p id={`${id}-error`} className="text-xs text-destructive">
           {error}

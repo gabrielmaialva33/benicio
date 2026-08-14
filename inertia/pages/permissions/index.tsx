@@ -12,6 +12,7 @@ import {
   CardToolbar,
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
+import { actionBadgeVariant } from '~/lib/permission_badges'
 import { Input } from '~/components/ui/input'
 
 interface PermissionRow {
@@ -25,18 +26,6 @@ interface PermissionRow {
 
 interface PermissionsPageProps {
   permissions: PermissionRow[]
-}
-
-const ACTION_BADGE: Record<string, 'success' | 'info' | 'warning' | 'destructive' | 'secondary'> = {
-  create: 'success',
-  read: 'info',
-  list: 'info',
-  update: 'warning',
-  delete: 'destructive',
-  assign: 'secondary',
-  revoke: 'secondary',
-  export: 'secondary',
-  import: 'secondary',
 }
 
 function groupByResource(permissions: PermissionRow[]): [string, PermissionRow[]][] {
@@ -124,7 +113,7 @@ export default function PermissionsPage({ permissions }: PermissionsPageProps) {
                       </div>
                       <div className="flex shrink-0 items-center gap-1.5">
                         <Badge
-                          variant={ACTION_BADGE[permission.action] ?? 'secondary'}
+                          variant={actionBadgeVariant(permission.action)}
                           appearance="light"
                           size="sm"
                         >

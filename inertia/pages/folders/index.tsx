@@ -6,6 +6,7 @@ import { FolderList } from '~/components/folders/folder_list'
 import { folderStatusLabel } from '~/components/folders/folder_status_badge'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
+import { NativeSelect } from '~/components/ui/native-select'
 import { MainLayout } from '~/layouts'
 import { cn } from '~/lib/utils'
 import type {
@@ -196,7 +197,7 @@ export default function FoldersPage({
                 className="h-12 rounded-lg border-gray-300 ps-10 focus-visible:border-[#00b8d9] focus-visible:ring-[#00b8d9]/20"
               />
             </div>
-            <select
+            <NativeSelect
               name="area"
               value={localFilters.area}
               onChange={(event) => {
@@ -204,7 +205,7 @@ export default function FoldersPage({
                 setLocalFilters((current) => ({ ...current, area }))
                 visit({ area, page: 1 })
               }}
-              className="h-12 rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-900 outline-none focus:border-[#00b8d9] focus:ring-2 focus:ring-[#00b8d9]/20"
+              selectSize="lg"
             >
               <option value="">Todas as áreas</option>
               {areas.map((area) => (
@@ -212,7 +213,7 @@ export default function FoldersPage({
                   {area}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
             <div className="flex items-center gap-2">
               <Button
                 type="submit"
@@ -270,18 +271,19 @@ export default function FoldersPage({
               <label htmlFor="folders-per-page" className="sr-only">
                 Resultados por página
               </label>
-              <select
+              <NativeSelect
                 id="folders-per-page"
                 value={filters.per_page}
                 onChange={(event) => visit({ per_page: Number(event.target.value), page: 1 })}
-                className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
+                selectSize="xs"
+                containerClassName="w-36"
               >
                 {[10, 20, 50].map((value) => (
                   <option key={value} value={value}>
                     {value} por página
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </div>
             <div className="flex items-center justify-between gap-3 sm:justify-end">
               <Button

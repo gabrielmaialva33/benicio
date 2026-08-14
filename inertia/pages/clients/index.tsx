@@ -19,6 +19,7 @@ import { ClientList, formatClientDocument } from '~/components/clients/client_li
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { useFlash } from '~/hooks/use_flash'
+import { NativeSelect } from '~/components/ui/native-select'
 import { MainLayout } from '~/layouts'
 import type {
   ClientFilters,
@@ -223,7 +224,7 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
                 className="h-12 ps-10"
               />
             </div>
-            <select
+            <NativeSelect
               name="person_type"
               value={personType}
               onChange={(event) => {
@@ -231,12 +232,12 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
                 setPersonType(value)
                 visit({ person_type: value, page: 1 })
               }}
-              className="h-12 rounded-lg border border-gray-300 bg-white px-4 text-sm text-[#1f2a37] outline-none transition focus:border-[#1cd6f4] focus:ring-2 focus:ring-cyan-100"
+              selectSize="lg"
             >
               <option value="">Todos os tipos</option>
               <option value="individual">Pessoa física</option>
               <option value="company">Pessoa jurídica</option>
-            </select>
+            </NativeSelect>
             <div className="flex gap-2">
               <Button type="submit" variant="outline" className="flex-1 sm:flex-none">
                 <Search className="size-4" />
@@ -267,18 +268,19 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
             <div className="flex items-center gap-2 text-sm text-slate-500">
               <span>{clients.meta.total} resultado(s)</span>
               <span className="text-slate-300">·</span>
-              <select
+              <NativeSelect
                 aria-label="Resultados por página"
                 value={filters.per_page}
                 onChange={(event) => visit({ per_page: Number(event.target.value), page: 1 })}
-                className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
+                selectSize="xs"
+                containerClassName="w-36"
               >
                 {[10, 20, 50].map((value) => (
                   <option key={value} value={value}>
                     {value} por página
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </div>
             <div className="flex items-center justify-between gap-3 sm:justify-end">
               <Button

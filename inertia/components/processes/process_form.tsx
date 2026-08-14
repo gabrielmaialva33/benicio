@@ -16,6 +16,7 @@ import type { FormEvent, ReactNode } from 'react'
 import { Field } from '~/components/forms/field'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
+import { NativeSelect } from '~/components/ui/native-select'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import type {
@@ -110,16 +111,16 @@ function SelectField({
   return (
     <div className="space-y-2">
       <Label htmlFor={name}>{label}</Label>
-      <select
+      <NativeSelect
         id={name}
         name={name}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={Boolean(error)}
-        className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-900 outline-none focus:border-[#00b8d9] focus:ring-2 focus:ring-[#00b8d9]/20"
+        selectSize="lg"
       >
         {children}
-      </select>
+      </NativeSelect>
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   )

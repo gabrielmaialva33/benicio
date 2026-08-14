@@ -12,6 +12,7 @@ import {
   CardToolbar,
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
+import { actionBadgeVariant } from '~/lib/permission_badges'
 
 interface RolePermission {
   id: number
@@ -102,7 +103,12 @@ function RoleCard({ role }: { role: RoleRow }) {
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {permissions.map((permission) => (
-                    <Badge key={permission.id} variant="info" appearance="outline" size="sm">
+                    <Badge
+                      key={permission.id}
+                      variant={actionBadgeVariant(permission.action)}
+                      appearance="outline"
+                      size="sm"
+                    >
                       {permission.action}
                       {permission.context !== 'any' && (
                         <span className="text-muted-foreground">:{permission.context}</span>

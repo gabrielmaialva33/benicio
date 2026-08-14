@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/componen
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import type { ClientItem, ClientPersonType } from '~/types/client'
+import { NativeSelect } from '~/components/ui/native-select'
 
 interface ClientFormData {
   name: string
@@ -111,18 +112,18 @@ export function ClientForm({ client }: { client?: ClientItem }) {
         <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2 xl:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="person_type">Tipo de pessoa</Label>
-            <select
+            <NativeSelect
               id="person_type"
               name="person_type"
               value={form.data.person_type}
               onChange={(event) =>
                 form.setData('person_type', event.target.value as ClientPersonType)
               }
-              className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-[#1f2a37] outline-none transition focus:border-[#1cd6f4] focus:ring-2 focus:ring-cyan-100"
+              selectSize="lg"
             >
               <option value="individual">Pessoa física</option>
               <option value="company">Pessoa jurídica</option>
-            </select>
+            </NativeSelect>
             {errors.person_type && <p className="text-xs text-destructive">{errors.person_type}</p>}
           </div>
           <Field
