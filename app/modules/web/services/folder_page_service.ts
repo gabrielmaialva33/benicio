@@ -200,7 +200,7 @@ export default class FolderPageService {
         event_type: activity.event_type,
         summary: activity.summary,
         occurred_at: activity.occurred_at.toISO()!,
-        actor_name: activity.actor_id ? activity.actor.full_name : null,
+        actor_name: activity.actor?.full_name ?? null,
       })),
     }
   }
@@ -221,7 +221,7 @@ export default class FolderPageService {
         person_type: folder.client.person_type,
         email: folder.client.email,
       },
-      responsible_lawyer: folder.responsible_lawyer_id
+      responsible_lawyer: folder.responsible_lawyer?.id
         ? {
             id: folder.responsible_lawyer.id,
             full_name: folder.responsible_lawyer.full_name,
