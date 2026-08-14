@@ -33,6 +33,7 @@ import '#modules/favorites/routes'
 import '#modules/dashboard/routes'
 import '#modules/notifications/routes'
 import '#modules/messages/routes'
+import '#modules/ai/routes'
 
 // Register transport endpoints before the Inertia wildcard routes.
 await import('#start/transmit')
