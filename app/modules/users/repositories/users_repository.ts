@@ -82,6 +82,16 @@ export default class UsersRepository
     return this.model.query().preload('roles').orderBy('created_at', 'desc').limit(limit)
   }
 
+  /** Active users that belong to a tenant, used as legal-responsible options. */
+  async listActiveForTenant(tenantId: number): Promise<User[]> {
+    return this.model
+      .query()
+      .select('users.id', 'users.full_name', 'users.email')
+      .where('users.is_deleted', false)
+      .whereHas('tenants', (tenantQuery) => tenantQuery.where('tenants.id', tenantId))
+      .orderBy('users.full_name', 'asc')
+  }
+
   /**
    * Find a user by the email verification token stored in metadata, ignoring
    * soft-deleted records.

@@ -55,6 +55,16 @@ export default class DeadlineRepository {
       .first()
   }
 
+  async listOpenForFolder(tenantId: number, folderId: number, limit: number): Promise<Deadline[]> {
+    return Deadline.query()
+      .withScopes((scopes) => scopes.withTenant(tenantId))
+      .where('folder_id', folderId)
+      .whereNotIn('status', ['completed', 'cancelled'])
+      .preload('assignee')
+      .orderBy('due_at', 'asc')
+      .limit(limit)
+  }
+
   findFolder(tenantId: number, folderId: number) {
     return db
       .from('folders')
