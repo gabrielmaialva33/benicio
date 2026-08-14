@@ -45,17 +45,17 @@ describe('LoginForm', () => {
   it('renders the login form with all fields', () => {
     render(<LoginForm />)
 
-    expect(screen.getByLabelText(/Email or Username/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Sign in/i })).toBeInTheDocument()
-    expect(screen.getByText(/Forgot password\?/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/E-mail/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Senha/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Entrar/i })).toBeInTheDocument()
+    expect(screen.getByText(/Esqueci minha senha/i)).toBeInTheDocument()
   })
 
   it('allows entering credentials', async () => {
     const { user } = render(<LoginForm />)
 
-    const emailInput = screen.getByLabelText(/Email or Username/i)
-    const passwordInput = screen.getByLabelText(/Password/i)
+    const emailInput = screen.getByLabelText(/E-mail/i)
+    const passwordInput = screen.getByLabelText(/Senha/i)
 
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'password123')
@@ -67,9 +67,9 @@ describe('LoginForm', () => {
   it('submits the form when the sign in button is clicked', async () => {
     const { user } = render(<LoginForm />)
 
-    await user.type(screen.getByLabelText(/Email or Username/i), 'test@example.com')
-    await user.type(screen.getByLabelText(/Password/i), 'password123')
-    await user.click(screen.getByRole('button', { name: /Sign in/i }))
+    await user.type(screen.getByLabelText(/E-mail/i), 'test@example.com')
+    await user.type(screen.getByLabelText(/Senha/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /Entrar/i }))
 
     expect(mockPost).toHaveBeenCalledWith('/login')
   })
@@ -77,7 +77,7 @@ describe('LoginForm', () => {
   it('shows the forgot password link', () => {
     render(<LoginForm />)
 
-    const forgotPasswordLink = screen.getByText(/Forgot password\?/i)
+    const forgotPasswordLink = screen.getByText(/Esqueci minha senha/i)
     expect(forgotPasswordLink).toBeInTheDocument()
     expect(forgotPasswordLink.closest('a')).toHaveAttribute('href', '/forgot-password')
   })

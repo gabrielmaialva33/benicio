@@ -1,21 +1,37 @@
-import { FormEvent } from 'react'
 import { useForm } from '@inertiajs/react'
-import { Loader2 } from 'lucide-react'
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card'
-import { Alert, AlertContent, AlertDescription } from '~/components/ui/alert'
-import { Button } from '~/components/ui/button'
-import { Field } from '~/components/forms/field'
+import type { FormEvent, InputHTMLAttributes } from 'react'
 
 interface RegisterFormProps {
   errors?: Record<string, string>
+}
+
+interface RegisterFieldProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string
+  error?: string
+}
+
+function RegisterField({ label, error, name, ...props }: RegisterFieldProps) {
+  const id = String(name)
+  return (
+    <div>
+      <label htmlFor={id} className="sr-only">
+        {label}
+      </label>
+      <input
+        {...props}
+        id={id}
+        name={name}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className="h-[50px] w-full rounded-md border border-[#e1e3ea] bg-transparent px-3 font-semibold text-base text-gray-500 outline-none placeholder:text-gray-500 focus:border-gray-400"
+      />
+      {error && (
+        <p id={`${id}-error`} className="mt-1.5 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+    </div>
+  )
 }
 
 export function RegisterForm({ errors: serverErrors }: RegisterFormProps = {}) {
@@ -27,97 +43,82 @@ export function RegisterForm({ errors: serverErrors }: RegisterFormProps = {}) {
     password_confirmation: '',
   })
 
-  const generalError = serverErrors?.general
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
     post('/register')
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <form onSubmit={handleSubmit}>
-        <CardHeader>
-          <CardTitle>Create an account</CardTitle>
-          <CardDescription>Enter your information to get started</CardDescription>
-        </CardHeader>
+    <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4" noValidate>
+      {serverErrors?.general && (
+        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          {serverErrors.general}
+        </p>
+      )}
 
-        <CardContent className="space-y-4">
-          {generalError && (
-            <Alert variant="destructive" appearance="light">
-              <AlertContent>
-                <AlertDescription>{generalError}</AlertDescription>
-              </AlertContent>
-            </Alert>
-          )}
+      <RegisterField
+        label="Nome completo"
+        type="text"
+        name="full_name"
+        value={data.full_name}
+        onChange={(event) => setData('full_name', event.target.value)}
+        error={errors.full_name}
+        placeholder="Nome completo"
+        required
+        autoComplete="name"
+      />
+      <RegisterField
+        label="E-mail"
+        type="email"
+        name="email"
+        value={data.email}
+        onChange={(event) => setData('email', event.target.value)}
+        error={errors.email}
+        placeholder="E-mail"
+        required
+        autoComplete="email"
+      />
+      <RegisterField
+        label="Nome de usuário"
+        type="text"
+        name="username"
+        value={data.username}
+        onChange={(event) => setData('username', event.target.value)}
+        error={errors.username}
+        placeholder="Nome de usuário (opcional)"
+        autoComplete="username"
+      />
+      <RegisterField
+        label="Senha"
+        type="password"
+        name="password"
+        value={data.password}
+        onChange={(event) => setData('password', event.target.value)}
+        error={errors.password}
+        placeholder="Senha"
+        required
+        autoComplete="new-password"
+      />
+      <RegisterField
+        label="Confirmar senha"
+        type="password"
+        name="password_confirmation"
+        value={data.password_confirmation}
+        onChange={(event) => setData('password_confirmation', event.target.value)}
+        error={errors.password_confirmation}
+        placeholder="Confirmar senha"
+        required
+        autoComplete="new-password"
+      />
 
-          <Field
-            label="Full Name"
-            type="text"
-            name="full_name"
-            value={data.full_name}
-            onChange={(e) => setData('full_name', e.target.value)}
-            error={errors.full_name}
-            placeholder="John Doe"
-            required
-            autoComplete="name"
-          />
-
-          <Field
-            label="Email"
-            type="email"
-            name="email"
-            value={data.email}
-            onChange={(e) => setData('email', e.target.value)}
-            error={errors.email}
-            placeholder="john@example.com"
-            required
-            autoComplete="email"
-          />
-
-          <Field
-            label="Username (optional)"
-            type="text"
-            name="username"
-            value={data.username}
-            onChange={(e) => setData('username', e.target.value)}
-            error={errors.username}
-            placeholder="johndoe"
-            autoComplete="username"
-          />
-
-          <Field
-            label="Password"
-            type="password"
-            name="password"
-            value={data.password}
-            onChange={(e) => setData('password', e.target.value)}
-            error={errors.password}
-            hint="Must be at least 8 characters"
-            required
-            autoComplete="new-password"
-          />
-
-          <Field
-            label="Confirm Password"
-            type="password"
-            name="password_confirmation"
-            value={data.password_confirmation}
-            onChange={(e) => setData('password_confirmation', e.target.value)}
-            error={errors.password_confirmation}
-            required
-            autoComplete="new-password"
-          />
-        </CardContent>
-
-        <CardFooter>
-          <Button type="submit" variant="primary" disabled={processing} className="w-full">
-            {processing && <Loader2 className="size-4 animate-spin" />}
-            Create account
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+      <button
+        type="submit"
+        disabled={processing}
+        className="mt-1 flex h-[50px] w-full items-center justify-center rounded-full bg-gray-900 px-4 font-['Work_Sans'] font-semibold text-base text-white transition hover:bg-gray-800 disabled:opacity-50"
+      >
+        {processing ? 'Criando conta...' : 'Criar conta'}
+      </button>
+    </form>
   )
 }
 

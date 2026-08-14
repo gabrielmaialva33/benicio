@@ -1,113 +1,41 @@
-import { Link } from '@inertiajs/react'
-import { CheckCircle2, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
-
-import { ThemeToggle } from '~/components/theme/theme_toggle'
-
-interface Feature {
-  title: string
-  description: string
-  icon?: LucideIcon
-}
 
 interface AuthSplitLayoutProps {
   title: string
-  subtitle: string
-  panelTitle: string
-  panelDescription: string
-  features?: Feature[]
+  subtitle?: string
   children: ReactNode
   footer?: ReactNode
 }
 
-/**
- * Centered auth layout with a branded gradient panel on the right (desktop).
- * Shared by the login and register pages so they stay visually consistent.
- */
-export function AuthSplitLayout({
-  title,
-  subtitle,
-  panelTitle,
-  panelDescription,
-  features = [],
-  children,
-  footer,
-}: AuthSplitLayoutProps) {
+export function AuthSplitLayout({ title, subtitle, children, footer }: AuthSplitLayoutProps) {
   return (
-    <div className="flex min-h-screen">
-      {/* Form side */}
-      <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between p-6 lg:p-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-lg font-bold text-primary-foreground">B</span>
-            </div>
-            <span className="text-xl font-bold">Benício</span>
-          </Link>
-          <ThemeToggle />
-        </header>
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#373737]">
+      <div className="absolute -left-80 top-60 hidden size-[1136px] rounded-full border-[15px] border-orange-500/50 shadow-[0_4px_94.6px_13px_#0F172A] md:block" />
+      <div className="absolute -left-80 top-[-314px] hidden size-[1136px] rounded-full border-[15px] border-orange-500/50 shadow-[0_4px_94.6px_13px_#0F172A] md:block" />
 
-        <div className="flex flex-1 items-center justify-center p-6">
-          <div className="w-full max-w-[400px]">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-              <p className="mt-2 text-muted-foreground">{subtitle}</p>
-            </div>
-
-            {children}
-
-            {footer && <div className="mt-6 text-center text-sm">{footer}</div>}
-          </div>
+      <main className="relative z-10 mx-auto flex h-full w-full max-w-[1280px] items-center justify-center px-4 md:justify-between">
+        <div className="hidden flex-col items-start justify-center md:flex">
+          <img
+            src="/yol/logo-yol.svg"
+            alt="Benício Advogados"
+            width={406}
+            height={120}
+            className="h-auto w-full max-w-[406px]"
+          />
         </div>
 
-        <footer className="p-6 text-sm text-muted-foreground lg:p-8">
-          &copy; {new Date().getFullYear()} Benício. All rights reserved.
-        </footer>
-      </div>
+        <section className="flex w-full max-w-[490px] shrink-0 flex-col items-center justify-center gap-10 rounded-[15px] bg-white px-[32.5px] py-12 shadow-lg md:min-h-[607px] md:py-16">
+          <header className="text-center">
+            <h1 className="font-semibold text-[40px] leading-[0.8] tracking-[-0.01em] text-gray-900">
+              {title}
+            </h1>
+            {subtitle && <p className="mt-4 text-sm text-gray-500">{subtitle}</p>}
+          </header>
 
-      {/* Brand panel */}
-      <div className="relative hidden overflow-hidden bg-primary lg:block lg:w-[45%] xl:w-[50%]">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/70" />
-        <svg className="absolute inset-0 size-full opacity-20" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern
-              id="auth-grid"
-              x="0"
-              y="0"
-              width="32"
-              height="32"
-              patternUnits="userSpaceOnUse"
-            >
-              <circle cx="16" cy="16" r="1.5" fill="currentColor" className="text-white" />
-            </pattern>
-          </defs>
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#auth-grid)" />
-        </svg>
-
-        <div className="relative flex h-full flex-col justify-center p-12 text-primary-foreground xl:p-16">
-          <h2 className="max-w-md text-4xl font-bold leading-tight">{panelTitle}</h2>
-          <p className="mt-4 max-w-md text-lg text-primary-foreground/80">{panelDescription}</p>
-
-          {features.length > 0 && (
-            <ul className="mt-10 space-y-4">
-              {features.map((feature) => {
-                const Icon = feature.icon ?? CheckCircle2
-                return (
-                  <li key={feature.title} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
-                      <Icon className="size-4.5" />
-                    </span>
-                    <div>
-                      <p className="font-semibold">{feature.title}</p>
-                      <p className="text-sm text-primary-foreground/75">{feature.description}</p>
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </div>
-      </div>
+          <div className="w-full">{children}</div>
+          {footer && <div className="text-center text-sm text-gray-500">{footer}</div>}
+        </section>
+      </main>
     </div>
   )
 }
