@@ -1,6 +1,6 @@
 import { Link, router } from '@inertiajs/react'
 import { Check, Menu, Search, Settings, User } from 'lucide-react'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 
 import { BrandLogo } from '~/components/brand_logo'
 import { openCommandPalette } from '~/components/shared/command_palette'
@@ -143,16 +143,21 @@ export function Header() {
               <Breadcrumb className="mb-1 hidden sm:block">
                 <BreadcrumbList className="text-xs">
                   {copy.breadcrumb.map((crumb) => (
-                    <BreadcrumbItem key={crumb.label}>
-                      {crumb.href ? (
-                        <BreadcrumbLink asChild>
-                          <Link href={crumb.href}>{crumb.label}</Link>
-                        </BreadcrumbLink>
-                      ) : (
-                        crumb.label
-                      )}
+                    /* The separator is an <li> of its own: nesting it inside
+                       BreadcrumbItem produced invalid <li> markup and broke
+                       hydration. */
+                    <Fragment key={crumb.label}>
+                      <BreadcrumbItem>
+                        {crumb.href ? (
+                          <BreadcrumbLink asChild>
+                            <Link href={crumb.href}>{crumb.label}</Link>
+                          </BreadcrumbLink>
+                        ) : (
+                          crumb.label
+                        )}
+                      </BreadcrumbItem>
                       <BreadcrumbSeparator />
-                    </BreadcrumbItem>
+                    </Fragment>
                   ))}
                   <BreadcrumbItem>
                     <BreadcrumbPage>{copy.title}</BreadcrumbPage>
@@ -170,9 +175,16 @@ export function Header() {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-6">
+          {/*
+            The visible word is "Buscar", but the accessible name is not: every
+            list screen also has a "Buscar" submit button, and two controls
+            sharing a name is ambiguous for screen readers (and for tests).
+          */}
           <button
             type="button"
             onClick={openCommandPalette}
+            aria-label="Abrir busca rápida"
+            aria-keyshortcuts="Meta+K Control+K"
             className="hidden items-center gap-2 rounded-md bg-white px-3 py-2 text-sm text-gray-500 shadow-sm transition hover:text-gray-700 md:flex"
           >
             <Search className="size-4" />
