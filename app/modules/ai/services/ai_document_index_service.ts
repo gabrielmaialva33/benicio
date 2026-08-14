@@ -30,6 +30,7 @@ interface PreparedSource {
 
 interface IndexOptions {
   failFast?: boolean
+  force?: boolean
 }
 
 @inject()
@@ -82,9 +83,9 @@ export default class AiDocumentIndexService {
       sources.map((source) => source.id),
       this.retrievalProvider.embeddingModel
     )
-    const changed = sources.filter(
-      (source) => indexedHashes.get(source.id) !== this.sourceFingerprint(source)
-    )
+    const changed = options.force
+      ? sources
+      : sources.filter((source) => indexedHashes.get(source.id) !== this.sourceFingerprint(source))
     summary.unchanged = sources.length - changed.length
 
     for (let offset = 0; offset < changed.length; offset += 10) {

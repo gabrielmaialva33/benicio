@@ -56,6 +56,7 @@ test.group('AI document index service', () => {
     let storedChunks: Array<{ qdrantPointId: string; content: string }> = []
     let embeddedTexts: string[] = []
     let vectorWrites = 0
+    let firstPointId: string | undefined
 
     const service = serviceWith({
       knowledge: {
@@ -96,6 +97,7 @@ test.group('AI document index service', () => {
       failed: 0,
     })
     assert.lengthOf(storedChunks, 1)
+    firstPointId = storedChunks[0].qdrantPointId
     assert.match(
       storedChunks[0].qdrantPointId,
       /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-8[0-9a-f]{3}-[0-9a-f]{12}$/
@@ -110,6 +112,15 @@ test.group('AI document index service', () => {
       failed: 0,
     })
     assert.equal(vectorWrites, 1)
+
+    assert.deepEqual(await service.indexScope(3, {}, { force: true }), {
+      scanned: 1,
+      indexed: 1,
+      unchanged: 0,
+      failed: 0,
+    })
+    assert.equal(storedChunks[0].qdrantPointId, firstPointId)
+    assert.equal(vectorWrites, 2)
   })
 
   test('persists a durable failure state when file extraction is unavailable', async ({

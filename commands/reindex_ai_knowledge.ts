@@ -18,6 +18,9 @@ export default class ReindexAiKnowledge extends BaseCommand {
   @flags.number({ description: 'Only index this document ID (requires --tenant)', alias: 'd' })
   declare document?: number
 
+  @flags.boolean({ description: 'Rebuild vectors even when PostgreSQL hashes are unchanged' })
+  declare force: boolean
+
   async run() {
     if (this.tenant !== undefined && (!Number.isInteger(this.tenant) || this.tenant <= 0)) {
       this.logger.error('--tenant must be a positive integer')
@@ -46,7 +49,8 @@ export default class ReindexAiKnowledge extends BaseCommand {
       for (const tenantId of tenantIds) {
         const summary = await indexService.indexScope(
           tenantId,
-          this.document ? { document_ids: [this.document] } : {}
+          this.document ? { document_ids: [this.document] } : {},
+          { force: this.force }
         )
         total.scanned += summary.scanned
         total.indexed += summary.indexed
