@@ -17,6 +17,7 @@ const InertiaAuthController = () => import('#modules/web/controllers/auth_contro
 const InertiaPasswordResetController = () =>
   import('#modules/web/controllers/password_reset_controller')
 const InertiaDashboardController = () => import('#modules/web/controllers/dashboard_controller')
+const InertiaCalendarController = () => import('#modules/web/controllers/calendar_controller')
 const InertiaFoldersController = () => import('#modules/web/controllers/folders_controller')
 const InertiaProcessesController = () => import('#modules/web/controllers/processes_controller')
 const InertiaClientsController = () => import('#modules/web/controllers/clients_controller')
@@ -68,8 +69,8 @@ router
 router
   .get('/', async ({ auth, response }) => {
     try {
-      const usuarioAutenticado = await auth.use('jwt').authenticate()
-      return response.redirect(await resolveHomeRoute(usuarioAutenticado.id))
+      const authenticatedUser = await auth.use('jwt').authenticate()
+      return response.redirect(await resolveHomeRoute(authenticatedUser.id))
     } catch {
       return response.redirect('/login')
     }
@@ -87,6 +88,20 @@ router
         middleware.tenant({ required: true }),
         middleware.permission({
           permissions: `${IPermission.Resources.DASHBOARD}.${IPermission.Actions.READ}`,
+        }),
+      ])
+
+    // Calendar — firm-wide hearings and deadlines in a month view
+    router
+      .get('/calendar', [InertiaCalendarController, 'index'])
+      .as('calendar')
+      .use([
+        middleware.tenant({ required: true }),
+        middleware.permission({
+          permissions: [
+            `${IPermission.Resources.HEARINGS}.${IPermission.Actions.LIST}`,
+            `${IPermission.Resources.DEADLINES}.${IPermission.Actions.LIST}`,
+          ],
         }),
       ])
 

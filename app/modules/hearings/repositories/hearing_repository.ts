@@ -13,6 +13,21 @@ import type {
 type ListOptions = Required<Pick<HearingListInput, 'page' | 'per_page' | 'sort_by' | 'order'>> &
   Omit<HearingListInput, 'page' | 'per_page' | 'sort_by' | 'order'>
 
+/** Flat row for the calendar — hearing already joined with process and folder. */
+export type CalendarHearingRow = {
+  id: number
+  title: string
+  type: string
+  status: string
+  starts_at: Date | string
+  ends_at: Date | string | null
+  location: string | null
+  online_url: string | null
+  process_id: number
+  folder_id: number
+  folder_code: string
+}
+
 export default class HearingRepository {
   async paginate(tenantId: number, options: ListOptions): Promise<ModelPaginatorContract<Hearing>> {
     const query = Hearing.query()
@@ -133,6 +148,52 @@ export default class HearingRepository {
 
   async softDelete(hearing: Hearing): Promise<void> {
     await hearing.softDelete()
+  }
+
+  /**
+   * Hearings within a range, with the folder resolved through the process. The
+   * calendar needs the folder code on every event and does not paginate — the
+   * month itself is the boundary.
+   */
+  async listBetween(
+    tenantId: number,
+    rangeStart: Date,
+    rangeEnd: Date
+  ): Promise<CalendarHearingRow[]> {
+    return db
+      .from('hearings as hearings')
+      .innerJoin('processes as processes', function () {
+        this.on('processes.id', '=', 'hearings.process_id').andOn(
+          'processes.tenant_id',
+          '=',
+          'hearings.tenant_id'
+        )
+      })
+      .innerJoin('folders as folders', function () {
+        this.on('folders.id', '=', 'processes.folder_id').andOn(
+          'folders.tenant_id',
+          '=',
+          'processes.tenant_id'
+        )
+      })
+      .where('hearings.tenant_id', tenantId)
+      .whereNull('hearings.deleted_at')
+      .where('hearings.starts_at', '>=', rangeStart)
+      .where('hearings.starts_at', '<=', rangeEnd)
+      .select(
+        'hearings.id',
+        'hearings.title',
+        'hearings.type',
+        'hearings.status',
+        'hearings.starts_at',
+        'hearings.ends_at',
+        'hearings.location',
+        'hearings.online_url',
+        'hearings.process_id',
+        'folders.id as folder_id',
+        'folders.code as folder_code'
+      )
+      .orderBy('hearings.starts_at', 'asc')
   }
 
   private async syncAttendees(

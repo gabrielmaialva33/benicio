@@ -26,6 +26,7 @@ import type {
 } from '#modules/web/interfaces/client_page_interface'
 import type { WebProcess, WebProcessFolder } from '#modules/web/interfaces/process_page_interface'
 import type { WebAiChatPageData } from '#modules/web/interfaces/ai_chat_page_interface'
+import type { WebCalendarData } from '#modules/web/interfaces/calendar_page_interface'
 import type { WebRole } from '#modules/web/services/list_roles_with_permissions_service'
 import type { WebPermission } from '#modules/web/services/list_all_permissions_service'
 
@@ -49,6 +50,9 @@ declare module '@adonisjs/inertia/types' {
     'ui_demo': Record<string, never>
     'data_grid_demo': Record<string, never>
     'dashboard': { dashboard: DashboardOverview }
+
+    // Agenda
+    'agenda/index': WebCalendarData
 
     // Folders
     'folders/index': {

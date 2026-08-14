@@ -12,6 +12,21 @@ import type {
 type ListOptions = Required<Pick<DeadlineListInput, 'page' | 'per_page' | 'sort_by' | 'order'>> &
   Omit<DeadlineListInput, 'page' | 'per_page' | 'sort_by' | 'order'>
 
+/** Flat row for the calendar — deadline already joined with folder and assignee. */
+export type CalendarDeadlineRow = {
+  id: number
+  title: string
+  kind: string
+  status: string
+  priority: string
+  is_fatal: boolean
+  due_at: Date | string
+  folder_id: number
+  process_id: number | null
+  folder_code: string
+  assignee_name: string | null
+}
+
 export default class DeadlineRepository {
   async paginate(
     tenantId: number,
@@ -131,5 +146,44 @@ export default class DeadlineRepository {
 
   async softDelete(deadline: Deadline): Promise<void> {
     await deadline.softDelete()
+  }
+
+  /**
+   * Deadlines due within the range, with folder and assignee resolved. Used by
+   * the calendar, which slices by month instead of paginating.
+   */
+  async listBetween(
+    tenantId: number,
+    rangeStart: Date,
+    rangeEnd: Date
+  ): Promise<CalendarDeadlineRow[]> {
+    return db
+      .from('deadlines as deadlines')
+      .innerJoin('folders as folders', function () {
+        this.on('folders.id', '=', 'deadlines.folder_id').andOn(
+          'folders.tenant_id',
+          '=',
+          'deadlines.tenant_id'
+        )
+      })
+      .leftJoin('users as assignee', 'assignee.id', 'deadlines.assignee_id')
+      .where('deadlines.tenant_id', tenantId)
+      .whereNull('deadlines.deleted_at')
+      .where('deadlines.due_at', '>=', rangeStart)
+      .where('deadlines.due_at', '<=', rangeEnd)
+      .select(
+        'deadlines.id',
+        'deadlines.title',
+        'deadlines.kind',
+        'deadlines.status',
+        'deadlines.priority',
+        'deadlines.is_fatal',
+        'deadlines.due_at',
+        'deadlines.folder_id',
+        'deadlines.process_id',
+        'folders.code as folder_code',
+        'assignee.full_name as assignee_name'
+      )
+      .orderBy('deadlines.due_at', 'asc')
   }
 }
