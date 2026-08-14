@@ -18,8 +18,8 @@ import { FolderStatusBadge } from '~/components/folders/folder_status_badge'
 import { DeleteDialog } from '~/components/shared/delete_dialog'
 import { EmptyState } from '~/components/shared/empty_state'
 import { Button } from '~/components/ui/button'
-import { APP_TIME_ZONE } from '~/lib/date'
 import type { ClientFolder, ClientItem } from '~/types/client'
+import { formatDate } from '~/lib/format'
 
 interface ClientDetailContentProps {
   client: ClientItem
@@ -33,13 +33,6 @@ function Definition({ label, children }: { label: string; children: ReactNode })
       <dd className="mt-1.5 break-words text-sm font-medium text-slate-700">{children || '—'}</dd>
     </div>
   )
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    dateStyle: 'long',
-    timeZone: APP_TIME_ZONE,
-  }).format(new Date(value))
 }
 
 function addressLines(client: ClientItem) {

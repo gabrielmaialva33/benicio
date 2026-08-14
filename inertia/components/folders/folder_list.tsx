@@ -3,11 +3,11 @@ import { ArrowRight, ArrowUpDown, BriefcaseBusiness, UserRound } from 'lucide-re
 import { useState } from 'react'
 
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
-import { APP_TIME_ZONE } from '~/lib/date'
 import { EmptyState } from '~/components/shared/empty_state'
 import { cn } from '~/lib/utils'
 import type { FolderItem, FolderSortField } from '~/types/folder'
 import { FolderStatusBadge } from './folder_status_badge'
+import { formatDate } from '~/lib/format'
 
 interface FolderListProps {
   folders: FolderItem[]
@@ -24,19 +24,6 @@ function initialsOf(value: string) {
     .slice(0, 2)
     .join('')
     .toUpperCase()
-}
-
-function formatDate(value: string) {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Data inválida'
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    timeZone: APP_TIME_ZONE,
-  })
-    .format(date)
-    .replace('.', '')
 }
 
 function SortButton({

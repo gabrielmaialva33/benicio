@@ -156,7 +156,6 @@ export default function NotificationsPage({
   unread_count: unreadCount,
   available_types: availableTypes,
 }: NotificationsPageProps) {
-
   const visit = (overrides: Record<string, string | number | undefined>) => {
     const query: Record<string, string | number> = { page: 1 }
     const next = { filter: filters.filter, type: filters.type ?? '', ...overrides }

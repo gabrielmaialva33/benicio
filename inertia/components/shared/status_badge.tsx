@@ -51,13 +51,7 @@ interface StatusBadgeProps extends Omit<BadgeProps, 'variant' | 'appearance'> {
   children?: ReactNode
 }
 
-export function StatusBadge({
-  status,
-  labels,
-  size = 'md',
-  children,
-  ...props
-}: StatusBadgeProps) {
+export function StatusBadge({ status, labels, size = 'md', children, ...props }: StatusBadgeProps) {
   const tone = STATUS_TONES[status] ?? { variant: 'secondary' as BadgeVariant }
 
   return (

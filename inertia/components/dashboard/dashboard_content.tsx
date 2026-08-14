@@ -24,6 +24,8 @@ import {
 import { cn } from '~/lib/utils'
 import { APP_TIME_ZONE } from '~/lib/date'
 import type {
+import { formatMonth, formatNumber } from '~/lib/format'
+import { AGGREGATE_STATUS_LABELS, PRIORITY_LABELS } from '~/lib/labels'
   DashboardFavoriteFolder,
   DashboardOverview,
   DashboardRecentActivity,
@@ -34,36 +36,6 @@ import type {
 
 const areaPalette = ['#00a76f', '#00b8d9', '#ffab00', '#ff5630', '#7c3aed', '#64748b']
 
-const statusLabels: Record<string, string> = {
-  active: 'Ativas',
-  completed: 'Concluídas',
-  pending: 'Pendentes',
-  cancelled: 'Canceladas',
-  archived: 'Arquivadas',
-  in_progress: 'Em andamento',
-}
-
-const priorityLabels: Record<string, string> = {
-  urgent: 'Urgente',
-  high: 'Alta',
-  medium: 'Média',
-  low: 'Baixa',
-}
-
-function formatNumber(value: number) {
-  return new Intl.NumberFormat('pt-BR').format(value)
-}
-
-function formatMonth(value: string) {
-  const date = new Date(`${value}-01T12:00:00Z`)
-  if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('pt-BR', {
-    month: 'short',
-    timeZone: APP_TIME_ZONE,
-  })
-    .format(date)
-    .replace('.', '')
-}
 
 function formatDateTime(value: string | null) {
   if (!value) return 'Sem data definida'
@@ -270,7 +242,7 @@ function FolderActivityCard({ dashboard }: { dashboard: DashboardOverview }) {
             <div key={status.status}>
               <div className="mb-2 flex items-center justify-between gap-3 text-sm">
                 <span className="font-medium text-slate-600 dark:text-slate-300">
-                  {statusLabels[status.status] ?? status.status}
+                  {AGGREGATE_STATUS_LABELS[status.status] ?? status.status}
                 </span>
                 <strong className="text-slate-900 dark:text-white">
                   {formatNumber(status.count)}
@@ -306,7 +278,7 @@ function PriorityBadge({ priority }: { priority: string }) {
         priority === 'low' && 'bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-300'
       )}
     >
-      {priorityLabels[priority] ?? priority}
+      {PRIORITY_LABELS[priority] ?? priority}
     </span>
   )
 }

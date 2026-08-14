@@ -56,9 +56,7 @@ const folders: ClientFolder[] = [
 
 describe('ClientDetailContent', () => {
   it('renders the persisted client aggregate and its navigation', () => {
-    render(
-      <ClientDetailContent client={client} folders={folders} />
-    )
+    render(<ClientDetailContent client={client} folders={folders} />)
 
     expect(screen.getByText(client.name)).toBeInTheDocument()
     expect(screen.getByText('12.345.678/0001-95')).toBeInTheDocument()

@@ -1,11 +1,14 @@
-import { DateTime } from 'luxon'
-
-// Helper to format dates
-export function formatDate(date: string): string {
-  return DateTime.fromISO(date).toLocaleString(DateTime.DATE_FULL)
-}
-
-// Helper to format date and time
-export function formatDateTime(date: string): string {
-  return DateTime.fromISO(date).toLocaleString(DateTime.DATETIME_SHORT)
-}
+/**
+ * Kept as a re-export so the legacy `~/utils` barrel keeps working while
+ * `~/lib/format` is the single implementation. Import from `~/lib/format` in
+ * new code.
+ */
+export {
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  formatFileSize,
+  formatMonth,
+  formatNumber,
+  formatShortDate,
+} from '~/lib/format'

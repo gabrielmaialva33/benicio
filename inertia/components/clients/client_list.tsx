@@ -5,10 +5,10 @@ import { useState } from 'react'
 import { ClientPersonBadge } from './client_person_badge'
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
 import { Button } from '~/components/ui/button'
-import { APP_TIME_ZONE } from '~/lib/date'
 import { EmptyState } from '~/components/shared/empty_state'
 import { cn } from '~/lib/utils'
 import type { ClientItem, ClientSortField } from '~/types/client'
+import { formatDate } from '~/lib/format'
 
 interface ClientListProps {
   clients: ClientItem[]
@@ -36,17 +36,6 @@ export function formatClientDocument(document: string, personType: ClientItem['p
     return document.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5')
   }
   return document
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    timeZone: APP_TIME_ZONE,
-  })
-    .format(new Date(value))
-    .replace('.', '')
 }
 
 function SortButton({

@@ -36,8 +36,8 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { DeleteDialog } from '~/components/shared/delete_dialog'
-import { APP_TIME_ZONE } from '~/lib/date'
 import type { PaginatedResponse } from '~/types'
+import { formatDate } from '~/lib/format'
 
 interface UserRole {
   id: number
@@ -72,15 +72,6 @@ function initialsOf(name: string) {
     .slice(0, 2)
     .join('')
     .toUpperCase()
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-BR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    timeZone: APP_TIME_ZONE,
-  })
 }
 
 export default function UsersPage({ users, search, sortBy, direction }: UsersPageProps) {
@@ -268,7 +259,6 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
         confirmLabel="Excluir"
         onSuccess={() => setUserToDelete(null)}
       />
-
 
       <div className="space-y-6">
         <div className="flex justify-end">

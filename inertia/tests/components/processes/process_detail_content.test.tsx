@@ -73,9 +73,7 @@ const process: ProcessItem = {
 
 describe('ProcessDetailContent', () => {
   it('renders the complete persisted process aggregate', () => {
-    render(
-      <ProcessDetailContent folder={folder} process={process} />
-    )
+    render(<ProcessDetailContent folder={folder} process={process} />)
 
     expect(screen.getByRole('heading', { name: '5144506-05.2026.8.09.0112' })).toBeInTheDocument()
     expect(screen.getByText(process.internal_code!)).toBeInTheDocument()
