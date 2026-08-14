@@ -4,6 +4,7 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 
 import TenantBaseModel from '#shared/models/tenant_base_model'
 import Tenant from '#modules/tenants/models/tenant'
+import Folder from '#modules/folders/models/folder'
 import ProcessParty from '#modules/processes/models/process_party'
 import type {
   ProcessDistributionType,
@@ -130,6 +131,9 @@ export default class LegalProcess extends TenantBaseModel {
    */
   @belongsTo(() => Tenant, { foreignKey: 'tenant_id' })
   declare tenant: BelongsTo<typeof Tenant>
+
+  @belongsTo(() => Folder, { foreignKey: 'folder_id' })
+  declare folder: BelongsTo<typeof Folder>
 
   @hasMany(() => ProcessParty, { foreignKey: 'process_id' })
   declare parties: HasMany<typeof ProcessParty>
