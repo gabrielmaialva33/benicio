@@ -14,11 +14,11 @@ test.group('Auth login', () => {
     // Check form elements are present
     await page.locator('input[name="uid"]').waitFor()
     await page.locator('input[name="password"]').waitFor()
-    await page.locator('button[type="submit"]:has-text("Sign in")').waitFor()
+    await page.locator('button[type="submit"]:has-text("Entrar")').waitFor()
 
     // Check navigation links
     await page.locator('a:has-text("Sign up")').waitFor()
-    await page.locator('a:has-text("Forgot password?")').waitFor()
+    await page.locator('a:has-text("Esqueci minha senha")').waitFor()
   })
 
   test('should login successfully with valid credentials', async ({ browserContext }) => {
@@ -33,7 +33,7 @@ test.group('Auth login', () => {
     await page.fill('input[name="password"]', 'password123')
 
     // Submit form
-    await page.click('button[type="submit"]:has-text("Sign in")')
+    await page.click('button[type="submit"]:has-text("Entrar")')
 
     // Wait a bit for form submission
     await page.waitForTimeout(2000)
@@ -71,7 +71,7 @@ test.group('Auth login', () => {
     await page.fill('input[name="password"]', 'wrongpassword')
 
     // Submit form
-    await page.click('button[type="submit"]:has-text("Sign in")')
+    await page.click('button[type="submit"]:has-text("Entrar")')
 
     // Should stay on login page and show error
     await page.waitForURL('/login')
@@ -92,7 +92,7 @@ test.group('Auth login', () => {
     await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
     // Submit form without filling fields
-    await page.click('button[type="submit"]:has-text("Sign in")')
+    await page.click('button[type="submit"]:has-text("Entrar")')
 
     // Should stay on login page
     await page.waitForURL('/login')
@@ -123,7 +123,7 @@ test.group('Auth login', () => {
     await page.goto('/login', { waitUntil: 'domcontentloaded' })
     await page.fill('input[name="uid"]', user.email)
     await page.fill('input[name="password"]', 'password123')
-    await page.click('button[type="submit"]:has-text("Sign in")')
+    await page.click('button[type="submit"]:has-text("Entrar")')
 
     // Wait for redirect after login with longer timeout
     await page.waitForURL('**/dashboard', { timeout: 30000 })
@@ -143,7 +143,7 @@ test.group('Auth login', () => {
     await page.goto('/login', { waitUntil: 'domcontentloaded' })
     await page.fill('input[name="uid"]', user.email)
     await page.fill('input[name="password"]', 'password123')
-    await page.click('button[type="submit"]:has-text("Sign in")')
+    await page.click('button[type="submit"]:has-text("Entrar")')
     await page.waitForURL('**/dashboard', { timeout: 30000 })
 
     await page.getByRole('button', { name: new RegExp(firstTenant.name) }).click()
@@ -161,7 +161,7 @@ test.group('Auth login', () => {
     await page.goto('/login', { waitUntil: 'domcontentloaded' })
     await page.fill('input[name="uid"]', user.email)
     await page.fill('input[name="password"]', 'password123')
-    await page.click('button[type="submit"]:has-text("Sign in")')
+    await page.click('button[type="submit"]:has-text("Entrar")')
     await page.waitForURL('**/dashboard', { timeout: 30000 })
 
     const activeSessions = await db
@@ -194,7 +194,7 @@ test.group('Auth login', () => {
     await page.fill('input[name="password"]', 'password')
 
     // Submit form and check for loading state
-    const submitButton = page.locator('button[type="submit"]:has-text("Sign in")')
+    const submitButton = page.locator('button[type="submit"]:has-text("Entrar")')
     await submitButton.click()
 
     // Button might be disabled or show loading text during submission

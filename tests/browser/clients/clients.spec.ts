@@ -12,7 +12,7 @@ async function signIn(page: Page, email: string) {
   await page.goto('/login', { waitUntil: 'domcontentloaded' })
   await page.fill('input[name="uid"]', email)
   await page.fill('input[name="password"]', 'password123')
-  await page.click('button[type="submit"]:has-text("Sign in")')
+  await page.click('button[type="submit"]:has-text("Entrar")')
   await page.waitForURL('**/dashboard', { timeout: 30_000 })
 }
 
