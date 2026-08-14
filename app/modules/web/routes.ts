@@ -13,6 +13,7 @@ import IPermission from '#modules/permissions/interfaces/permission_interface'
 
 const InertiaAuthController = () => import('#modules/web/controllers/auth_controller')
 const InertiaDashboardController = () => import('#modules/web/controllers/dashboard_controller')
+const InertiaFoldersController = () => import('#modules/web/controllers/folders_controller')
 const InertiaUsersController = () => import('#modules/web/controllers/users_controller')
 const InertiaFilesController = () => import('#modules/web/controllers/files_controller')
 const InertiaTenantController = () => import('#modules/web/controllers/tenant_controller')
@@ -63,6 +64,46 @@ router
           permissions: `${IPermission.Resources.DASHBOARD}.${IPermission.Actions.READ}`,
         }),
       ])
+
+    // Folders
+    router
+      .group(() => {
+        router
+          .get('/', [InertiaFoldersController, 'index'])
+          .as('web.folders.index')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.FOLDERS}.${IPermission.Actions.LIST}`,
+            })
+          )
+        router
+          .get('/create', [InertiaFoldersController, 'create'])
+          .as('web.folders.create')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.FOLDERS}.${IPermission.Actions.CREATE}`,
+            })
+          )
+        router
+          .post('/', [InertiaFoldersController, 'store'])
+          .as('web.folders.store')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.FOLDERS}.${IPermission.Actions.CREATE}`,
+            })
+          )
+        router
+          .get('/:id', [InertiaFoldersController, 'show'])
+          .where('id', /^[0-9]+$/)
+          .as('web.folders.show')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.FOLDERS}.${IPermission.Actions.READ}`,
+            })
+          )
+      })
+      .prefix('/folders')
+      .use(middleware.tenant({ required: true }))
 
     // UI Demo Page
     router

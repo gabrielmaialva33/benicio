@@ -7,6 +7,17 @@
  * an empty object.
  */
 import type { DashboardOverview } from '#modules/dashboard/interfaces/dashboard_interface'
+import type {
+  WebFolder,
+  WebFolderActivity,
+  WebFolderDeadline,
+  WebFolderDetailStats,
+  WebFolderFilters,
+  WebFolderFormOptions,
+  WebFolderProcess,
+  WebFolderStatusCount,
+  WebPaginationMeta,
+} from '#modules/web/interfaces/folder_page_interface'
 import type { WebRole } from '#modules/web/services/list_roles_with_permissions_service'
 import type { WebPermission } from '#modules/web/services/list_all_permissions_service'
 
@@ -28,6 +39,23 @@ declare module '@adonisjs/inertia/types' {
     'ui_demo': Record<string, never>
     'data_grid_demo': Record<string, never>
     'dashboard': { dashboard: DashboardOverview }
+
+    // Folders
+    'folders/index': {
+      folders: { data: WebFolder[]; meta: WebPaginationMeta }
+      filters: WebFolderFilters
+      areas: string[]
+      status_counts: WebFolderStatusCount[]
+      total_count: number
+    }
+    'folders/create': WebFolderFormOptions
+    'folders/show': {
+      folder: WebFolder
+      stats: WebFolderDetailStats
+      processes: WebFolderProcess[]
+      deadlines: WebFolderDeadline[]
+      activities: WebFolderActivity[]
+    }
 
     // Files
     'files/index': Record<string, never>
