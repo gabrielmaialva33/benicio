@@ -95,4 +95,25 @@ test.group('OpenAI-compatible provider', () => {
       assert.notInclude((error as Error).message, 'sensitive upstream detail')
     }
   })
+
+  test('rejects a truncated stream without the completion marker', async ({ assert }) => {
+    const fetcher = (async () =>
+      new Response('data: {"choices":[{"delta":{"content":"partial"}}]}\n\n', {
+        status: 200,
+      })) as typeof globalThis.fetch
+    const provider = new OpenAiCompatibleProvider(
+      {
+        baseUrl: 'https://provider.example/v1',
+        model: 'legal-model',
+        timeoutMs: 1_000,
+      },
+      fetcher
+    )
+
+    await assert.rejects(async () => {
+      for await (const chunk of provider.stream([{ role: 'user', content: 'Pergunta' }])) {
+        assert.equal(chunk.content, 'partial')
+      }
+    }, 'AI provider stream ended before completion')
+  })
 })

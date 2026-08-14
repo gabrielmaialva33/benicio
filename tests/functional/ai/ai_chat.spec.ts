@@ -104,10 +104,11 @@ test.group('AI chat API', (group) => {
     assert.equal(first.conversation.user_id, owner.id)
 
     const streamEvents: string[] = []
-    for await (const event of service.stream(tenant.id, owner.id, {
+    const output = await service.stream(tenant.id, owner.id, {
       message: 'Agora resuma em duas linhas',
       conversation_id: first.conversation.id,
-    })) {
+    })
+    for await (const event of output) {
       streamEvents.push(event)
     }
     assert.include(streamEvents.join(''), 'data: {"content":"Resposta "}')
@@ -173,18 +174,37 @@ test.group('AI chat API', (group) => {
     const provider = new RecordingProvider()
     const service = new AiChatService(repository, AiProviderFactory.forProvider(provider))
 
-    const activeTurn = await repository.beginTurn(tenant.id, user.id, {
+    const activeConversation = await repository.beginTurn(tenant.id, user.id, {
       message: 'Primeira pergunta',
     })
 
     await assert.rejects(
       () =>
-        service.chat(tenant.id, user.id, {
+        service.stream(tenant.id, user.id, {
           message: 'Segunda pergunta concorrente',
-          conversation_id: activeTurn.conversation.id,
+          conversation_id: activeConversation.id,
         }),
       'AI conversation is already generating a response'
     )
-    await repository.failTurn(tenant.id, user.id, activeTurn.conversation.id, 'Test cleanup')
+    await repository.failTurn(tenant.id, user.id, activeConversation.id, 'Test cleanup')
+  })
+
+  test('rejects an unknown streamed conversation before returning the stream', async ({
+    assert,
+  }) => {
+    const { user, tenants } = await createLegalAdmin()
+    const service = new AiChatService(
+      new AiConversationRepository(),
+      AiProviderFactory.forProvider(new RecordingProvider())
+    )
+
+    await assert.rejects(
+      () =>
+        service.stream(tenants[0].id, user.id, {
+          message: 'Continue esta conversa',
+          conversation_id: 2_147_483_647,
+        }),
+      'AI conversation not found'
+    )
   })
 })
