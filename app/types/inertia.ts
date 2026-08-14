@@ -6,7 +6,7 @@
  * the props passed from the controller. Pages without page-specific props use
  * an empty object.
  */
-import type { DashboardStats } from '#modules/web/services/get_dashboard_stats_service'
+import type { DashboardOverview } from '#modules/dashboard/interfaces/dashboard_interface'
 import type { WebRole } from '#modules/web/services/list_roles_with_permissions_service'
 import type { WebPermission } from '#modules/web/services/list_all_permissions_service'
 
@@ -27,7 +27,7 @@ declare module '@adonisjs/inertia/types' {
     'home': Record<string, never>
     'ui_demo': Record<string, never>
     'data_grid_demo': Record<string, never>
-    'dashboard': { stats: DashboardStats }
+    'dashboard': { dashboard: DashboardOverview }
 
     // Files
     'files/index': Record<string, never>

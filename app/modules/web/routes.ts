@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
+import IPermission from '#modules/permissions/interfaces/permission_interface'
 
 const InertiaAuthController = () => import('#modules/web/controllers/auth_controller')
 const InertiaDashboardController = () => import('#modules/web/controllers/dashboard_controller')
@@ -53,7 +54,15 @@ router
 router
   .group(() => {
     // Dashboard
-    router.get('/dashboard', [InertiaDashboardController, 'index']).as('dashboard')
+    router
+      .get('/dashboard', [InertiaDashboardController, 'index'])
+      .as('dashboard')
+      .use([
+        middleware.tenant({ required: true }),
+        middleware.permission({
+          permissions: `${IPermission.Resources.DASHBOARD}.${IPermission.Actions.READ}`,
+        }),
+      ])
 
     // UI Demo Page
     router
@@ -126,12 +135,6 @@ router
     router.post('/tenant/switch', [InertiaTenantController, 'switch']).as('tenant.switch')
 
     // Logout
-    router
-      .post('/logout', async ({ response }) => {
-        // JWT is stateless, so we just redirect
-        // The client should remove the token
-        return response.redirect('/')
-      })
-      .as('logout')
+    router.post('/logout', [InertiaAuthController, 'logout']).as('logout')
   })
   .middleware([middleware.auth({ guards: ['jwt'] })])

@@ -1,15 +1,17 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import app from '@adonisjs/core/services/app'
 
-import GetDashboardStatsService from '#modules/web/services/get_dashboard_stats_service'
+import DashboardService from '#modules/dashboard/services/dashboard_service'
+import { requireTenantId } from '#shared/http/tenant_context'
 
 export default class InertiaDashboardController {
-  async index({ inertia, auth }: HttpContext) {
-    await auth.use('jwt').authenticate()
+  async index(ctx: HttpContext) {
+    const dashboardService = await app.container.make(DashboardService)
+    const dashboard = await dashboardService.overview(
+      requireTenantId(ctx),
+      ctx.auth.getUserOrFail().id
+    )
 
-    const getDashboardStats = await app.container.make(GetDashboardStatsService)
-    const stats = await getDashboardStats.run()
-
-    return inertia.render('dashboard', { stats })
+    return ctx.inertia.render('dashboard', { dashboard })
   }
 }

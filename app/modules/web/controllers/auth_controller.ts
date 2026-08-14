@@ -59,4 +59,9 @@ export default class InertiaAuthController {
       return response.redirect().back()
     }
   }
+
+  async logout({ response }: HttpContext) {
+    response.clearCookie('token')
+    return response.redirect('/login')
+  }
 }

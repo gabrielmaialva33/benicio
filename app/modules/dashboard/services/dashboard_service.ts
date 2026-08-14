@@ -2,13 +2,16 @@ import { inject } from '@adonisjs/core'
 import { DateTime } from 'luxon'
 
 import DashboardRepository from '#modules/dashboard/repositories/dashboard_repository'
-import type { DashboardSummary } from '#modules/dashboard/interfaces/dashboard_interface'
+import type {
+  DashboardOverview,
+  DashboardSummary,
+} from '#modules/dashboard/interfaces/dashboard_interface'
 
 @inject()
 export default class DashboardService {
   constructor(private dashboardRepository: DashboardRepository) {}
 
-  async overview(tenantId: number, userId: number) {
+  async overview(tenantId: number, userId: number): Promise<DashboardOverview> {
     // A transaction provides one PostgreSQL connection, so these stay
     // sequential and remain safe when the dashboard is composed inside one.
     const summary = await this.summary(tenantId)
@@ -19,7 +22,7 @@ export default class DashboardService {
     const recentActivity = await this.dashboardRepository.recentActivity(tenantId)
 
     return {
-      generated_at: DateTime.utc().toISO(),
+      generated_at: DateTime.utc().toISO()!,
       ...summary,
       urgent_tasks: urgentTasks,
       upcoming_hearings: upcomingHearings,

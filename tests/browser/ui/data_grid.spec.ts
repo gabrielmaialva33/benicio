@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { UserFactory } from '#database/factories/user_factory'
+import { createLegalAdmin } from '#tests/helpers/legal_context'
 import type { Page } from 'playwright'
 
 /**
@@ -9,7 +9,7 @@ import type { Page } from 'playwright'
  * them type-checks cleanly and ships unnoticed.
  */
 async function signIn(page: Page) {
-  const user = await UserFactory.merge({ password: 'password123' }).create()
+  const { user } = await createLegalAdmin()
 
   await page.goto('/login')
   await page.fill('input[name="uid"]', user.email)

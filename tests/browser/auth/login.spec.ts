@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { UserFactory } from '#database/factories/user_factory'
+import { createLegalAdmin } from '#tests/helpers/legal_context'
 
 test.group('Auth login', () => {
   test('should display login page correctly', async ({ browserContext }) => {
@@ -22,7 +22,7 @@ test.group('Auth login', () => {
 
   test('should login successfully with valid credentials', async ({ browserContext }) => {
     // Create a test user with explicit password
-    const user = await UserFactory.merge({ password: 'password123' }).create()
+    const { user } = await createLegalAdmin()
 
     const page = await browserContext.newPage()
     await page.goto('/login')
@@ -114,7 +114,7 @@ test.group('Auth login', () => {
 
   test('should redirect authenticated user to dashboard', async ({ browserContext }) => {
     // Create a user first with explicit password
-    const user = await UserFactory.merge({ password: 'password123' }).create()
+    const { user } = await createLegalAdmin()
 
     const page = await browserContext.newPage()
 
@@ -132,6 +132,28 @@ test.group('Auth login', () => {
 
     // Should be redirected to dashboard since user is authenticated
     await page.waitForURL('**/dashboard', { timeout: 30000 })
+  })
+
+  test('should clear the browser token on logout', async ({ browserContext, assert }) => {
+    const { user } = await createLegalAdmin()
+    const page = await browserContext.newPage()
+
+    await page.goto('/login')
+    await page.fill('input[name="uid"]', user.email)
+    await page.fill('input[name="password"]', 'password123')
+    await page.click('button[type="submit"]:has-text("Sign in")')
+    await page.waitForURL('**/dashboard', { timeout: 30000 })
+
+    await page.getByRole('button', { name: 'Abrir menu do usuário' }).click()
+    await page.getByRole('menuitem', { name: 'Sair' }).click()
+    await page.waitForURL('**/login', { timeout: 30000 })
+
+    const cookies = await browserContext.cookies()
+    const tokenCookie = cookies.find((cookie) => cookie.name === 'token')
+    assert.isUndefined(tokenCookie)
+
+    const protectedResponse = await page.goto('/dashboard')
+    assert.equal(protectedResponse?.status(), 401)
   })
 
   test('should handle form submission loading state', async ({ browserContext }) => {
