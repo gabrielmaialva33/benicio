@@ -1,19 +1,11 @@
 import { Head } from '@inertiajs/react'
-import { useMemo, useState } from 'react'
 import { ChevronDown, ShieldCheck, Users } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
-import { MainLayout } from '~/layouts'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardHeading,
-  CardTitle,
-  CardToolbar,
-} from '~/components/ui/card'
+import { PermissionMatrix } from '~/components/permissions/permission_matrix'
 import { Badge } from '~/components/ui/badge'
-import { actionBadgeVariant } from '~/lib/permission_badges'
-import { actionLabel, contextLabel, resourceLabel } from '~/lib/permission_labels'
+import { Card, CardContent } from '~/components/ui/card'
+import { MainLayout } from '~/layouts'
 import { cn } from '~/lib/utils'
 
 interface RolePermission {
@@ -45,143 +37,167 @@ const SLUG_BADGE: Record<string, 'primary' | 'destructive' | 'info' | 'success' 
   guest: 'secondary',
 }
 
-function groupByResource(permissions: RolePermission[]): [string, RolePermission[]][] {
-  const groups = new Map<string, RolePermission[]>()
-  for (const permission of permissions) {
-    const bucket = groups.get(permission.resource) ?? []
-    bucket.push(permission)
-    groups.set(permission.resource, bucket)
-  }
-  return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b))
-}
+function RoleRowItem({
+  role,
+  catalogue,
+  expanded,
+  onToggle,
+}: {
+  role: RoleRow
+  catalogue: Array<{ resource: string; action: string }>
+  expanded: boolean
+  onToggle: () => void
+}) {
+  const granted = useMemo(
+    () =>
+      new Set(role.permissions.map((permission) => `${permission.resource}.${permission.action}`)),
+    [role.permissions]
+  )
 
-/**
- * Roles with a broad grant list run to a hundred badges, which buries the
- * smaller roles next to them and makes the page impossible to skim. Anything
- * past this many permissions starts collapsed.
- */
-const COLLAPSE_THRESHOLD = 12
+  /**
+   * The matrix is drawn over the whole catalogue rather than over what the role
+   * happens to have, so a missing capability shows as an explicit gap instead
+   * of simply not being there — that absence is what an administrator audits.
+   */
+  const cells = useMemo(
+    () =>
+      catalogue.map((entry) => ({
+        ...entry,
+        granted: granted.has(`${entry.resource}.${entry.action}`),
+      })),
+    [catalogue, granted]
+  )
 
-function RoleCard({ role }: { role: RoleRow }) {
-  const grouped = useMemo(() => groupByResource(role.permissions), [role.permissions])
-  const [expanded, setExpanded] = useState(role.permissions.length <= COLLAPSE_THRESHOLD)
-  const collapsible = role.permissions.length > COLLAPSE_THRESHOLD
+  const coverage = catalogue.length > 0 ? Math.round((granted.size / catalogue.length) * 100) : 0
 
   return (
-    <Card className="border-gray-100">
-      <CardHeader>
-        <CardHeading>
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-yol-cyan">
-              <ShieldCheck className="size-4.5" />
-            </div>
-            <div className="min-w-0">
-              <CardTitle className="flex items-center gap-2">
-                {role.name}
+    <div className="border-b border-gray-100 last:border-0">
+      <div className="flex flex-wrap items-center gap-4 px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-expanded={expanded}
+            aria-controls={`role-${role.id}-matrix`}
+            className="flex items-center gap-2.5 text-left transition hover:text-yol-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yol-cyan/40"
+          >
+            <ChevronDown
+              aria-hidden="true"
+              className={cn(
+                'size-4 shrink-0 text-gray-400 transition-transform',
+                !expanded && '-rotate-90'
+              )}
+            />
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-yol-cyan">
+              <ShieldCheck className="size-4" />
+            </span>
+            <span className="min-w-0">
+              <span className="flex items-center gap-2">
+                <strong className="truncate font-semibold text-yol-ink">{role.name}</strong>
                 <Badge variant={SLUG_BADGE[role.slug] ?? 'secondary'} appearance="light" size="sm">
                   {role.slug}
                 </Badge>
-              </CardTitle>
+              </span>
               {role.description && (
-                <p className="mt-0.5 text-sm text-muted-foreground">{role.description}</p>
+                <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                  {role.description}
+                </span>
               )}
-            </div>
-          </div>
-        </CardHeading>
-        <CardToolbar>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Users className="size-4" />
-            <span>{role.users_count}</span>
-          </div>
-        </CardToolbar>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-3 flex items-center justify-between gap-3">
-          {collapsible ? (
-            <button
-              type="button"
-              onClick={() => setExpanded((value) => !value)}
-              aria-expanded={expanded}
-              aria-controls={`role-${role.id}-permissions`}
-              className="flex items-center gap-1.5 rounded-md text-sm font-medium transition hover:text-yol-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yol-cyan/40"
-            >
-              <ChevronDown
-                aria-hidden="true"
-                className={cn('size-4 transition-transform', !expanded && '-rotate-90')}
-              />
-              Permissões
-            </button>
-          ) : (
-            <p className="text-sm font-medium">Permissões</p>
-          )}
-          <Badge variant="secondary" appearance="light" size="sm">
-            {role.permissions.length}
-          </Badge>
-        </div>
-
-        {role.permissions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma permissão atribuída.</p>
-        ) : !expanded ? (
-          <button
-            type="button"
-            onClick={() => setExpanded(true)}
-            className="text-sm text-muted-foreground transition hover:text-yol-cyan"
-          >
-            {grouped.length} recursos · mostrar permissões
+            </span>
           </button>
-        ) : (
-          <div id={`role-${role.id}-permissions`} className="space-y-3">
-            {grouped.map(([resource, permissions]) => (
-              <div key={resource}>
-                <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {resourceLabel(resource)}
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {permissions.map((permission) => (
-                    <Badge
-                      key={permission.id}
-                      variant={actionBadgeVariant(permission.action)}
-                      appearance="outline"
-                      size="sm"
-                    >
-                      {actionLabel(permission.action)}
-                      {permission.context !== 'any' && (
-                        <span className="text-muted-foreground">
-                          :{contextLabel(permission.context)}
-                        </span>
-                      )}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ))}
+        </div>
+        <div className="w-20 shrink-0 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <Users className="size-4" aria-hidden="true" />
+            {role.users_count}
+          </span>
+        </div>
+        {/* Fixed width, matching the header: an auto-width column here let the
+            digit count of the permission total shift every column before it. */}
+        <div className="w-[8.5rem] shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100"
+              role="img"
+              aria-label={`${coverage}% do catálogo`}
+            >
+              <div className="h-full rounded-full bg-yol-cyan" style={{ width: `${coverage}%` }} />
+            </div>
+            <span className="text-sm tabular-nums text-muted-foreground">
+              {role.permissions.length}
+            </span>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+      {expanded && (
+        <div id={`role-${role.id}-matrix`} className="bg-gray-50/60 p-4">
+          <div className="overflow-hidden rounded-xl border border-gray-100 bg-white">
+            <PermissionMatrix
+              mode="grants"
+              cells={cells}
+              emptyMessage="Nenhuma permissão atribuída."
+            />
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
 export default function RolesPage({ roles }: RolesPageProps) {
+  const [expandedRole, setExpandedRole] = useState<number | null>(null)
+
+  /**
+   * A role's grants only mean something against everything that exists, and the
+   * union across roles is the closest thing this page has to the catalogue.
+   */
+  const catalogue = useMemo(() => {
+    const seen = new Map<string, { resource: string; action: string }>()
+    for (const role of roles) {
+      for (const permission of role.permissions) {
+        seen.set(`${permission.resource}.${permission.action}`, {
+          resource: permission.resource,
+          action: permission.action,
+        })
+      }
+    }
+    return Array.from(seen.values())
+  }, [roles])
+
   return (
     <MainLayout>
       <Head title="Papéis" />
 
-      <div>
-        {roles.length === 0 ? (
-          <Card>
-            <CardContent className="py-10 text-center text-sm text-muted-foreground">
+      <Card className="border-gray-100">
+        <CardContent className="p-0">
+          {roles.length === 0 ? (
+            <p className="py-10 text-center text-sm text-muted-foreground">
               Nenhum papel encontrado.
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
-            {roles.map((role) => (
-              <RoleCard key={role.id} role={role} />
-            ))}
-          </div>
-        )}
-      </div>
+            </p>
+          ) : (
+            <div>
+              <div className="flex items-center gap-4 border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <div className="min-w-0 flex-1">Papel</div>
+                <div className="w-20 shrink-0">Usuários</div>
+                <div className="w-[8.5rem] shrink-0">Permissões</div>
+              </div>
+              <div>
+                {roles.map((role) => (
+                  <RoleRowItem
+                    key={role.id}
+                    role={role}
+                    catalogue={catalogue}
+                    expanded={expandedRole === role.id}
+                    onToggle={() =>
+                      setExpandedRole((current) => (current === role.id ? null : role.id))
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </MainLayout>
   )
 }
