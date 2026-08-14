@@ -11,11 +11,12 @@ import {
   Settings,
   TriangleAlert,
 } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from 'react'
 
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import { Skeleton } from '~/components/ui/skeleton'
+import { useAuth } from '~/hooks/use_auth'
 import { useMessageFeed, useNotificationFeed } from '~/hooks/use_shell_data'
 import { cn } from '~/lib/utils'
 import type { ShellMessage, ShellNotification, ShellNotificationType } from '~/types/shell'
@@ -65,30 +66,36 @@ function relativeTime(value: string) {
   return formatter.format(elapsedSeconds, 'second')
 }
 
-function ActivityTrigger({
-  label,
-  unreadCount,
-  children,
-}: {
+type ActivityTriggerProps = ComponentPropsWithoutRef<'button'> & {
   label: string
   unreadCount: number
   children: ReactNode
-}) {
-  const accessibleLabel = unreadCount > 0 ? `${label}, ${unreadCount} não lidas` : label
-
-  return (
-    <button
-      type="button"
-      aria-label={accessibleLabel}
-      className="relative flex size-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-white/60 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
-    >
-      {children}
-      {unreadCount > 0 && (
-        <span className="absolute right-1 top-1 size-2 rounded-full bg-red-600 ring-2 ring-yol-page" />
-      )}
-    </button>
-  )
 }
+
+/**
+ * Encaminha ref e props porque o PopoverTrigger usa `asChild`: sem isso o Radix
+ * não consegue ligar o onClick nem o data-state e o popover nunca abre.
+ */
+const ActivityTrigger = forwardRef<HTMLButtonElement, ActivityTriggerProps>(
+  function ActivityTrigger({ label, unreadCount, children, ...propsDoTrigger }, ref) {
+    const accessibleLabel = unreadCount > 0 ? `${label}, ${unreadCount} não lidas` : label
+
+    return (
+      <button
+        {...propsDoTrigger}
+        ref={ref}
+        type="button"
+        aria-label={accessibleLabel}
+        className="relative flex size-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-white/60 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+      >
+        {children}
+        {unreadCount > 0 && (
+          <span className="absolute right-1 top-1 size-2 rounded-full bg-red-600 ring-2 ring-yol-page" />
+        )}
+      </button>
+    )
+  }
+)
 
 function FeedStatus({
   hasTenant,
@@ -353,6 +360,7 @@ function MessagesPopover() {
 }
 
 export function HeaderActivity() {
+  const { can: podeAcessar } = useAuth()
   const openAgenda = () => {
     router.visit('/dashboard', {
       preserveScroll: false,
@@ -366,16 +374,24 @@ export function HeaderActivity() {
 
   return (
     <>
-      <NotificationsPopover />
-      <button
-        type="button"
-        aria-label="Abrir agenda"
-        onClick={openAgenda}
-        className="flex size-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-white/60 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
-      >
-        <img src="/yol/icons/calendar.svg" alt="" width={22} height={22} className="size-[22px]" />
-      </button>
-      <MessagesPopover />
+      {podeAcessar('notifications.list') && <NotificationsPopover />}
+      {podeAcessar('dashboard.read') && (
+        <button
+          type="button"
+          aria-label="Abrir agenda"
+          onClick={openAgenda}
+          className="flex size-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-white/60 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+        >
+          <img
+            src="/yol/icons/calendar.svg"
+            alt=""
+            width={22}
+            height={22}
+            className="size-[22px]"
+          />
+        </button>
+      )}
+      {podeAcessar('messages.list') && <MessagesPopover />}
     </>
   )
 }

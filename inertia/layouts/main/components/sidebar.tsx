@@ -12,6 +12,7 @@ import {
 import { useMemo, useState } from 'react'
 
 import { BrandLogo } from '~/components/brand_logo'
+import { useAuth } from '~/hooks/use_auth'
 import { useFavoriteFolders } from '~/hooks/use_shell_data'
 import { cn } from '~/lib/utils'
 
@@ -20,29 +21,37 @@ interface MenuItem {
   href: string
   icon?: LucideIcon
   iconPath?: string
-  children?: Array<{ title: string; href: string }>
+  children?: Array<{ title: string; href: string; permission?: string }>
+  /** Permissão `recurso.acao` exigida pela rota; sem ela o item some do menu. */
+  permission?: string
 }
 
 const pageItems: MenuItem[] = [
-  { title: 'Visão Geral', href: '/dashboard', iconPath: '/yol/icons/overview.svg' },
+  {
+    title: 'Visão Geral',
+    href: '/dashboard',
+    iconPath: '/yol/icons/overview.svg',
+    permission: 'dashboard.read',
+  },
   {
     title: 'Pastas',
     href: '/folders',
     iconPath: '/yol/icons/folders.svg',
+    permission: 'folders.list',
     children: [
-      { title: 'Cadastrar', href: '/folders/create' },
-      { title: 'Consulta', href: '/folders' },
+      { title: 'Cadastrar', href: '/folders/create', permission: 'folders.create' },
+      { title: 'Consulta', href: '/folders', permission: 'folders.list' },
     ],
   },
-  { title: 'Chat IA', href: '/chat', iconPath: '/yol/icons/sparkles.svg' },
+  { title: 'Chat IA', href: '/chat', iconPath: '/yol/icons/sparkles.svg', permission: 'ai.read' },
 ]
 
 const managementItems: MenuItem[] = [
-  { title: 'Clientes', href: '/clients', icon: ContactRound },
-  { title: 'Usuários', href: '/users', icon: Users },
-  { title: 'Arquivos', href: '/files', icon: Upload },
-  { title: 'Papéis', href: '/roles', icon: ShieldCheck },
-  { title: 'Permissões', href: '/permissions', icon: FileText },
+  { title: 'Clientes', href: '/clients', icon: ContactRound, permission: 'clients.list' },
+  { title: 'Usuários', href: '/users', icon: Users, permission: 'users.list' },
+  { title: 'Arquivos', href: '/files', icon: Upload, permission: 'files.list' },
+  { title: 'Papéis', href: '/roles', icon: ShieldCheck, permission: 'roles.list' },
+  { title: 'Permissões', href: '/permissions', icon: FileText, permission: 'permissions.list' },
   { title: 'Configurações', href: '/settings', icon: Settings },
 ]
 
@@ -85,12 +94,23 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const [showAllFavorites, setShowAllFavorites] = useState(false)
   const [foldersOpen, setFoldersOpen] = useState(currentPath(url).startsWith('/folders'))
   const favoriteFolders = useFavoriteFolders()
+  const { can: podeAcessar } = useAuth()
   const searchQuery = search.trim().toLocaleLowerCase('pt-BR')
 
-  const filterItems = (items: MenuItem[]) =>
-    searchQuery
-      ? items.filter((item) => item.title.toLocaleLowerCase('pt-BR').includes(searchQuery))
-      : items
+  const filterItems = (items: MenuItem[]) => {
+    const permitidos = items
+      .filter((item) => !item.permission || podeAcessar(item.permission))
+      .map((item) => ({
+        ...item,
+        children: item.children?.filter(
+          (child) => !child.permission || podeAcessar(child.permission)
+        ),
+      }))
+
+    return searchQuery
+      ? permitidos.filter((item) => item.title.toLocaleLowerCase('pt-BR').includes(searchQuery))
+      : permitidos
+  }
 
   const visiblePages = filterItems(pageItems)
   const visibleManagement = filterItems(managementItems)
@@ -206,21 +226,23 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
         </label>
       )}
 
-      <section
-        className={cn(
-          'w-full',
-          collapsed
-            ? 'flex flex-col items-center'
-            : 'border-b border-[#babbc1] px-10 pb-[25px] pr-[60px]'
-        )}
-      >
-        {!collapsed && (
-          <h2 className="mb-2 mt-4 font-semibold text-sm uppercase text-[#a1a5b7]">Páginas</h2>
-        )}
-        <div className={cn(collapsed && 'w-full space-y-1')}>
-          {visiblePages.map(renderMenuItem)}
-        </div>
-      </section>
+      {visiblePages.length > 0 && (
+        <section
+          className={cn(
+            'w-full',
+            collapsed
+              ? 'flex flex-col items-center'
+              : 'border-b border-[#babbc1] px-10 pb-[25px] pr-[60px]'
+          )}
+        >
+          {!collapsed && (
+            <h2 className="mb-2 mt-4 font-semibold text-sm uppercase text-[#a1a5b7]">Páginas</h2>
+          )}
+          <div className={cn(collapsed && 'w-full space-y-1')}>
+            {visiblePages.map(renderMenuItem)}
+          </div>
+        </section>
+      )}
 
       {!collapsed && visibleManagement.length > 0 && (
         <section className="w-full border-b border-[#babbc1] px-10 pb-[25px] pr-[60px]">
@@ -229,14 +251,16 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
         </section>
       )}
 
-      {!collapsed && (favoriteFolders.isPending || favoriteFolders.isError) && (
-        <section className="px-10 pr-[60px]">
-          <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Favoritos</h2>
-          <p className="text-xs text-white/55">
-            {favoriteFolders.isPending ? 'Carregando favoritos...' : 'Não foi possível carregar.'}
-          </p>
-        </section>
-      )}
+      {!collapsed &&
+        podeAcessar('folders.list') &&
+        (favoriteFolders.isPending || favoriteFolders.isError) && (
+          <section className="px-10 pr-[60px]">
+            <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Favoritos</h2>
+            <p className="text-xs text-white/55">
+              {favoriteFolders.isPending ? 'Carregando favoritos...' : 'Não foi possível carregar.'}
+            </p>
+          </section>
+        )}
 
       {!collapsed && visibleFavorites.length > 0 && (
         <section className="px-10 pr-[60px]">
