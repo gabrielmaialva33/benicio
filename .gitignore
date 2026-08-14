@@ -35,3 +35,9 @@ database/schema.ts
 
 # AdonisJS generated types
 .adonisjs
+
+# Miscellaneous
+logs
+.playwright-report
+.playwright-test-results
+.playwright-mcp
