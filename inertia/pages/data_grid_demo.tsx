@@ -6,7 +6,7 @@ import type { DragEndEvent } from '@dnd-kit/core'
 import { Settings2 } from 'lucide-react'
 
 import { MainLayout } from '~/layouts'
-import { PageHeader } from '~/components/page_header'
+import { PageHeader } from '~/components/shared'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
