@@ -6,6 +6,7 @@ import TenantBaseModel from '#shared/models/tenant_base_model'
 import Tenant from '#modules/tenants/models/tenant'
 import User from '#modules/users/models/user'
 import AiMessage from '#modules/ai/models/ai_message'
+import AiTurn from '#modules/ai/models/ai_turn'
 import type { AiConversationMode, AiConversationStatus } from '#modules/ai/interfaces/ai_interface'
 
 export default class AiConversation extends TenantBaseModel {
@@ -50,4 +51,7 @@ export default class AiConversation extends TenantBaseModel {
 
   @hasMany(() => AiMessage, { foreignKey: 'conversation_id' })
   declare messages: HasMany<typeof AiMessage>
+
+  @hasMany(() => AiTurn, { foreignKey: 'conversation_id' })
+  declare turns: HasMany<typeof AiTurn>
 }

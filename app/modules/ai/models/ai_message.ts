@@ -4,7 +4,8 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 
 import Tenant from '#modules/tenants/models/tenant'
 import AiConversation from '#modules/ai/models/ai_conversation'
-import type { AiMessageRole } from '#modules/ai/interfaces/ai_interface'
+import AiTurn from '#modules/ai/models/ai_turn'
+import type { AiMessageRole, AiMessageStatus } from '#modules/ai/interfaces/ai_interface'
 
 export default class AiMessage extends BaseModel {
   static table = 'ai_messages'
@@ -25,10 +26,16 @@ export default class AiMessage extends BaseModel {
   declare conversation_id: number
 
   @column()
+  declare turn_id: string | null
+
+  @column()
   declare role: AiMessageRole
 
   @column()
   declare content: string
+
+  @column()
+  declare status: AiMessageStatus
 
   @column()
   declare provider: string | null
@@ -52,4 +59,7 @@ export default class AiMessage extends BaseModel {
 
   @belongsTo(() => AiConversation, { foreignKey: 'conversation_id' })
   declare conversation: BelongsTo<typeof AiConversation>
+
+  @belongsTo(() => AiTurn, { foreignKey: 'turn_id' })
+  declare turn: BelongsTo<typeof AiTurn>
 }
