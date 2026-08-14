@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react'
+import { Link, router } from '@inertiajs/react'
 import {
   Bell,
   CalendarClock,
@@ -360,26 +360,15 @@ function MessagesPopover() {
 }
 
 export function HeaderActivity() {
-  const { can: can } = useAuth()
-  const openAgenda = () => {
-    router.visit('/dashboard', {
-      preserveScroll: false,
-      onSuccess: () => {
-        requestAnimationFrame(() => {
-          document.getElementById('agenda')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        })
-      },
-    })
-  }
+  const { can } = useAuth()
 
   return (
     <>
       {can('notifications.list') && <NotificationsPopover />}
-      {can('dashboard.read') && (
-        <button
-          type="button"
+      {can('hearings.list') && (
+        <Link
+          href="/calendar"
           aria-label="Abrir agenda"
-          onClick={openAgenda}
           className="flex size-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-white/60 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
         >
           <img
@@ -389,7 +378,7 @@ export function HeaderActivity() {
             height={22}
             className="size-[22px]"
           />
-        </button>
+        </Link>
       )}
       {can('messages.list') && <MessagesPopover />}
     </>

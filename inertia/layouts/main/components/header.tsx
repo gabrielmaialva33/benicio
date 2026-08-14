@@ -69,6 +69,9 @@ function pageCopy(url: string) {
   if (path.startsWith('/clients')) {
     return { title: 'Clientes', description: 'Gerencie a base de clientes do escritório.' }
   }
+  if (path.startsWith('/calendar')) {
+    return { title: 'Agenda', description: 'Audiências e prazos do escritório.' }
+  }
   if (path.startsWith('/chat')) {
     return { title: 'Chat IA', description: 'Seu assistente jurídico inteligente.' }
   }
