@@ -40,13 +40,21 @@ REDIS_PASSWORD_VALUE="$(previous_value REDIS_PASSWORD)"
 [[ -n "$DB_PASSWORD_VALUE" ]] || DB_PASSWORD_VALUE="$(generate_secret)"
 [[ -n "$REDIS_PASSWORD_VALUE" ]] || REDIS_PASSWORD_VALUE="$(generate_secret)"
 
+# The tunnel connector token. It is issued once by Cloudflare, so it is taken
+# from a file when provided and otherwise carried over from the previous run —
+# regenerating the env must never orphan the running tunnel.
+TUNNEL_TOKEN_VALUE="$(previous_value TUNNEL_TOKEN)"
+if [[ -n "${TUNNEL_TOKEN_FILE:-}" && -f "$TUNNEL_TOKEN_FILE" ]]; then
+  TUNNEL_TOKEN_VALUE="$(tr -d '\n' <"$TUNNEL_TOKEN_FILE")"
+fi
+
 # Keys whose local value describes the developer machine, not production.
 OVERRIDDEN_KEYS=(
   NODE_ENV HOST PORT APP_URL APP_KEY LOG_LEVEL
   DB_CONNECTION DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE
   REDIS_HOST REDIS_PORT REDIS_PASSWORD
   BENICIO_QDRANT_URL
-  APP_DOMAIN ACME_EMAIL
+  APP_DOMAIN TUNNEL_TOKEN
 )
 
 TMP_ENV="$(mktemp)"
@@ -63,8 +71,8 @@ trap 'rm -f "$TMP_ENV"' EXIT
   echo "LOG_LEVEL=info"
   echo "APP_URL=https://${APP_DOMAIN}"
   echo "APP_DOMAIN=${APP_DOMAIN}"
-  echo "ACME_EMAIL=${ACME_EMAIL:-gabrielmaialva33@gmail.com}"
   echo "APP_KEY=${APP_KEY_VALUE}"
+  echo "TUNNEL_TOKEN=${TUNNEL_TOKEN_VALUE}"
   echo
   echo "DB_CONNECTION=postgres"
   echo "DB_HOST=postgres"

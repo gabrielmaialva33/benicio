@@ -85,27 +85,27 @@ services:
       retries: 5
       start_period: 60s
 
-  caddy:
-    image: caddy:2-alpine
+  # The edge. Connects outbound to Cloudflare, so the box publishes no HTTP
+  # port at all and TLS terminates at the edge — nothing here renews a
+  # certificate. Routing lives in the tunnel's remote config (ingress →
+  # http://app:3333), not in this file.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
     restart: unless-stopped
-    ports:
-      - '80:80'
-      - '443:443'
+    command: ['tunnel', '--no-autoupdate', '--metrics', '0.0.0.0:2000', 'run']
     environment:
-      APP_DOMAIN: ${APP_DOMAIN:-benicio.juridicai.com.br}
-      # Let's Encrypt uses this address for expiry warnings.
-      ACME_EMAIL: ${ACME_EMAIL:-gabrielmaialva33@gmail.com}
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddydata:/data
-      - caddyconfig:/config
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN}
     depends_on:
-      - app
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'cloudflared', '--version']
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   pgdata:
   redisdata:
   qdrantdata:
   appstorage:
-  caddydata:
-  caddyconfig:
