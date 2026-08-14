@@ -1,6 +1,7 @@
 export * from './api'
 export * from './dashboard'
 export * from './folder'
+export * from './client'
 
 /**
  * The authenticated user as shared with every Inertia page by the
