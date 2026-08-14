@@ -30,7 +30,7 @@ export default defineConfig({
     () => import('@adonisjs/lucid/commands'),
     () => import('@adonisjs/cache/commands'),
     () => import('@adonisjs/mail/commands'),
-    () => import('@rlanz/bull-queue/commands'),
+    () => import('@adonisjs/queue/commands'),
   ],
 
   /*
@@ -58,6 +58,7 @@ export default defineConfig({
     () => import('@adonisjs/cors/cors_provider'),
     () => import('@adonisjs/lucid/database_provider'),
     () => import('@adonisjs/auth/auth_provider'),
+    () => import('@adonisjs/ally/ally_provider'),
     () => import('@adonisjs/inertia/inertia_provider'),
     () => import('@adonisjs/i18n/i18n_provider'),
     () => import('@adonisjs/limiter/limiter_provider'),
@@ -65,8 +66,8 @@ export default defineConfig({
     () => import('#providers/app_provider'),
     () => import('#providers/auth_events_provider'),
     () => import('@adonisjs/mail/mail_provider'),
-    () => import('@rlanz/bull-queue/queue_provider'),
     () => import('@adonisjs/redis/redis_provider'),
+    () => import('@adonisjs/queue/queue_provider'),
     () => import('@adonisjs/drive/drive_provider'),
     () => import('@adonisjs/transmit/transmit_provider'),
   ],
@@ -81,6 +82,10 @@ export default defineConfig({
   */
   preloads: [
     () => import('#start/transmit'),
+    {
+      file: () => import('#start/scheduler'),
+      environment: ['web'],
+    },
     () => import('#start/routes'),
     () => import('#start/kernel'),
   ],

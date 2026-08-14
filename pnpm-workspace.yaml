@@ -1,4 +1,8 @@
 verifyDepsBeforeRun: false
+peerDependencyRules:
+  allowedVersions:
+    # Ally 6 has no runtime Inertia import; its optional peer range predates Inertia 5.
+    '@adonisjs/ally@6>@adonisjs/inertia': '5'
 allowBuilds:
   '@swc/core': true
   '@tailwindcss/oxide': true

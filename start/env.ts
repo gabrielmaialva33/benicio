@@ -61,6 +61,13 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Variables for configuring @adonisjs/queue
+  |----------------------------------------------------------
+  */
+  QUEUE_DRIVER: Env.schema.enum.optional(['redis', 'sync'] as const),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring the AI chat provider
   |----------------------------------------------------------
   */
@@ -71,14 +78,6 @@ export default await Env.create(new URL('../', import.meta.url), {
   AI_TIMEOUT_MS: Env.schema.number.optional(),
   AI_MAX_CONTEXT_MESSAGES: Env.schema.number.optional(),
   AI_SYSTEM_PROMPT: Env.schema.string.optional(),
-  /*
-  |----------------------------------------------------------
-  | Variables for @rlanz/bull-queue
-  |----------------------------------------------------------
-  */
-  QUEUE_REDIS_HOST: Env.schema.string.optional({ format: 'host' }),
-  QUEUE_REDIS_PORT: Env.schema.number.optional(),
-  QUEUE_REDIS_PASSWORD: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
