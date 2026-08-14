@@ -202,9 +202,9 @@ export default class RoutedAiProvider implements AiProvider {
     if (delayMs <= 0) return
 
     await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(resolve, delayMs)
       const abort = () => {
         clearTimeout(timeout)
+        signal?.removeEventListener('abort', abort)
         reject(
           new AiProviderRequestError(
             'AI provider request was aborted',
@@ -214,10 +214,11 @@ export default class RoutedAiProvider implements AiProvider {
           )
         )
       }
+      const timeout = setTimeout(() => {
+        signal?.removeEventListener('abort', abort)
+        resolve()
+      }, delayMs)
       signal?.addEventListener('abort', abort, { once: true })
-      if (signal) {
-        setTimeout(() => signal.removeEventListener('abort', abort), delayMs)
-      }
     })
   }
 

@@ -71,12 +71,7 @@ export default class AiChatController {
         let settled = false
 
         while (!settled) {
-          const result = await Promise.race([
-            next.then((value) => ({ type: 'next' as const, value })),
-            new Promise<{ type: 'heartbeat' }>((resolve) =>
-              setTimeout(() => resolve({ type: 'heartbeat' }), aiConfig.streamHeartbeatMs)
-            ),
-          ])
+          const result = await this.nextOrHeartbeat(next)
           if (result.type === 'heartbeat') {
             yield ': heartbeat\n\n'
             continue
@@ -90,5 +85,26 @@ export default class AiChatController {
     } finally {
       await iterator.return?.()
     }
+  }
+
+  private nextOrHeartbeat(
+    next: Promise<IteratorResult<string, void>>
+  ): Promise<{ type: 'heartbeat' } | { type: 'next'; value: IteratorResult<string, void> }> {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(
+        () => resolve({ type: 'heartbeat' }),
+        aiConfig.streamHeartbeatMs
+      )
+      next.then(
+        (value) => {
+          clearTimeout(timeout)
+          resolve({ type: 'next', value })
+        },
+        (error: unknown) => {
+          clearTimeout(timeout)
+          reject(error)
+        }
+      )
+    })
   }
 }
