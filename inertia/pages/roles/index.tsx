@@ -13,6 +13,7 @@ import {
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { actionBadgeVariant } from '~/lib/permission_badges'
+import { actionLabel, contextLabel, resourceLabel } from '~/lib/permission_labels'
 import { cn } from '~/lib/utils'
 
 interface RolePermission {
@@ -133,7 +134,7 @@ function RoleCard({ role }: { role: RoleRow }) {
             {grouped.map(([resource, permissions]) => (
               <div key={resource}>
                 <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {resource}
+                  {resourceLabel(resource)}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {permissions.map((permission) => (
@@ -143,9 +144,11 @@ function RoleCard({ role }: { role: RoleRow }) {
                       appearance="outline"
                       size="sm"
                     >
-                      {permission.action}
+                      {actionLabel(permission.action)}
                       {permission.context !== 'any' && (
-                        <span className="text-muted-foreground">:{permission.context}</span>
+                        <span className="text-muted-foreground">
+                          :{contextLabel(permission.context)}
+                        </span>
                       )}
                     </Badge>
                   ))}

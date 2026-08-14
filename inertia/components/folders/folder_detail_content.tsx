@@ -133,7 +133,7 @@ function StatCard({
   tone: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-[#f7f8f9] p-4">
+    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
       <span className={cn('flex size-11 shrink-0 items-center justify-center rounded-lg', tone)}>
         <Icon className="size-5" />
       </span>

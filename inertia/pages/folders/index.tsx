@@ -182,7 +182,7 @@ export default function FoldersPage({
               event.preventDefault()
               visit({ page: 1 })
             }}
-            className="grid gap-4 border-b border-gray-100 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-[minmax(240px,1fr)_220px_auto_auto_auto] lg:gap-4"
+            className="grid items-center gap-4 border-b border-gray-100 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-[minmax(240px,1fr)_220px_auto_auto_auto] lg:gap-4"
           >
             <div className="relative">
               <Search className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />

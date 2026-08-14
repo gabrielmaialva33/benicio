@@ -13,6 +13,7 @@ import {
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { actionBadgeVariant } from '~/lib/permission_badges'
+import { actionLabel, contextLabel, resourceLabel } from '~/lib/permission_labels'
 import { Input } from '~/components/ui/input'
 
 interface PermissionRow {
@@ -86,7 +87,7 @@ export default function PermissionsPage({ permissions }: PermissionsPageProps) {
                       <div className="flex size-9 items-center justify-center rounded-lg bg-cyan-50 text-yol-cyan">
                         <KeyRound className="size-4" />
                       </div>
-                      <CardTitle className="capitalize">{resource}</CardTitle>
+                      <CardTitle>{resourceLabel(resource)}</CardTitle>
                     </div>
                   </CardHeading>
                   <CardToolbar>
@@ -102,8 +103,8 @@ export default function PermissionsPage({ permissions }: PermissionsPageProps) {
                       className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-4 py-3 transition hover:border-cyan-200 hover:bg-cyan-50/30"
                     >
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium capitalize">
-                          {permission.action}
+                        <p className="truncate text-sm font-medium first-letter:uppercase">
+                          {actionLabel(permission.action)}
                         </p>
                         {permission.description && (
                           <p className="truncate text-xs text-muted-foreground">
@@ -117,11 +118,11 @@ export default function PermissionsPage({ permissions }: PermissionsPageProps) {
                           appearance="light"
                           size="sm"
                         >
-                          {permission.action}
+                          {actionLabel(permission.action)}
                         </Badge>
                         {permission.context !== 'any' && (
                           <Badge variant="secondary" appearance="outline" size="sm">
-                            {permission.context}
+                            {contextLabel(permission.context)}
                           </Badge>
                         )}
                       </div>

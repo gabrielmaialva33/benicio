@@ -76,13 +76,15 @@ function StatCard({
   value: number
   tone: string
 }) {
+  // #f7f8f9 sat a single step from the page background, so these read as empty
+  // space. White plus the shell's shadow makes them read as cards.
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-[#f7f8f9] p-4">
+    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
       <span className={`flex size-10 items-center justify-center rounded-lg ${tone}`}>
         <Icon className="size-5" />
       </span>
       <span>
-        <strong className="block text-xl font-semibold text-[#1f2a37]">{value}</strong>
+        <strong className="block text-xl font-semibold text-yol-ink">{value}</strong>
         <span className="text-xs font-medium text-slate-500">{label}</span>
       </span>
     </div>
@@ -211,7 +213,7 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
               event.preventDefault()
               visit({ page: 1 })
             }}
-            className="grid gap-3 border-b border-gray-100 p-4 sm:grid-cols-[minmax(240px,1fr)_220px_auto] sm:p-6"
+            className="grid items-center gap-3 border-b border-gray-100 p-4 sm:grid-cols-[minmax(240px,1fr)_220px_auto] sm:p-6"
           >
             <div className="relative">
               <Search className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
