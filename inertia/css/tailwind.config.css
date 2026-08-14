@@ -28,4 +28,10 @@
   --color-warning-foreground: hsl(var(--warning-foreground));
   --color-info: hsl(var(--info));
   --color-info-foreground: hsl(var(--info-foreground));
+  --color-yol-sidebar: hsl(var(--yol-sidebar));
+  --color-yol-sidebar-muted: hsl(var(--yol-sidebar-muted));
+  --color-yol-orange: hsl(var(--yol-orange));
+  --color-yol-cyan: hsl(var(--yol-cyan));
+  --color-yol-page: hsl(var(--yol-page));
+  --color-yol-ink: hsl(var(--yol-ink));
 }

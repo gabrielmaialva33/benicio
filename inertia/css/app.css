@@ -2,8 +2,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 215 28% 17%;
+    --background: 210 40% 98%;
+    --foreground: 220 24% 12%;
 
     --card: 0 0% 100%;
     --card-foreground: 215 28% 17%;
@@ -30,7 +30,14 @@
     --input: 230 17% 90%;
     --ring: 188 100% 42.5%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
+
+    --yol-sidebar: 0 0% 22%;
+    --yol-sidebar-muted: 225 3% 53%;
+    --yol-orange: 24 94% 53%;
+    --yol-cyan: 188 100% 42.5%;
+    --yol-page: 210 40% 98%;
+    --yol-ink: 220 24% 12%;
 
     --success: 142.1 76.2% 36.3%;
     --success-foreground: 355.7 100% 97.3%;
@@ -61,10 +68,22 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: Montserrat, sans-serif;
+    font-family: 'Public Sans', sans-serif;
+    font-synthesis-weight: none;
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  button,
+  [role='button'],
+  input,
+  select,
+  textarea {
+    font-family: 'Work Sans', sans-serif;
   }
 
   button,

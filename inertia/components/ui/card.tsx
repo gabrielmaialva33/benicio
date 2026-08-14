@@ -21,11 +21,11 @@ const useCardContext = () => {
 }
 
 // Variants
-const cardVariants = cva('flex flex-col items-stretch text-[#1f2a37] rounded-2xl', {
+const cardVariants = cva('flex flex-col items-stretch text-yol-ink rounded-2xl', {
   variants: {
     variant: {
-      default: 'border border-[#e1e3ea] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)]',
-      accent: 'bg-[#f1f1f2] p-1',
+      default: 'border border-border bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)]',
+      accent: 'bg-slate-100 p-1',
     },
   },
   defaultVariants: {
@@ -36,7 +36,7 @@ const cardVariants = cva('flex flex-col items-stretch text-[#1f2a37] rounded-2xl
 const cardHeaderVariants = cva('flex min-h-16 flex-wrap items-center justify-between gap-3 px-6', {
   variants: {
     variant: {
-      default: 'border-b border-[#e1e3ea]',
+      default: 'border-b border-border',
       accent: '',
     },
   },
@@ -72,7 +72,7 @@ const cardTableVariants = cva('grid grow', {
 const cardFooterVariants = cva('flex min-h-16 items-center px-6', {
   variants: {
     variant: {
-      default: 'border-t border-[#e1e3ea]',
+      default: 'border-t border-border',
       accent: 'mt-[2px] rounded-b-xl bg-white',
     },
   },
@@ -161,7 +161,7 @@ function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElem
   return (
     <h3
       data-slot="card-title"
-      className={cn('text-lg font-semibold leading-none text-[#1f2a37]', className)}
+      className={cn('text-lg font-semibold leading-none text-yol-ink', className)}
       {...props}
     />
   )

@@ -5,8 +5,8 @@ import { cva, type VariantProps } from 'class-variance-authority'
 // Define input size variants
 const inputVariants = cva(
   `
-    flex w-full bg-white border border-[#d8dde3] transition-[color,box-shadow] text-[#1f2a37] placeholder:text-gray-400
-    focus-visible:ring-cyan-100 focus-visible:border-[#1cd6f4] focus-visible:outline-none focus-visible:ring-2
+    flex w-full bg-white border border-border transition-[color,box-shadow] text-yol-ink placeholder:text-gray-400
+    focus-visible:ring-cyan-100 focus-visible:border-yol-cyan focus-visible:outline-none focus-visible:ring-2
     disabled:cursor-not-allowed disabled:opacity-60 
     [&[readonly]]:bg-muted/80 [&[readonly]]:cursor-not-allowed
     file:h-full [&[type=file]]:py-0 file:border-solid file:border-input file:bg-transparent 
