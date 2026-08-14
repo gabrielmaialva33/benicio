@@ -57,11 +57,13 @@ function Definition({ label, children }: { label: string; children: ReactNode })
 }
 
 function DetailPanel({
+  id,
   icon: Icon,
   title,
   children,
   className,
 }: {
+  id?: string
   icon: typeof Scale
   title: string
   children: ReactNode
@@ -69,7 +71,8 @@ function DetailPanel({
 }) {
   return (
     <section
-      className={`rounded-2xl border border-gray-100 bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)] ${className ?? ''}`}
+      id={id}
+      className={`scroll-mt-6 rounded-2xl border border-gray-100 bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)] ${className ?? ''}`}
     >
       <header className="flex items-center gap-3 border-b border-gray-100 px-6 py-5">
         <Icon className="size-5 text-[#00b8d9]" />
@@ -109,7 +112,10 @@ export function ProcessDetailContent({
         </div>
       )}
 
-      <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_4px_4px_rgba(0,0,0,0.03)] sm:p-8">
+      <section
+        id="processo"
+        className="scroll-mt-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_4px_4px_rgba(0,0,0,0.03)] sm:p-8"
+      >
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-start gap-4">
             <Link
@@ -182,9 +188,42 @@ export function ProcessDetailContent({
         </div>
       </section>
 
+      <nav
+        aria-label="Seções do processo"
+        className="overflow-x-auto rounded-2xl border border-gray-100 bg-white px-2 shadow-[0_4px_4px_rgba(0,0,0,0.03)]"
+      >
+        <div className="flex min-w-max">
+          {[
+            ['processo', 'Processo'],
+            ['informacoes-gerais', 'Informações Gerais'],
+            ['agenda', 'Agenda'],
+            ['instancia', 'Instância'],
+            ['verbas', 'Verbas'],
+            ['partes', 'Partes'],
+            ['cliente', 'Cliente'],
+          ].map(([id, label], index) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              className={`border-b-2 px-4 py-4 text-sm font-semibold transition hover:text-yol-cyan ${
+                index === 0
+                  ? 'border-yol-cyan text-yol-cyan'
+                  : 'border-transparent text-slate-500 hover:border-slate-200'
+              }`}
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
         <div className="space-y-6">
-          <DetailPanel icon={FileSearch} title="Identificação e classificação">
+          <DetailPanel
+            id="informacoes-gerais"
+            icon={FileSearch}
+            title="Identificação e classificação"
+          >
             <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               <Definition label="CNJ">
                 {process.cnj_number ? identifier : 'Não informado'}
@@ -212,7 +251,7 @@ export function ProcessDetailContent({
             </dl>
           </DetailPanel>
 
-          <DetailPanel icon={Landmark} title="Órgão julgador">
+          <DetailPanel id="instancia" icon={Landmark} title="Órgão julgador">
             <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               <Definition label="Tribunal">{process.tribunal ?? 'Não informado'}</Definition>
               <Definition label="Órgão judicial">
@@ -225,7 +264,7 @@ export function ProcessDetailContent({
             </dl>
           </DetailPanel>
 
-          <DetailPanel icon={UsersRound} title={`Partes (${process.parties.length})`}>
+          <DetailPanel id="partes" icon={UsersRound} title={`Partes (${process.parties.length})`}>
             {process.parties.length === 0 ? (
               <p className="py-8 text-center text-sm text-slate-400">
                 Nenhuma parte cadastrada para este processo.
@@ -283,7 +322,7 @@ export function ProcessDetailContent({
         </div>
 
         <div className="space-y-6">
-          <DetailPanel icon={MapPin} title="Pasta e cliente">
+          <DetailPanel id="cliente" icon={MapPin} title="Pasta e cliente">
             <dl className="grid gap-5">
               <Definition label="Pasta">
                 <Link href={`/folders/${folder.id}`} className="text-[#00a7c6] hover:underline">
@@ -302,7 +341,7 @@ export function ProcessDetailContent({
             </dl>
           </DetailPanel>
 
-          <DetailPanel icon={CalendarDays} title="Marcos processuais">
+          <DetailPanel id="agenda" icon={CalendarDays} title="Marcos processuais">
             <dl className="grid gap-5">
               <Definition label="Distribuição">
                 {formatProcessDate(process.distribution_date) ?? 'Não informada'}
@@ -322,7 +361,7 @@ export function ProcessDetailContent({
             </dl>
           </DetailPanel>
 
-          <DetailPanel icon={CircleDollarSign} title="Valores">
+          <DetailPanel id="verbas" icon={CircleDollarSign} title="Valores">
             <dl className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
               <Definition label="Valor da causa">
                 {formatProcessCurrency(process.case_value) ?? 'Não informado'}
