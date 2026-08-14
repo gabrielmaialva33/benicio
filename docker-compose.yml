@@ -1,6 +1,5 @@
 # Local containerized environment for Benício.
-# - `docker compose up postgres redis`  -> just the datastores (run the app on the host)
-# - `docker compose up --build`          -> full stack (app + datastores) in containers
+# - `docker compose up postgres redis qdrant` -> project datastores (app runs on the host)
 #
 # Generate a real APP_KEY once:  node ace generate:key  (then export APP_KEY=...).
 name: benicio
@@ -37,6 +36,21 @@ services:
       timeout: 5s
       retries: 5
 
+  qdrant:
+    image: qdrant/qdrant:v1.17.1
+    restart: unless-stopped
+    ports:
+      # 6333 is already used by the host-level Cortex index on gato-arch.
+      - '6335:6333'
+    volumes:
+      - qdrantdata:/qdrant/storage
+    healthcheck:
+      test: ['CMD-SHELL', 'timeout 3 bash -c "</dev/tcp/127.0.0.1/6333"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   pgdata:
   redisdata:
+  qdrantdata:

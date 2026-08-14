@@ -1,8 +1,14 @@
 import { defineConfig, transports } from '@adonisjs/mail'
 import env from '#start/env'
 
+const defaultMailer = env.get('MAIL_MAILER', 'resend')
+const resendKey = env.get('RESEND_API_KEY', '')
+if (env.get('NODE_ENV') === 'production' && defaultMailer === 'resend' && !resendKey.trim()) {
+  throw new Error('RESEND_API_KEY is required for MAIL_MAILER=resend')
+}
+
 const mailConfig = defineConfig({
-  default: env.get('MAIL_MAILER', 'resend') as 'smtp' | 'mailgun' | 'resend',
+  default: defaultMailer as 'smtp' | 'mailgun' | 'resend',
 
   /**
    * A static address for the "from" property. It will be
@@ -21,7 +27,7 @@ const mailConfig = defineConfig({
    */
   mailers: {
     resend: transports.resend({
-      key: env.get('RESEND_API_KEY', ''),
+      key: resendKey,
       baseUrl: env.get('RESEND_BASE_URL', 'https://api.resend.com'),
     }),
 

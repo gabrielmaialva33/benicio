@@ -2,8 +2,21 @@ import app from '@adonisjs/core/services/app'
 import { defineConfig, services } from '@adonisjs/drive'
 import env from '#start/env'
 
+const defaultDisk = env.get('DRIVE_DISK')
+const r2Key = env.get('R2_KEY', '')
+const r2Secret = env.get('R2_SECRET', '')
+const r2Bucket = env.get('R2_BUCKET', '')
+const r2Endpoint = env.get('R2_ENDPOINT')
+
+if (
+  defaultDisk === 'r2' &&
+  (!r2Key.trim() || !r2Secret.trim() || !r2Bucket.trim() || !r2Endpoint?.trim())
+) {
+  throw new Error('R2_KEY, R2_SECRET, R2_BUCKET, and R2_ENDPOINT are required for DRIVE_DISK=r2')
+}
+
 const driveConfig = defineConfig({
-  default: env.get('DRIVE_DISK'),
+  default: defaultDisk,
 
   /**
    * The services object can be used to configure multiple file system
@@ -14,7 +27,7 @@ const driveConfig = defineConfig({
       location: app.makePath('storage'),
       serveFiles: true,
       routeBasePath: '/uploads',
-      visibility: 'public',
+      visibility: 'private',
     }),
     s3: services.s3({
       credentials: {
@@ -27,13 +40,14 @@ const driveConfig = defineConfig({
     }),
     r2: services.s3({
       credentials: {
-        accessKeyId: env.get('R2_KEY', ''),
-        secretAccessKey: env.get('R2_SECRET', ''),
+        accessKeyId: r2Key,
+        secretAccessKey: r2Secret,
       },
       region: 'auto',
-      bucket: env.get('R2_BUCKET', ''),
-      endpoint: env.get('R2_ENDPOINT'),
-      visibility: 'public',
+      bucket: r2Bucket,
+      endpoint: r2Endpoint,
+      visibility: 'private',
+      supportsACL: false,
     }),
     spaces: services.s3({
       credentials: {
