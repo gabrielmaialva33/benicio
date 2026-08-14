@@ -122,10 +122,10 @@ export default await Env.create(new URL('../', import.meta.url), {
   | Variables for the derived Qdrant retrieval index
   |----------------------------------------------------------
   */
-  QDRANT_URL: Env.schema.string.optional(),
-  QDRANT_API_KEY: Env.schema.string.optional(),
-  QDRANT_COLLECTION: Env.schema.string.optional(),
-  QDRANT_TIMEOUT_MS: Env.schema.number.optional(),
+  BENICIO_QDRANT_URL: Env.schema.string.optional(),
+  BENICIO_QDRANT_API_KEY: Env.schema.string.optional(),
+  BENICIO_QDRANT_COLLECTION: Env.schema.string.optional(),
+  BENICIO_QDRANT_TIMEOUT_MS: Env.schema.number.optional(),
 
   /*
   |----------------------------------------------------------
