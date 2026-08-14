@@ -129,6 +129,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="Nome completo ou razão social"
             name="name"
+            placeholder="Ex.: Construtora ABC Ltda."
             value={form.data.name}
             onChange={(event) => form.setData('name', event.target.value)}
             error={errors.name}
@@ -140,6 +141,9 @@ export function ClientForm({ client }: { client?: ClientItem }) {
             label={form.data.person_type === 'company' ? 'CNPJ' : 'CPF'}
             name="document"
             value={form.data.document}
+            placeholder={
+              form.data.person_type === 'company' ? '00.000.000/0000-00' : '000.000.000-00'
+            }
             onChange={(event) => form.setData('document', event.target.value.toUpperCase())}
             error={errors.document}
             hint={
@@ -153,6 +157,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="E-mail"
             name="email"
+            placeholder="contato@empresa.com.br"
             type="email"
             value={form.data.email}
             onChange={(event) => form.setData('email', event.target.value)}
@@ -162,6 +167,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="Telefone"
             name="phone"
+            placeholder="(11) 3000-0000"
             value={form.data.phone}
             onChange={(event) => form.setData('phone', event.target.value)}
             error={errors.phone}
@@ -184,6 +190,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="CEP"
             name="address.postal_code"
+            placeholder="00000-000"
             value={form.data.address.postal_code}
             onChange={(event) => updateAddress('postal_code', event.target.value)}
             error={errors['address.postal_code']}
@@ -192,6 +199,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="Rua"
             name="address.street"
+            placeholder="Ex.: Av. Paulista"
             value={form.data.address.street}
             onChange={(event) => updateAddress('street', event.target.value)}
             error={errors['address.street']}
@@ -201,6 +209,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="Número"
             name="address.number"
+            placeholder="Ex.: 1000"
             value={form.data.address.number}
             onChange={(event) => updateAddress('number', event.target.value)}
             error={errors['address.number']}
@@ -209,6 +218,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="Complemento"
             name="address.complement"
+            placeholder="Ex.: Sala 24"
             value={form.data.address.complement}
             onChange={(event) => updateAddress('complement', event.target.value)}
             error={errors['address.complement']}
@@ -217,6 +227,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="Bairro"
             name="address.neighborhood"
+            placeholder="Ex.: Bela Vista"
             value={form.data.address.neighborhood}
             onChange={(event) => updateAddress('neighborhood', event.target.value)}
             error={errors['address.neighborhood']}
@@ -225,6 +236,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="Cidade"
             name="address.city"
+            placeholder="Ex.: São Paulo"
             value={form.data.address.city}
             onChange={(event) => updateAddress('city', event.target.value)}
             error={errors['address.city']}
@@ -233,6 +245,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="Estado"
             name="address.state"
+            placeholder="Ex.: SP"
             value={form.data.address.state}
             onChange={(event) => updateAddress('state', event.target.value.toUpperCase())}
             error={errors['address.state']}
@@ -241,6 +254,7 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <Field
             label="País"
             name="address.country"
+            placeholder="Ex.: Brasil"
             value={form.data.address.country}
             onChange={(event) => updateAddress('country', event.target.value.toUpperCase())}
             error={errors['address.country']}
