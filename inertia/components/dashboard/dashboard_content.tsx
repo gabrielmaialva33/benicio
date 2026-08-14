@@ -38,7 +38,6 @@ import { AGGREGATE_STATUS_LABELS, PRIORITY_LABELS } from '~/lib/labels'
 
 const areaPalette = ['#00a76f', '#00b8d9', '#ffab00', '#ff5630', '#7c3aed', '#64748b']
 
-
 function formatDateTime(value: string | null) {
   if (!value) return 'Sem data definida'
   const date = new Date(value)
