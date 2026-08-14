@@ -8,6 +8,7 @@ import Role from '#modules/roles/models/role'
 
 import IRole from '#modules/roles/interfaces/role_interface'
 import IPermission from '#modules/permissions/interfaces/permission_interface'
+import { createLegalAdmin } from '#tests/helpers/legal_context'
 
 test.group('Rate Limiting', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -62,23 +63,7 @@ test.group('Rate Limiting', (group) => {
     client,
     assert,
   }) => {
-    // Create a user with a role
-    const userRole = await Role.firstOrCreate(
-      { slug: IRole.Slugs.USER },
-      {
-        name: 'User',
-        slug: IRole.Slugs.USER,
-        description: 'Regular user',
-      }
-    )
-
-    const user = await User.create({
-      full_name: 'API User',
-      email: 'api@example.com',
-      password: 'password123',
-    })
-
-    await user.related('roles').sync([userRole.id])
+    const { user } = await createLegalAdmin()
 
     // Test basic guest access (no rate limiting check due to configuration issues)
     const guestResponse = await client.get('/')
