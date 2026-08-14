@@ -118,6 +118,7 @@ export default class CreateDefaultPermissionsService {
       ],
       [IPermission.Resources.DASHBOARD]: [IPermission.Actions.READ],
       [IPermission.Resources.NOTIFICATIONS]: [
+        IPermission.Actions.CREATE,
         IPermission.Actions.READ,
         IPermission.Actions.UPDATE,
         IPermission.Actions.DELETE,
