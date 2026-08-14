@@ -11,6 +11,27 @@ import IPermission from '#modules/permissions/interfaces/permission_interface'
 test.group('Permissions', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
+  test('keeps ownership-safe operational permissions aligned for regular users', async ({
+    assert,
+  }) => {
+    const userRole = await Role.findByOrFail('slug', IRole.Slugs.USER)
+    const permissionNames = (await userRole.related('permissions').query()).map(
+      (permission) => permission.name
+    )
+
+    assert.includeMembers(permissionNames, [
+      'notifications.read',
+      'notifications.update',
+      'notifications.delete',
+      'notifications.list',
+      'messages.create',
+      'messages.delete',
+      'ai.create',
+      'ai.delete',
+    ])
+    assert.notInclude(permissionNames, 'notifications.create')
+  })
+
   test('should create a permission', async ({ client, assert }) => {
     // Create ROOT role and user
     const rootRole = await Role.firstOrCreate(

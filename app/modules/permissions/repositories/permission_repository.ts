@@ -101,8 +101,8 @@ export default class PermissionRepository
   }
 
   /**
-   * Permission ids granted to the USER role: read/update users and
-   * create/read/list files.
+   * Permission ids granted to the USER role, including ownership-safe legal
+   * resources. AI conversations also allow deleting the caller's own history.
    */
   async findUserPermissionIds(trx?: TransactionClientContract): Promise<number[]> {
     const rows = await this.model
@@ -120,6 +120,15 @@ export default class PermissionRepository
             IPermission.Actions.READ,
             IPermission.Actions.LIST,
           ])
+      })
+      .orWhere((query) => {
+        query
+          .whereIn('resource', [
+            IPermission.Resources.AI,
+            IPermission.Resources.MESSAGES,
+            IPermission.Resources.NOTIFICATIONS,
+          ])
+          .where('action', IPermission.Actions.DELETE)
       })
       .orWhere((query) => {
         query

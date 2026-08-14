@@ -46,6 +46,24 @@ export default class extends BaseSchema {
             if (permission.resource === IPermission.Resources.DASHBOARD) {
               return permission.action === IPermission.Actions.READ
             }
+            if (
+              permission.resource === IPermission.Resources.NOTIFICATIONS
+            ) {
+              return [
+                IPermission.Actions.READ,
+                IPermission.Actions.UPDATE,
+                IPermission.Actions.DELETE,
+                IPermission.Actions.LIST,
+              ].includes(permission.action as IPermission.Actions)
+            }
+            if (
+              [IPermission.Resources.AI, IPermission.Resources.MESSAGES].includes(
+                permission.resource as IPermission.Resources
+              ) &&
+              permission.action === IPermission.Actions.DELETE
+            ) {
+              return true
+            }
             return userWriteActions.has(permission.action)
           })
           .map((permission) => ({ role_id: role.id, permission_id: permission.id }))
