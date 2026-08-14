@@ -1,6 +1,8 @@
 import { Link, usePage } from '@inertiajs/react'
 import {
+  Bot,
   FileText,
+  ContactRound,
   FolderOpen,
   Home,
   PanelLeftClose,
@@ -34,11 +36,13 @@ const menuSections: MenuSection[] = [
     items: [
       { title: 'Visão geral', href: '/dashboard', icon: Home },
       { title: 'Pastas', href: '/folders', icon: FolderOpen },
+      { title: 'Assistente IA', href: '/chat', icon: Bot },
     ],
   },
   {
     title: 'Gestão',
     items: [
+      { title: 'Clientes', href: '/clients', icon: ContactRound },
       { title: 'Usuários', href: '/users', icon: Users },
       { title: 'Arquivos', href: '/files', icon: Upload },
     ],

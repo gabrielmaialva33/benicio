@@ -14,7 +14,9 @@ import IPermission from '#modules/permissions/interfaces/permission_interface'
 const InertiaAuthController = () => import('#modules/web/controllers/auth_controller')
 const InertiaDashboardController = () => import('#modules/web/controllers/dashboard_controller')
 const InertiaFoldersController = () => import('#modules/web/controllers/folders_controller')
+const InertiaProcessesController = () => import('#modules/web/controllers/processes_controller')
 const InertiaClientsController = () => import('#modules/web/controllers/clients_controller')
+const InertiaAiChatController = () => import('#modules/web/controllers/ai_chat_controller')
 const InertiaUsersController = () => import('#modules/web/controllers/users_controller')
 const InertiaFilesController = () => import('#modules/web/controllers/files_controller')
 const InertiaTenantController = () => import('#modules/web/controllers/tenant_controller')
@@ -91,6 +93,74 @@ router
           .use(
             middleware.permission({
               permissions: `${IPermission.Resources.FOLDERS}.${IPermission.Actions.CREATE}`,
+            })
+          )
+        router
+          .get('/:folderId/processes/create', [InertiaProcessesController, 'create'])
+          .where('folderId', /^[0-9]+$/)
+          .as('web.processes.create')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.PROCESSES}.${IPermission.Actions.CREATE}`,
+            })
+          )
+        router
+          .post('/:folderId/processes', [InertiaProcessesController, 'store'])
+          .where('folderId', /^[0-9]+$/)
+          .as('web.processes.store')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.PROCESSES}.${IPermission.Actions.CREATE}`,
+            })
+          )
+        router
+          .get('/:folderId/processes/:id/edit', [InertiaProcessesController, 'edit'])
+          .where('folderId', /^[0-9]+$/)
+          .where('id', /^[0-9]+$/)
+          .as('web.processes.edit')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.PROCESSES}.${IPermission.Actions.UPDATE}`,
+            })
+          )
+        router
+          .put('/:folderId/processes/:id', [InertiaProcessesController, 'update'])
+          .where('folderId', /^[0-9]+$/)
+          .where('id', /^[0-9]+$/)
+          .as('web.processes.update')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.PROCESSES}.${IPermission.Actions.UPDATE}`,
+            })
+          )
+        router
+          .put('/:folderId/processes/:id/primary', [InertiaProcessesController, 'markPrimary'])
+          .where('folderId', /^[0-9]+$/)
+          .where('id', /^[0-9]+$/)
+          .as('web.processes.primary')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.PROCESSES}.${IPermission.Actions.UPDATE}`,
+            })
+          )
+        router
+          .delete('/:folderId/processes/:id', [InertiaProcessesController, 'destroy'])
+          .where('folderId', /^[0-9]+$/)
+          .where('id', /^[0-9]+$/)
+          .as('web.processes.destroy')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.PROCESSES}.${IPermission.Actions.DELETE}`,
+            })
+          )
+        router
+          .get('/:folderId/processes/:id', [InertiaProcessesController, 'show'])
+          .where('folderId', /^[0-9]+$/)
+          .where('id', /^[0-9]+$/)
+          .as('web.processes.show')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.PROCESSES}.${IPermission.Actions.READ}`,
             })
           )
         router
@@ -171,6 +241,39 @@ router
           )
       })
       .prefix('/clients')
+      .use(middleware.tenant({ required: true }))
+
+    // AI chat
+    router
+      .group(() => {
+        router
+          .get('/', [InertiaAiChatController, 'index'])
+          .as('web.chat.index')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.AI}.${IPermission.Actions.LIST}`,
+            })
+          )
+        router
+          .delete('/:id', [InertiaAiChatController, 'destroy'])
+          .where('id', /^[0-9]+$/)
+          .as('web.chat.destroy')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.AI}.${IPermission.Actions.DELETE}`,
+            })
+          )
+        router
+          .get('/:id', [InertiaAiChatController, 'show'])
+          .where('id', /^[0-9]+$/)
+          .as('web.chat.show')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.AI}.${IPermission.Actions.READ}`,
+            })
+          )
+      })
+      .prefix('/chat')
       .use(middleware.tenant({ required: true }))
 
     // UI Demo Page

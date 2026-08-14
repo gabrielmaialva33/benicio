@@ -1,5 +1,5 @@
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import app from '@adonisjs/core/services/app'
 
 import ConflictException from '#exceptions/conflict_exception'
 import NotFoundException from '#exceptions/not_found_exception'
@@ -9,32 +9,44 @@ import {
   listFoldersValidator,
 } from '#modules/folders/validators/folder_validators'
 import FolderPageService from '#modules/web/services/folder_page_service'
+import { inertiaRedirectBack, inertiaRedirectTo } from '#shared/http/inertia_redirect'
 import { requireTenantId } from '#shared/http/tenant_context'
 
+@inject()
 export default class InertiaFoldersController {
+  constructor(
+    private folderPageService: FolderPageService,
+    private folderService: FolderService
+  ) {}
+
   async index(ctx: HttpContext) {
     const input = await listFoldersValidator.validate(ctx.request.qs())
-    const service = await app.container.make(FolderPageService)
-    const page = await service.index(requireTenantId(ctx), input)
+    const page = await this.folderPageService.index(requireTenantId(ctx), input)
 
     return ctx.inertia.render('folders/index', page)
   }
 
   async create(ctx: HttpContext) {
-    const service = await app.container.make(FolderPageService)
-    const options = await service.formOptions(requireTenantId(ctx))
+    const options = await this.folderPageService.formOptions(requireTenantId(ctx))
+    const requestedClientId = Number(ctx.request.input('client_id'))
+    const selectedClientId =
+      Number.isSafeInteger(requestedClientId) &&
+      options.clients.some((client) => client.id === requestedClientId)
+        ? requestedClientId
+        : null
 
-    return ctx.inertia.render('folders/create', options)
+    return ctx.inertia.render('folders/create', {
+      ...options,
+      selected_client_id: selectedClientId,
+    })
   }
 
   async store(ctx: HttpContext) {
     const input = await ctx.request.validateUsing(createFolderValidator)
-    const service = await app.container.make(FolderService)
-
     try {
-      const folder = await service.create(requireTenantId(ctx), input)
+      const folder = await this.folderService.create(requireTenantId(ctx), input)
       ctx.session.flash('success', `Pasta ${folder.code} criada com sucesso.`)
-      return ctx.response.redirect().toPath(`/folders/${folder.id}`)
+      return inertiaRedirectTo(ctx, `/folders/${folder.id}`)
     } catch (error) {
       if (error instanceof ConflictException) {
         return this.redirectWithError(ctx, 'code', 'Já existe uma pasta ativa com este código.')
@@ -52,8 +64,7 @@ export default class InertiaFoldersController {
   }
 
   async show(ctx: HttpContext) {
-    const service = await app.container.make(FolderPageService)
-    const page = await service.detail(requireTenantId(ctx), Number(ctx.params.id))
+    const page = await this.folderPageService.detail(requireTenantId(ctx), Number(ctx.params.id))
 
     return ctx.inertia.render('folders/show', page)
   }
@@ -61,6 +72,6 @@ export default class InertiaFoldersController {
   private redirectWithError(ctx: HttpContext, field: string, message: string) {
     ctx.session.flashAll()
     ctx.session.flash('inputErrorsBag', { [field]: [message] })
-    return ctx.response.redirect().back()
+    return inertiaRedirectBack(ctx)
   }
 }

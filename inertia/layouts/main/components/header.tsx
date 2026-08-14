@@ -39,6 +39,18 @@ function pageCopy(url: string) {
   if (path === '/folders/create') {
     return { title: 'Nova Pasta', description: 'Organize o caso antes de vincular seus processos.' }
   }
+  if (/^\/folders\/\d+\/processes\/create$/.test(path)) {
+    return { title: 'Novo Processo', description: 'Cadastre o processo dentro da pasta.' }
+  }
+  if (/^\/folders\/\d+\/processes\/\d+\/edit$/.test(path)) {
+    return { title: 'Editar Processo', description: 'Atualize dados, valores e partes.' }
+  }
+  if (/^\/folders\/\d+\/processes\/\d+$/.test(path)) {
+    return {
+      title: 'Detalhes do Processo',
+      description: 'Consulte o contexto processual completo.',
+    }
+  }
   if (/^\/folders\/\d+$/.test(path)) {
     return {
       title: 'Detalhes da Pasta',
@@ -47,6 +59,21 @@ function pageCopy(url: string) {
   }
   if (path.startsWith('/folders')) {
     return { title: 'Pastas', description: 'Consulte e organize os casos do escritório.' }
+  }
+  if (path === '/clients/create') {
+    return { title: 'Novo Cliente', description: 'Cadastre uma pessoa física ou jurídica.' }
+  }
+  if (path.startsWith('/clients/') && path.endsWith('/edit')) {
+    return { title: 'Editar Cliente', description: 'Atualize os dados cadastrais e de contato.' }
+  }
+  if (/^\/clients\/\d+$/.test(path)) {
+    return { title: 'Detalhes do Cliente', description: 'Consulte dados e vínculos jurídicos.' }
+  }
+  if (path.startsWith('/clients')) {
+    return { title: 'Clientes', description: 'Gerencie a base de clientes do escritório.' }
+  }
+  if (path.startsWith('/chat')) {
+    return { title: 'Assistente IA', description: 'Converse com contexto isolado por escritório.' }
   }
   if (path === '/users/create') {
     return { title: 'Novo usuário', description: 'Cadastre uma pessoa na plataforma.' }
