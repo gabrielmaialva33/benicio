@@ -34,12 +34,17 @@ while [[ $# -gt 0 ]]; do
 done
 
 cd "$APP_DIR"
-COMPOSE=(docker compose -f deploy/docker-compose.prod.yml)
 
 if [[ ! -f .env ]]; then
   echo "deploy: $APP_DIR/.env is missing — generate it with deploy/make_env.sh and copy it over" >&2
   exit 1
 fi
+
+# --env-file is not optional here. Compose resolves `${...}` interpolation
+# against the project directory, which is the compose file's own folder, so
+# without this it would look for deploy/.env and silently hand Postgres an
+# empty password.
+COMPOSE=(docker compose --env-file "$APP_DIR/.env" -f deploy/docker-compose.prod.yml)
 
 echo "==> fetching $BRANCH"
 git fetch --prune origin "$BRANCH"
