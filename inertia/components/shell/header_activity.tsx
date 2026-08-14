@@ -73,16 +73,16 @@ type ActivityTriggerProps = ComponentPropsWithoutRef<'button'> & {
 }
 
 /**
- * Encaminha ref e props porque o PopoverTrigger usa `asChild`: sem isso o Radix
- * não consegue ligar o onClick nem o data-state e o popover nunca abre.
+ * Forwards ref and props because PopoverTrigger uses `asChild`: without it
+ * Radix cannot wire onClick nor data-state, and the popover never opens.
  */
 const ActivityTrigger = forwardRef<HTMLButtonElement, ActivityTriggerProps>(
-  function ActivityTrigger({ label, unreadCount, children, ...propsDoTrigger }, ref) {
+  function ActivityTrigger({ label, unreadCount, children, ...triggerProps }, ref) {
     const accessibleLabel = unreadCount > 0 ? `${label}, ${unreadCount} não lidas` : label
 
     return (
       <button
-        {...propsDoTrigger}
+        {...triggerProps}
         ref={ref}
         type="button"
         aria-label={accessibleLabel}
@@ -360,7 +360,7 @@ function MessagesPopover() {
 }
 
 export function HeaderActivity() {
-  const { can: podeAcessar } = useAuth()
+  const { can: can } = useAuth()
   const openAgenda = () => {
     router.visit('/dashboard', {
       preserveScroll: false,
@@ -374,8 +374,8 @@ export function HeaderActivity() {
 
   return (
     <>
-      {podeAcessar('notifications.list') && <NotificationsPopover />}
-      {podeAcessar('dashboard.read') && (
+      {can('notifications.list') && <NotificationsPopover />}
+      {can('dashboard.read') && (
         <button
           type="button"
           aria-label="Abrir agenda"
@@ -391,7 +391,7 @@ export function HeaderActivity() {
           />
         </button>
       )}
-      {podeAcessar('messages.list') && <MessagesPopover />}
+      {can('messages.list') && <MessagesPopover />}
     </>
   )
 }

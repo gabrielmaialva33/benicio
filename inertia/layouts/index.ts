@@ -1,5 +1,5 @@
 /**
- * Exporta todos os layouts
+ * Barrel for the layouts.
  */
 
 export { MainLayout } from './main_layout'

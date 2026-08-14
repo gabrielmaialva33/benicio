@@ -11,8 +11,8 @@ export function useAuth() {
   const permissions = auth?.permissions ?? []
   const roles = auth?.roles ?? []
 
-  /** `true` quando o usuário tem a permissão `recurso.acao` informada. */
-  const podeAcessar = (permissaoRequerida: string) => permissions.includes(permissaoRequerida)
+  /** `true` when the user holds the given `resource.action` permission. */
+  const can = (requiredPermission: string) => permissions.includes(requiredPermission)
 
   return {
     user: auth?.user ?? null,
@@ -22,6 +22,6 @@ export function useAuth() {
     activeTenantId,
     permissions,
     roles,
-    can: podeAcessar,
+    can,
   }
 }

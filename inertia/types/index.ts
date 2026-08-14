@@ -32,9 +32,9 @@ export interface AuthSharedProps {
   user: AuthUser | null
   tenants: TenantSummary[]
   activeTenantId: number | null
-  /** Permissões efetivas do usuário no formato `recurso.acao` (ex.: `users.list`). */
+  /** Effective permissions as `resource.action` (e.g. `users.list`). */
   permissions: string[]
-  /** Slugs dos papéis do usuário (ex.: `admin`, `user`, `guest`). */
+  /** Role slugs held by the user (e.g. `admin`, `user`, `guest`). */
   roles: string[]
 }
 

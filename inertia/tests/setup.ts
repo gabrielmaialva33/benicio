@@ -4,11 +4,11 @@ import { QueryClient } from '@tanstack/react-query'
 import { afterAll, afterEach, beforeAll, vi } from 'vitest'
 
 /**
- * Permissões usadas como padrão nos testes de componente. O shell (sidebar e
- * header) esconde itens sem permissão, então sem isto todo teste de navegação
- * renderizaria vazio. Testes de restrição sobrescrevem `usePage` localmente.
+ * Default permissions for component tests. The shell (sidebar and header) hides
+ * items the user cannot reach, so without these every navigation test would
+ * render empty. Restriction tests override `usePage` locally.
  */
-const permissoesPadraoDeTeste = [
+const DEFAULT_TEST_PERMISSIONS = [
   'dashboard.read',
   'folders.list',
   'folders.create',
@@ -30,7 +30,7 @@ vi.mock('@inertiajs/react', () => ({
         user: null,
         tenants: [],
         activeTenantId: null,
-        permissions: permissoesPadraoDeTeste,
+        permissions: DEFAULT_TEST_PERMISSIONS,
         roles: ['user'],
       },
     },

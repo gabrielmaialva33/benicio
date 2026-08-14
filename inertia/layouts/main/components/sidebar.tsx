@@ -22,7 +22,7 @@ interface MenuItem {
   icon?: LucideIcon
   iconPath?: string
   children?: Array<{ title: string; href: string; permission?: string }>
-  /** Permissão `recurso.acao` exigida pela rota; sem ela o item some do menu. */
+  /** `resource.action` the route requires; without it the item leaves the menu. */
   permission?: string
 }
 
@@ -42,6 +42,12 @@ const pageItems: MenuItem[] = [
       { title: 'Cadastrar', href: '/folders/create', permission: 'folders.create' },
       { title: 'Consulta', href: '/folders', permission: 'folders.list' },
     ],
+  },
+  {
+    title: 'Agenda',
+    href: '/calendar',
+    iconPath: '/yol/icons/calendar.svg',
+    permission: 'hearings.list',
   },
   { title: 'Chat IA', href: '/chat', iconPath: '/yol/icons/sparkles.svg', permission: 'ai.read' },
 ]
@@ -94,22 +100,22 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const [showAllFavorites, setShowAllFavorites] = useState(false)
   const [foldersOpen, setFoldersOpen] = useState(currentPath(url).startsWith('/folders'))
   const favoriteFolders = useFavoriteFolders()
-  const { can: podeAcessar } = useAuth()
+  const { can: can } = useAuth()
   const searchQuery = search.trim().toLocaleLowerCase('pt-BR')
 
   const filterItems = (items: MenuItem[]) => {
-    const permitidos = items
-      .filter((item) => !item.permission || podeAcessar(item.permission))
+    const allowedItems = items
+      .filter((item) => !item.permission || can(item.permission))
       .map((item) => ({
         ...item,
         children: item.children?.filter(
-          (child) => !child.permission || podeAcessar(child.permission)
+          (child) => !child.permission || can(child.permission)
         ),
       }))
 
     return searchQuery
-      ? permitidos.filter((item) => item.title.toLocaleLowerCase('pt-BR').includes(searchQuery))
-      : permitidos
+      ? allowedItems.filter((item) => item.title.toLocaleLowerCase('pt-BR').includes(searchQuery))
+      : allowedItems
   }
 
   const visiblePages = filterItems(pageItems)
@@ -252,7 +258,7 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
       )}
 
       {!collapsed &&
-        podeAcessar('folders.list') &&
+        can('folders.list') &&
         (favoriteFolders.isPending || favoriteFolders.isError) && (
           <section className="px-10 pr-[60px]">
             <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Favoritos</h2>

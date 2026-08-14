@@ -1,9 +1,9 @@
 /**
- * Helpers para formatação de dados
+ * Data formatting helpers
  */
 
 /**
- * Formata data para exibição
+ * Formats a date for display
  */
 export function formatDate(date: string | Date, locale: string = 'pt-BR'): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
@@ -15,7 +15,7 @@ export function formatDate(date: string | Date, locale: string = 'pt-BR'): strin
 }
 
 /**
- * Formata data e hora para exibição
+ * Formats date and time for display
  */
 export function formatDateTime(date: string | Date, locale: string = 'pt-BR'): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
@@ -29,7 +29,7 @@ export function formatDateTime(date: string | Date, locale: string = 'pt-BR'): s
 }
 
 /**
- * Formata bytes para tamanho legível
+ * Formats bytes into a human-readable size
  */
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes'
@@ -42,7 +42,7 @@ export function formatFileSize(bytes: number): string {
 }
 
 /**
- * Trunca texto com elipses
+ * Truncates text with an ellipsis
  */
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text
@@ -50,7 +50,7 @@ export function truncateText(text: string, maxLength: number): string {
 }
 
 /**
- * Formata número como moeda
+ * Formats a number as currency
  */
 export function formatCurrency(
   value: number,
@@ -64,21 +64,21 @@ export function formatCurrency(
 }
 
 /**
- * Formata número com separadores
+ * Formats a number with separators
  */
 export function formatNumber(value: number, locale: string = 'pt-BR'): string {
   return new Intl.NumberFormat(locale).format(value)
 }
 
 /**
- * Remove acentos de string
+ * Strips accents from a string
  */
 export function removeAccents(str: string): string {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 }
 
 /**
- * Converte string para slug
+ * Converts a string into a slug
  */
 export function slugify(str: string): string {
   return removeAccents(str)

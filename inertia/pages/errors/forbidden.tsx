@@ -2,9 +2,9 @@ import { Head, Link } from '@inertiajs/react'
 import { ShieldAlert } from 'lucide-react'
 
 interface ForbiddenProps {
-  /** Rota que o usuário tentou abrir, exibida como contexto do bloqueio. */
+  /** Path the user tried to open, shown as context for the block. */
   attemptedPath?: string | null
-  /** Rota inicial que o usuário logado consegue acessar de fato. */
+  /** Landing route the signed-in user can actually reach. */
   fallbackPath?: string
 }
 

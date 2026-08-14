@@ -1,10 +1,10 @@
 /**
- * Exporta todos os services da aplicação
+ * Barrel for the application services.
  */
 
-// Com Inertia.js, não precisamos de services para chamadas API no frontend
-// Toda a comunicação é feita através dos métodos do Inertia (useForm, router, etc)
+// With Inertia.js the frontend needs no services for API calls: every request
+// goes through Inertia itself (useForm, router, etc).
 
-// Se houver services utilitários no futuro, adicionar aqui
+// Utility services, if any come up later, belong here
 // export { default as storageService } from './storage_service'
 // export { default as notificationService } from './notification_service'

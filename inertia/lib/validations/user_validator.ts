@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 /**
- * Schemas de validação para usuários
- * Mantém consistência com as validações do backend
+ * User validation schemas.
+ * Kept in sync with the backend validators.
  */
 
 export const createUserSchema = z.object({
@@ -59,7 +59,7 @@ export const userFiltersSchema = z.object({
   sort_order: z.enum(['asc', 'desc']).optional().default('desc'),
 })
 
-// Types inferidos dos schemas
+// Types inferred from the schemas
 export type CreateUserFormData = z.infer<typeof createUserSchema>
 export type UpdateUserFormData = z.infer<typeof updateUserSchema>
 export type UserFilters = z.infer<typeof userFiltersSchema>

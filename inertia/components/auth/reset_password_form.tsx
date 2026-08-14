@@ -3,11 +3,11 @@ import type { FormEvent } from 'react'
 
 interface ResetPasswordFormProps {
   token: string
-  /** `false` quando o link já expirou, foi usado ou nem existe. */
+  /** `false` when the link expired, was already used or never existed. */
   tokenIsValid: boolean
 }
 
-const campoDeSenhaClasses =
+const PASSWORD_FIELD_CLASSES =
   'h-[50px] w-full rounded-md border border-[#e1e3ea] bg-transparent px-3 font-semibold text-base text-gray-500 outline-none placeholder:text-gray-500 focus:border-gray-400'
 
 export function ResetPasswordForm({ token, tokenIsValid }: ResetPasswordFormProps) {
@@ -19,8 +19,8 @@ export function ResetPasswordForm({ token, tokenIsValid }: ResetPasswordFormProp
   const { errors: sharedErrors } = usePage().props as {
     errors?: Record<string, string | undefined>
   }
-  // O erro de token inválido chega pelo flash do controller, não pelo formulário.
-  const erroGeral = sharedErrors?.general
+  // The invalid-token error arrives through the controller flash, not the form.
+  const generalError = sharedErrors?.general
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -45,9 +45,9 @@ export function ResetPasswordForm({ token, tokenIsValid }: ResetPasswordFormProp
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5" noValidate>
-      {erroGeral && (
+      {generalError && (
         <p role="alert" className="rounded-md bg-red-50 px-3 py-3 text-sm leading-5 text-red-700">
-          {erroGeral}
+          {generalError}
         </p>
       )}
 
@@ -67,7 +67,7 @@ export function ResetPasswordForm({ token, tokenIsValid }: ResetPasswordFormProp
           autoComplete="new-password"
           aria-invalid={Boolean(errors.password)}
           aria-describedby={errors.password ? 'password-error' : 'password-hint'}
-          className={campoDeSenhaClasses}
+          className={PASSWORD_FIELD_CLASSES}
         />
         {errors.password ? (
           <p id="password-error" className="mt-1.5 text-sm text-red-600">
@@ -98,7 +98,7 @@ export function ResetPasswordForm({ token, tokenIsValid }: ResetPasswordFormProp
           aria-describedby={
             errors.password_confirmation ? 'password-confirmation-error' : undefined
           }
-          className={campoDeSenhaClasses}
+          className={PASSWORD_FIELD_CLASSES}
         />
         {errors.password_confirmation && (
           <p id="password-confirmation-error" className="mt-1.5 text-sm text-red-600">
