@@ -13,6 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '~/': `${import.meta.dirname}/inertia/`,
+      '#permissions': `${import.meta.dirname}/app/modules/permissions/interfaces/permission_catalog.ts`,
     },
   },
 

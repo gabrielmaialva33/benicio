@@ -2,8 +2,22 @@ import type LucidRepositoryInterface from '#shared/lucid/lucid_repository_interf
 import type { PaginateResult } from '#shared/lucid/lucid_repository_interface'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type Permission from '#modules/permissions/models/permission'
+import {
+  PermissionActions,
+  PermissionContexts,
+  PermissionResources,
+} from '#modules/permissions/interfaces/permission_catalog'
 
 namespace IPermission {
+  /**
+   * The vocabulary itself lives in the import-free `permission_catalog`, which
+   * the Inertia bundle also consumes. Re-exported here so the 380-odd backend
+   * call sites keep using `IPermission.Resources` / `IPermission.Actions`.
+   */
+  export import Resources = PermissionResources
+  export import Actions = PermissionActions
+  export import Contexts = PermissionContexts
+
   export interface Repository extends LucidRepositoryInterface<typeof Permission> {
     findByName(name: string): Promise<Permission | null>
 
@@ -52,47 +66,6 @@ namespace IPermission {
     requireAll?: boolean
     context?: string
     resource_id?: number
-  }
-
-  export enum Resources {
-    USERS = 'users',
-    ROLES = 'roles',
-    PERMISSIONS = 'permissions',
-    FILES = 'files',
-    SETTINGS = 'settings',
-    REPORTS = 'reports',
-    AUDIT = 'audit',
-    CLIENTS = 'clients',
-    FOLDERS = 'folders',
-    PROCESSES = 'processes',
-    TASKS = 'tasks',
-    HEARINGS = 'hearings',
-    DEADLINES = 'deadlines',
-    MOVEMENTS = 'movements',
-    DOCUMENTS = 'documents',
-    DASHBOARD = 'dashboard',
-    NOTIFICATIONS = 'notifications',
-    MESSAGES = 'messages',
-    AI = 'ai',
-  }
-
-  export enum Actions {
-    CREATE = 'create',
-    READ = 'read',
-    UPDATE = 'update',
-    DELETE = 'delete',
-    LIST = 'list',
-    EXPORT = 'export',
-    IMPORT = 'import',
-    ASSIGN = 'assign',
-    REVOKE = 'revoke',
-  }
-
-  export enum Contexts {
-    OWN = 'own',
-    ANY = 'any',
-    TEAM = 'team',
-    DEPARTMENT = 'department',
   }
 
   export interface PermissionData {

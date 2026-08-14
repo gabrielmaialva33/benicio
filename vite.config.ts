@@ -31,6 +31,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '~/': `${import.meta.dirname}/inertia/`,
+      /**
+       * The RBAC vocabulary is owned by the backend. Aliasing the single
+       * import-free catalogue file (never the whole `#modules` tree) lets the
+       * frontend spell permissions with the same enum the routes use.
+       */
+      '#permissions': `${import.meta.dirname}/app/modules/permissions/interfaces/permission_catalog.ts`,
     },
   },
 })

@@ -5,7 +5,8 @@
     "module": "ESNext",
     "jsx": "react-jsx",
     "paths": {
-      "~/*": ["./*"]
+      "~/*": ["./*"],
+      "#permissions": ["../app/modules/permissions/interfaces/permission_catalog"]
     }
   },
   "include": ["./**/*.ts", "./**/*.tsx", "./types/globals.d.ts"]
