@@ -89,7 +89,7 @@ export default class UploadFileService {
     }
 
     // Create file record in database
-    await this.fileRepository.create({
+    const storedFile = await this.fileRepository.create({
       owner_id: user.id,
       tenant_id: tenantId,
       client_name: file.clientName?.replace(`.${file.extname}`, '') || '',
@@ -101,6 +101,8 @@ export default class UploadFileService {
     })
 
     return {
+      id: storedFile.id,
+      fileId: storedFile.id,
       url: finalUrl,
       clientName: file.clientName?.replace(`.${file.extname}`, ''),
       fileCategory,
