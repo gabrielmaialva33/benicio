@@ -2,7 +2,7 @@
 
 This document records the backend boundary established before porting the `yol-benicio` frontend.
 The legacy projects under `yol-benicio/` were treated as product and compatibility evidence, not as
-an architecture to copy. BMG, Daycoval, and unrelated sibling projects are outside this scope.
+an architecture to copy. Unrelated sibling projects are outside this scope.
 
 ## Implemented API
 
@@ -24,7 +24,8 @@ RBAC permission. Cross-tenant or cross-owner reads return `404` to avoid resourc
 
 ## Authentication and tenancy
 
-- Access JWTs expire after 15 minutes and carry a unique token-family ID plus the active tenant.
+- API access JWTs expire after 15 minutes; browser sessions use a one-hour access cookie. Both
+  carry a unique token-family ID plus the active tenant.
 - Opaque refresh tokens expire after three days, are stored only as SHA-256 hashes, and rotate on
   every use.
 - Reusing a rotated refresh token revokes the whole family. Logout revokes the current family and
@@ -32,6 +33,8 @@ RBAC permission. Cross-tenant or cross-owner reads return `404` to avoid resourc
 - A user may belong to multiple tenants through `user_tenants`. Composite foreign keys keep
   tenant-owned relations inside the same tenant at the database boundary.
 - The `x-tenant-id` header may select a membership; otherwise the signed JWT tenant claim is used.
+- Permission identity is `(resource, action, context)`. `own` checks use the ownership repository;
+  unsupported team or department scopes fail closed until they have a canonical membership source.
 
 ## Legal workflow invariants
 

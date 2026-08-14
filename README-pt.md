@@ -36,8 +36,9 @@ repositório canônico do produto: aplicação web em **React 19 + Inertia.js**,
 **AdonisJS v7**, todos apoiados pela mesma camada de domínio.
 
 A fundação atual já entrega autenticação multi-guard, controle de acesso baseado em papéis (RBAC), **multi-tenancy N:N**,
-auditoria e gerenciamento de arquivos. Os módulos jurídicos do legado serão migrados incrementalmente, começando pelo
-fluxo de pastas e processos, sempre com dados reais e testes de contrato.
+auditoria e gerenciamento de arquivos. Dashboard, clientes, pastas, processos e chat de IA já foram consolidados no
+Inertia; os módulos operacionais restantes seguem a mesma migração incremental, sempre com dados reais e testes de
+contrato.
 
 ### 🏗️ Visão Geral da Arquitetura
 
@@ -85,14 +86,21 @@ graph TD
     BE_SERVICES --> CACHE
 ```
 
+A direção de dependências é intencional: controllers cuidam de HTTP, serviços orquestram casos de uso e fronteiras
+transacionais, e repositórios concentram toda query Lucid/SQL. O ESLint rejeita acesso ao banco/query builder em
+controllers, serviços e middlewares, além de impedir que controllers ou middlewares pulem a camada de serviço
+importando um repositório diretamente.
+
 ## Status atual
 
 - **Fundação da plataforma disponível**: famílias rotativas de refresh token, usuários, tenants, RBAC, auditoria, arquivos, shell web e infraestrutura de API.
 - **API jurídica disponível**: clientes, pastas, processos/partes, tarefas, audiências, prazos, movimentações, atividade append-only, documentos ligados a arquivos e favoritos por usuário.
 - **Operação disponível**: dashboard com agregações reais, notificações do destinatário, mensagens internas, canais realtime privados e conversas de IA persistidas com fronteira explícita de provider.
 - **Contrato coberto**: toda rota pública da API/Transmit está representada em `docs/openapi.yaml`, com testes funcionais de isolamento por tenant e proprietário.
-- **Web canônica**: controllers Inertia finos reutilizam os mesmos serviços de aplicação da API.
-- **Próximo slice de produto**: portar o frontend aprovado do `yol-benicio` sobre esta API revisada e o shell Inertia do kit.
+- **Web canônica**: a experiência aprovada do `yol-benicio` agora vive no Inertia, incluindo dashboard, pastas e
+  clientes isolados por tenant, processos aninhados em pastas e chat de IA persistido com streaming SSE real.
+- **Próximo slice de produto**: expor os módulos operacionais restantes da API (tarefas, audiências, prazos,
+  movimentações e documentos) pela mesma arquitetura Inertia.
 
 ## 🌟 Principais Funcionalidades
 

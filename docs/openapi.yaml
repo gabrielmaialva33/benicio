@@ -91,8 +91,14 @@ components:
           format: email
           example: 'john@example.com'
         username:
-          type: string
+          type: [string, 'null']
           example: 'johndoe'
+        email_verified:
+          type: boolean
+          description: Public verification state. Verification tokens are never serialized.
+        email_verified_at:
+          type: [string, 'null']
+          format: date-time
         created_at:
           type: string
           format: date-time
@@ -1160,11 +1166,14 @@ components:
 
     AiConversation:
       type: object
-      required: [id, title, user_id, created_at, updated_at]
+      required: [id, title, user_id, mode, status, last_error, created_at, updated_at]
       properties:
         id: { type: integer }
         title: { type: string }
         user_id: { type: integer }
+        mode: { type: string, enum: [single, multi] }
+        status: { type: string, enum: [active, generating, error] }
+        last_error: { type: [string, 'null'] }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
         messages:
@@ -2019,15 +2028,44 @@ paths:
                 - resource
                 - action
               properties:
+                name:
+                  type: string
+                  description: Optional stable name. Defaults to `resource.action[.context]`.
                 resource:
                   type: string
-                  example: 'posts'
+                  enum:
+                    - users
+                    - roles
+                    - permissions
+                    - files
+                    - settings
+                    - reports
+                    - audit
+                    - clients
+                    - folders
+                    - processes
+                    - tasks
+                    - hearings
+                    - deadlines
+                    - movements
+                    - documents
+                    - dashboard
+                    - notifications
+                    - messages
+                    - ai
+                  example: 'files'
                 action:
                   type: string
-                  example: 'create'
+                  enum: [create, read, update, delete, list, export, import, assign, revoke]
+                  example: 'read'
+                context:
+                  type: string
+                  enum: [any, own, team, department]
+                  default: any
+                  example: 'own'
                 description:
                   type: string
-                  example: 'Allow creating posts'
+                  example: 'Allow reading owned files'
       responses:
         '201':
           description: Permission created successfully

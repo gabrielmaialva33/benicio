@@ -36,8 +36,9 @@ canonical repository: a **React 19 + Inertia.js** web application, a versioned R
 all backed by the same domain layer.
 
 The current foundation already provides multi-guard authentication, role-based access control (RBAC), **N:N
-multi-tenancy**, auditing, and file management. Legacy legal modules will move incrementally, starting with cases and
-proceedings, always backed by real data and contract tests.
+multi-tenancy**, auditing, and file management. Dashboard, clients, folders, processes, and AI chat are now consolidated
+in Inertia; the remaining operational modules will follow the same incremental migration, always backed by real data and
+contract tests.
 
 ### 🏗️ Architecture Overview
 
@@ -85,14 +86,21 @@ graph TD
     BE_SERVICES --> CACHE
 ```
 
+The dependency direction is deliberate: controllers own HTTP concerns, services own use-case orchestration and
+transaction boundaries, and repositories own every Lucid/SQL query. ESLint rejects database/query-builder calls in
+controllers, services, and middleware, and also rejects controllers or middleware that bypass services by importing a
+repository directly.
+
 ## Current Status
 
 - **Platform foundation available**: rotating refresh-token families, users, tenants, RBAC, auditing, files, the web shell, and API infrastructure.
 - **Legal API available**: tenant-safe clients, folders, processes/parties, tasks, hearings, deadlines, movements, append-only activity, file-linked documents, and per-user favorites.
 - **Operations available**: real dashboard aggregates, recipient-owned notifications, internal messages, private realtime channels, and persisted AI conversations with an explicit provider boundary.
 - **Contract covered**: every public API/Transmit route is represented in `docs/openapi.yaml`, with functional tests for tenant and owner isolation.
-- **Canonical web**: thin Inertia controllers reuse the same application services as the API.
-- **Next product slice**: port the approved `yol-benicio` frontend onto this reviewed API and the kit's Inertia shell.
+- **Canonical web**: the approved `yol-benicio` experience now lives in Inertia, including dashboard, tenant-safe
+  folders and clients, processes nested under folders, and persisted AI chat with real SSE streaming.
+- **Next product slice**: expose the remaining operational API modules (tasks, hearings, deadlines, movements, and
+  documents) through the same Inertia architecture.
 
 ## 🌟 Key Features
 
