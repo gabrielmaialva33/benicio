@@ -11,6 +11,8 @@ const { mockPost } = vi.hoisted(() => ({ mockPost: vi.fn() }))
 vi.mock('@inertiajs/react', async () => {
   const React = await import('react')
   return {
+    // O formulário lê o flash de sucesso vindo do redefinir senha.
+    usePage: () => ({ props: { flash: { success: null } } }),
     useForm: <T extends Record<string, unknown>>(initial: T) => {
       const [data, setData] = React.useState<T>(initial)
       return {
