@@ -91,10 +91,7 @@ export default class AiChatController {
     next: Promise<IteratorResult<string, void>>
   ): Promise<{ type: 'heartbeat' } | { type: 'next'; value: IteratorResult<string, void> }> {
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(
-        () => resolve({ type: 'heartbeat' }),
-        aiConfig.streamHeartbeatMs
-      )
+      const timeout = setTimeout(() => resolve({ type: 'heartbeat' }), aiConfig.streamHeartbeatMs)
       next.then(
         (value) => {
           clearTimeout(timeout)
