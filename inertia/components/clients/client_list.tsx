@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react'
-import { ArrowUpDown, BriefcaseBusiness, Mail, Phone, Users } from 'lucide-react'
+import { ArrowRight, ArrowUpDown, BriefcaseBusiness, Mail, Phone, Users } from 'lucide-react'
 import { useState } from 'react'
 
 import { ClientPersonBadge } from './client_person_badge'
@@ -143,7 +143,7 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
   if (clients.length === 0) {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-[#00b8d9]">
+        <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-yol-cyan">
           <Users className="size-7" />
         </span>
         <h3 className="mt-4 text-base font-semibold text-[#1f2a37]">Nenhum cliente encontrado</h3>
@@ -259,7 +259,7 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
                 <td className="whitespace-nowrap px-5 py-4 text-slate-500">
                   {formatDate(client.created_at)}
                 </td>
-                <td className="px-5 py-4 text-right">
+                <td className="py-4 pl-3 pr-6 text-right">
                   <Button
                     variant="ghost"
                     mode="icon"
@@ -267,12 +267,9 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
                     aria-label={`Abrir cliente ${client.name}`}
                   >
                     <Link href={`/clients/${client.id}`}>
-                      <img
-                        src="/yol/icons/arrow-right.svg"
-                        alt=""
-                        width={16}
-                        height={16}
-                        className="size-4 transition group-hover:translate-x-0.5"
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="size-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-yol-cyan"
                       />
                     </Link>
                   </Button>

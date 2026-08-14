@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react'
-import { ArrowUpDown, BriefcaseBusiness, UserRound } from 'lucide-react'
+import { ArrowRight, ArrowUpDown, BriefcaseBusiness, UserRound } from 'lucide-react'
 import { useState } from 'react'
 
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
@@ -64,7 +64,7 @@ function SortButton({
       aria-label={`Ordenar por ${label}${active ? `, ordem ${direction === 'asc' ? 'crescente' : 'decrescente'}` : ''}`}
     >
       {label}
-      <ArrowUpDown className={cn('size-3.5', active ? 'text-[#00b8d9]' : 'text-slate-300')} />
+      <ArrowUpDown className={cn('size-3.5', active ? 'text-yol-cyan' : 'text-slate-300')} />
     </button>
   )
 }
@@ -77,7 +77,7 @@ function FolderMobileCard({ folder }: { folder: FolderItem }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#00b8d9]">
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-yol-cyan">
             {folder.code}
           </span>
           <h3 className="mt-1 truncate font-bold text-slate-900">{folder.title}</h3>
@@ -122,7 +122,7 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
   if (folders.length === 0) {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-[#00b8d9]">
+        <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-yol-cyan">
           <BriefcaseBusiness className="size-7" />
         </span>
         <h3 className="mt-4 text-base font-bold text-slate-900">Nenhuma pasta encontrada</h3>
@@ -268,18 +268,15 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
                 <td className="px-5 py-4">
                   <FolderStatusBadge status={folder.status} />
                 </td>
-                <td className="px-5 py-4 text-right">
+                <td className="py-4 pl-3 pr-6 text-right">
                   <Link
                     href={`/folders/${folder.id}`}
                     aria-label={`Abrir pasta ${folder.code}`}
                     className="inline-flex size-8 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200"
                   >
-                    <img
-                      src="/yol/icons/arrow-right.svg"
-                      alt=""
-                      width={24}
-                      height={24}
-                      className="size-4"
+                    <ArrowRight
+                      aria-hidden="true"
+                      className="size-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-yol-cyan"
                     />
                   </Link>
                 </td>
