@@ -23,6 +23,11 @@ import '#modules/health/routes'
 import '#modules/clients/routes'
 import '#modules/folders/routes'
 import '#modules/processes/routes'
+import '#modules/tasks/routes'
+import '#modules/hearings/routes'
+import '#modules/deadlines/routes'
+import '#modules/movements/routes'
+import '#modules/activities/routes'
 
 import '#modules/web/routes'
 
