@@ -127,7 +127,8 @@ export function FilterBar<TFilters extends object>({
 
       <div className="flex gap-2">
         <Button type="submit" variant="outline" className="flex-1 sm:flex-none">
-          Filtrar
+          <Search className="size-4" />
+          Buscar
         </Button>
         {hasActiveFilters && (
           <Button type="button" variant="ghost" onClick={clear} className="flex-1 sm:flex-none">
