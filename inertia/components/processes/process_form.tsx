@@ -69,7 +69,7 @@ interface ProcessFormData {
 }
 
 function SectionHeader({
-  icon: Icon,
+  icon: _icon,
   title,
   description,
   action,
@@ -80,13 +80,10 @@ function SectionHeader({
   action?: ReactNode
 }) {
   return (
-    <CardHeader className="min-h-16 bg-slate-50/60 dark:bg-white/[0.025]">
+    <CardHeader className="min-h-0 border-0 bg-white px-8 pt-8">
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600 dark:bg-cyan-500/10">
-          <Icon className="size-5" />
-        </span>
         <div>
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className="text-lg text-[#161c24]">{title}</CardTitle>
           <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         </div>
       </div>
@@ -119,7 +116,7 @@ function SelectField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={Boolean(error)}
-        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+        className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-900 outline-none focus:border-[#00b8d9] focus:ring-2 focus:ring-[#00b8d9]/20"
       >
         {children}
       </select>
@@ -262,20 +259,20 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
     : `/folders/${folder.id}`
 
   return (
-    <form onSubmit={submit} className="space-y-6" data-testid="process-form">
+    <form onSubmit={submit} className="space-y-8" data-testid="process-form">
       {(errors.general || errors.parties) && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {errors.general ?? errors.parties}
         </p>
       )}
 
-      <Card className="overflow-hidden rounded-2xl">
+      <Card className="overflow-hidden rounded-2xl border-gray-100 shadow-sm">
         <SectionHeader
           icon={FileSearch}
           title="Identificação e classificação"
           description="Use ao menos um identificador para o processo."
         />
-        <CardContent className="grid gap-5 pt-6 md:grid-cols-2 xl:grid-cols-3">
+        <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2 xl:grid-cols-3 [&_[data-slot=input]]:h-12 [&_[data-slot=input]]:rounded-lg [&_[data-slot=input]]:border-gray-300 [&_[data-slot=input]]:px-4">
           <Field
             label="Número CNJ"
             name="cnj_number"
@@ -379,26 +376,26 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
             <option value="true">Sim</option>
             <option value="false">Não</option>
           </SelectField>
-          <label className="flex min-h-10 items-center gap-3 self-end rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium dark:border-white/10">
+          <label className="flex min-h-12 items-center gap-3 self-end rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium">
             <input
               type="checkbox"
               name="is_primary"
               checked={form.data.is_primary}
               onChange={(event) => form.setData('is_primary', event.target.checked)}
-              className="size-4 rounded border-slate-300 accent-[#f97316]"
+              className="size-4 rounded border-slate-300 accent-[#00b8d9]"
             />
             Processo principal da pasta
           </label>
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden rounded-2xl">
+      <Card className="overflow-hidden rounded-2xl border-gray-100 shadow-sm">
         <SectionHeader
           icon={Landmark}
           title="Órgão julgador"
           description="Localização e autoridade responsável pelo processo."
         />
-        <CardContent className="grid gap-5 pt-6 md:grid-cols-2 xl:grid-cols-3">
+        <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2 xl:grid-cols-3 [&_[data-slot=input]]:h-12 [&_[data-slot=input]]:rounded-lg [&_[data-slot=input]]:border-gray-300 [&_[data-slot=input]]:px-4">
           <Field
             label="Tribunal"
             name="tribunal"
@@ -450,13 +447,13 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden rounded-2xl">
+      <Card className="overflow-hidden rounded-2xl border-gray-100 shadow-sm">
         <SectionHeader
           icon={CalendarDays}
           title="Datas e valores"
           description="Marcos processuais e valores preservados com precisão decimal."
         />
-        <CardContent className="grid gap-5 pt-6 md:grid-cols-2 xl:grid-cols-4">
+        <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2 xl:grid-cols-4 [&_[data-slot=input]]:h-12 [&_[data-slot=input]]:rounded-lg [&_[data-slot=input]]:border-gray-300 [&_[data-slot=input]]:px-4">
           <Field
             label="Distribuição"
             name="distribution_date"
@@ -521,21 +518,27 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden rounded-2xl">
+      <Card className="overflow-hidden rounded-2xl border-gray-100 shadow-sm">
         <SectionHeader
           icon={UsersRound}
           title="Partes"
           description="Cadastre polos e marque no máximo uma parte principal por lado."
           action={
-            <Button type="button" variant="outline" size="sm" onClick={addParty}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addParty}
+              className="rounded-full border-[#00b8d9]/50 font-bold text-[#00b8d9] hover:bg-[#00b8d9]/5 hover:text-[#00b8d9]"
+            >
               <Plus className="size-4" />
               Adicionar parte
             </Button>
           }
         />
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="space-y-4 px-8 pb-8 pt-6">
           {form.data.parties.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-200 py-10 text-center dark:border-white/10">
+            <div className="rounded-xl border border-dashed border-slate-200 py-10 text-center">
               <UsersRound className="mx-auto size-8 text-slate-300" />
               <p className="mt-3 text-sm text-slate-500">Nenhuma parte cadastrada.</p>
             </div>
@@ -544,7 +547,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
               <div
                 key={index}
                 data-testid="process-party-row"
-                className="grid gap-4 rounded-xl border border-slate-200 p-4 md:grid-cols-2 xl:grid-cols-[170px_minmax(180px,1fr)_160px_minmax(170px,1fr)_auto] dark:border-white/10"
+                className="grid gap-4 rounded-xl border border-slate-200 p-4 md:grid-cols-2 xl:grid-cols-[170px_minmax(180px,1fr)_160px_minmax(170px,1fr)_auto]"
               >
                 <SelectField
                   label="Polo"
@@ -609,13 +612,13 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
                   maxLength={80}
                   className="md:col-span-1 xl:col-span-2"
                 />
-                <label className="flex min-h-10 items-center gap-3 self-end rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium md:col-span-1 xl:col-span-2 dark:border-white/10">
+                <label className="flex min-h-10 items-center gap-3 self-end rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium md:col-span-1 xl:col-span-2">
                   <input
                     type="checkbox"
                     name={`parties.${index}.is_primary`}
                     checked={party.is_primary}
                     onChange={(event) => updateParty(index, 'is_primary', event.target.checked)}
-                    className="size-4 rounded border-slate-300 accent-[#f97316]"
+                    className="size-4 rounded border-slate-300 accent-[#00b8d9]"
                   />
                   Parte principal deste polo
                 </label>
@@ -625,13 +628,13 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden rounded-2xl">
+      <Card className="overflow-hidden rounded-2xl border-gray-100 shadow-sm">
         <SectionHeader
           icon={Building2}
           title="Contexto jurídico"
           description="Informações internas para leitura rápida do caso."
         />
-        <CardContent className="grid gap-5 pt-6 lg:grid-cols-2">
+        <CardContent className="grid gap-6 px-8 pb-8 pt-6 lg:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="observation">Observações</Label>
             <Textarea
@@ -639,7 +642,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
               name="observation"
               value={form.data.observation}
               onChange={(event) => setText('observation', event.target.value)}
-              className="min-h-36"
+              className="min-h-36 rounded-lg border-gray-300 focus-visible:border-[#00b8d9] focus-visible:ring-[#00b8d9]/20"
               maxLength={10_000}
             />
             {errors.observation && <p className="text-xs text-destructive">{errors.observation}</p>}
@@ -651,7 +654,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
               name="object_detail"
               value={form.data.object_detail}
               onChange={(event) => setText('object_detail', event.target.value)}
-              className="min-h-36"
+              className="min-h-36 rounded-lg border-gray-300 focus-visible:border-[#00b8d9] focus-visible:ring-[#00b8d9]/20"
               maxLength={10_000}
             />
             {errors.object_detail && (
@@ -659,8 +662,13 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
             )}
           </div>
         </CardContent>
-        <CardFooter className="justify-between gap-3 bg-slate-50/40 py-4 dark:bg-white/[0.02]">
-          <Button variant="outline" type="button" asChild>
+        <CardFooter className="justify-end gap-4 border-0 bg-white px-8 pb-8">
+          <Button
+            variant="outline"
+            type="button"
+            asChild
+            className="h-12 rounded-lg px-6 font-semibold text-[#637381]"
+          >
             <Link href={cancelPath}>
               <ArrowLeft className="size-4" />
               Cancelar
@@ -669,7 +677,7 @@ export function ProcessForm({ folder, process }: { folder: ProcessFolder; proces
           <Button
             type="submit"
             disabled={form.processing}
-            className="bg-[#f97316] text-white hover:bg-[#ea680c]"
+            className="h-12 rounded-lg bg-[#00b8d9] px-6 font-semibold text-white hover:bg-[#00a6c5]"
           >
             <Save className="size-4" />
             {form.processing ? 'Salvando...' : editing ? 'Salvar alterações' : 'Cadastrar processo'}

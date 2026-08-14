@@ -51,9 +51,7 @@ function Definition({ label, children }: { label: string; children: ReactNode })
   return (
     <div className="min-w-0">
       <dt className="text-xs font-bold uppercase tracking-[0.08em] text-slate-400">{label}</dt>
-      <dd className="mt-1.5 break-words text-sm font-medium text-slate-700 dark:text-slate-200">
-        {children || '—'}
-      </dd>
+      <dd className="mt-1.5 break-words text-sm font-medium text-slate-700">{children || '—'}</dd>
     </div>
   )
 }
@@ -71,15 +69,13 @@ function DetailPanel({
 }) {
   return (
     <section
-      className={`rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-card ${className ?? ''}`}
+      className={`rounded-2xl border border-gray-100 bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)] ${className ?? ''}`}
     >
-      <header className="flex items-center gap-3 border-b border-slate-100 px-5 py-4 dark:border-white/10">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600 dark:bg-cyan-500/10">
-          <Icon className="size-4" />
-        </span>
-        <h2 className="font-bold text-slate-900 dark:text-white">{title}</h2>
+      <header className="flex items-center gap-3 border-b border-gray-100 px-6 py-5">
+        <Icon className="size-5 text-[#00b8d9]" />
+        <h2 className="text-lg font-semibold text-[#1f2a37]">{title}</h2>
       </header>
-      <div className="p-5">{children}</div>
+      <div className="p-6">{children}</div>
     </section>
   )
 }
@@ -101,37 +97,39 @@ export function ProcessDetailContent({
   return (
     <div className="space-y-6" data-testid="process-detail">
       {successMessage && (
-        <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+        <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
           <CheckCircle2 className="size-4" />
           {successMessage}
         </div>
       )}
       {errorMessage && (
-        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
           <AlertTriangle className="size-4" />
           {errorMessage}
         </div>
       )}
 
-      <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-card sm:p-6">
+      <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_4px_4px_rgba(0,0,0,0.03)] sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-start gap-4">
-            <Button variant="outline" mode="icon" asChild aria-label="Voltar para a pasta">
-              <Link href={`/folders/${folder.id}`}>
-                <ArrowLeft className="size-4" />
-              </Link>
-            </Button>
+            <Link
+              href={`/folders/${folder.id}`}
+              aria-label="Voltar para a pasta"
+              className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition hover:bg-gray-100"
+            >
+              <ArrowLeft className="size-4" />
+            </Link>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <ProcessStatusBadge status={process.status} />
                 {process.is_primary && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-xs font-bold text-[#f97316] dark:bg-orange-500/10">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-xs font-bold text-[#f97316]">
                     <Star className="size-3.5 fill-current" />
                     Principal
                   </span>
                 )}
               </div>
-              <h1 className="mt-2 break-all font-mono text-xl font-black tracking-[-0.025em] text-slate-900 dark:text-white sm:text-2xl">
+              <h1 className="mt-2 break-all font-mono text-xl font-semibold text-[#1f2a37] sm:text-2xl">
                 {identifier}
               </h1>
               <p className="mt-2 text-sm text-slate-500">
@@ -233,7 +231,7 @@ export function ProcessDetailContent({
                 Nenhuma parte cadastrada para este processo.
               </p>
             ) : (
-              <div className="divide-y divide-slate-100 dark:divide-white/10">
+              <div className="divide-y divide-gray-100">
                 {process.parties.map((party) => (
                   <article
                     key={party.id}
@@ -241,11 +239,9 @@ export function ProcessDetailContent({
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold text-slate-900 dark:text-white">
-                          {party.name}
-                        </h3>
+                        <h3 className="font-semibold text-[#1f2a37]">{party.name}</h3>
                         {party.is_primary && (
-                          <span className="rounded bg-orange-50 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase text-[#f97316] dark:bg-orange-500/10">
+                          <span className="rounded bg-orange-50 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase text-[#f97316]">
                             Principal
                           </span>
                         )}
@@ -255,7 +251,7 @@ export function ProcessDetailContent({
                           'Sem papel ou documento informado'}
                       </p>
                     </div>
-                    <span className="self-start rounded-full bg-cyan-50 px-2.5 py-1 text-xs font-bold text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-300">
+                    <span className="self-start rounded-full bg-cyan-50 px-2.5 py-1 text-xs font-bold text-cyan-700">
                       {processPartySideLabels[party.side]}
                     </span>
                   </article>
@@ -270,7 +266,7 @@ export function ProcessDetailContent({
                 <h3 className="text-xs font-bold uppercase tracking-[0.08em] text-slate-400">
                   Observações
                 </h3>
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-300">
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
                   {process.observation || 'Nenhuma observação registrada.'}
                 </p>
               </div>
@@ -278,7 +274,7 @@ export function ProcessDetailContent({
                 <h3 className="text-xs font-bold uppercase tracking-[0.08em] text-slate-400">
                   Objeto
                 </h3>
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-300">
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
                   {process.object_detail || 'Nenhum detalhamento registrado.'}
                 </p>
               </div>
@@ -290,17 +286,14 @@ export function ProcessDetailContent({
           <DetailPanel icon={MapPin} title="Pasta e cliente">
             <dl className="grid gap-5">
               <Definition label="Pasta">
-                <Link
-                  href={`/folders/${folder.id}`}
-                  className="text-cyan-700 hover:underline dark:text-cyan-300"
-                >
+                <Link href={`/folders/${folder.id}`} className="text-[#00a7c6] hover:underline">
                   {folder.code} · {folder.title}
                 </Link>
               </Definition>
               <Definition label="Cliente">
                 <Link
                   href={`/clients/${folder.client.id}`}
-                  className="text-cyan-700 hover:underline dark:text-cyan-300"
+                  className="text-[#00a7c6] hover:underline"
                 >
                   {folder.client.name}
                 </Link>

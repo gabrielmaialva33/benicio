@@ -15,15 +15,7 @@ export default function EditProcessPage({
   return (
     <MainLayout>
       <Head title={`Editar ${formatProcessIdentifier(process)}`} />
-      <div className="mx-auto max-w-7xl space-y-6">
-        <div>
-          <h2 className="text-2xl font-black tracking-[-0.035em] text-slate-900 dark:text-white">
-            Editar processo
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Pasta {folder.code} · alterações preservam os vínculos do processo.
-          </p>
-        </div>
+      <div className="space-y-8">
         <ProcessForm folder={folder} process={process} />
       </div>
     </MainLayout>
