@@ -30,7 +30,12 @@ const render: RenderInertiaSsrApp = (page) => {
       return paginas[`../pages/${name}.tsx`].default
     },
     setup: ({ App, props }) => (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ThemeProvider
+        attribute="class"
+        forcedTheme="light"
+        enableSystem={false}
+        disableTransitionOnChange
+      >
         <QueryProvider>
           <App {...props} />
         </QueryProvider>
