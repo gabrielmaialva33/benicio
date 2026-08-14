@@ -13,13 +13,18 @@ import {
   AlertDialogTrigger,
 } from '~/components/ui/alert-dialog'
 import { Button } from '~/components/ui/button'
+import { APP_TIME_ZONE } from '~/lib/date'
 import { cn } from '~/lib/utils'
 import type { AiConversation } from '~/types/ai'
 
 function formatDate(value: string) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' })
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    timeZone: APP_TIME_ZONE,
+  })
     .format(date)
     .replace('.', '')
 }

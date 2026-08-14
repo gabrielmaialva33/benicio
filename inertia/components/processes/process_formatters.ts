@@ -5,6 +5,7 @@ import type {
   ProcessPhase,
   ProcessStatus,
 } from '~/types/process'
+import { APP_TIME_ZONE } from '~/lib/date'
 
 export const processStatusLabels: Record<ProcessStatus, string> = {
   active: 'Ativo',
@@ -69,10 +70,11 @@ export function formatProcessCurrency(value: string | null) {
 
 export function formatProcessDate(value: string | null, withTime: boolean = false) {
   if (!value) return null
-  const date = new Date(withTime ? value : `${value}T00:00:00`)
+  const date = new Date(withTime ? value : `${value}T12:00:00Z`)
   if (Number.isNaN(date.getTime())) return value
   return new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'medium',
+    timeZone: APP_TIME_ZONE,
     ...(withTime ? { timeStyle: 'short' as const } : {}),
   }).format(date)
 }

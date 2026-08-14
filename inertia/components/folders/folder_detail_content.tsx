@@ -16,6 +16,7 @@ import {
 import { useMemo, useState, type ReactNode } from 'react'
 
 import { Button } from '~/components/ui/button'
+import { APP_TIME_ZONE } from '~/lib/date'
 import { cn } from '~/lib/utils'
 import type {
   FolderActivity,
@@ -73,6 +74,7 @@ function formatDateTime(value: string) {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: APP_TIME_ZONE,
   })
     .format(date)
     .replace('.', '')

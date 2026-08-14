@@ -4,6 +4,7 @@ import { ArrowUpDown, BriefcaseBusiness, Mail, Phone, Users } from 'lucide-react
 import { ClientPersonBadge } from './client_person_badge'
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
 import { Button } from '~/components/ui/button'
+import { APP_TIME_ZONE } from '~/lib/date'
 import { cn } from '~/lib/utils'
 import type { ClientItem, ClientSortField } from '~/types/client'
 
@@ -40,6 +41,7 @@ function formatDate(value: string) {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
+    timeZone: APP_TIME_ZONE,
   })
     .format(new Date(value))
     .replace('.', '')

@@ -45,6 +45,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog'
+import { APP_TIME_ZONE } from '~/lib/date'
 import type { PaginatedResponse } from '~/types'
 
 interface UserRole {
@@ -87,6 +88,7 @@ function formatDate(iso: string) {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    timeZone: APP_TIME_ZONE,
   })
 }
 

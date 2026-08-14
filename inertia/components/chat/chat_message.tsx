@@ -4,12 +4,17 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 import { cn } from '~/lib/utils'
+import { APP_TIME_ZONE } from '~/lib/date'
 import type { AiChatMessage } from '~/types/ai'
 
 function formatTime(value: string) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
-  return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(date)
+  return new Intl.DateTimeFormat('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: APP_TIME_ZONE,
+  }).format(date)
 }
 
 export function ChatMessage({ message }: { message: AiChatMessage }) {

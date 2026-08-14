@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react'
 import { ArrowUpDown, BriefcaseBusiness, UserRound } from 'lucide-react'
 
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
+import { APP_TIME_ZONE } from '~/lib/date'
 import { cn } from '~/lib/utils'
 import type { FolderItem, FolderSortField } from '~/types/folder'
 import { FolderStatusBadge } from './folder_status_badge'
@@ -30,6 +31,7 @@ function formatDate(value: string) {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
+    timeZone: APP_TIME_ZONE,
   })
     .format(date)
     .replace('.', '')

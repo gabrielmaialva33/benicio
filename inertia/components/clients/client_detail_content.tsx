@@ -30,6 +30,7 @@ import {
   AlertDialogTrigger,
 } from '~/components/ui/alert-dialog'
 import { Button } from '~/components/ui/button'
+import { APP_TIME_ZONE } from '~/lib/date'
 import type { ClientFolder, ClientItem } from '~/types/client'
 
 interface ClientDetailContentProps {
@@ -49,7 +50,10 @@ function Definition({ label, children }: { label: string; children: ReactNode })
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(new Date(value))
+  return new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'long',
+    timeZone: APP_TIME_ZONE,
+  }).format(new Date(value))
 }
 
 function addressLines(client: ClientItem) {

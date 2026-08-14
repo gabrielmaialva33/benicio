@@ -21,6 +21,7 @@ import {
 } from 'recharts'
 
 import { cn } from '~/lib/utils'
+import { APP_TIME_ZONE } from '~/lib/date'
 import type {
   DashboardFavoriteFolder,
   DashboardOverview,
@@ -53,9 +54,14 @@ function formatNumber(value: number) {
 }
 
 function formatMonth(value: string) {
-  const date = new Date(`${value}-01T12:00:00`)
+  const date = new Date(`${value}-01T12:00:00Z`)
   if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date).replace('.', '')
+  return new Intl.DateTimeFormat('pt-BR', {
+    month: 'short',
+    timeZone: APP_TIME_ZONE,
+  })
+    .format(date)
+    .replace('.', '')
 }
 
 function formatDateTime(value: string | null) {
@@ -68,6 +74,7 @@ function formatDateTime(value: string | null) {
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: APP_TIME_ZONE,
   })
     .format(date)
     .replace('.', '')
@@ -419,10 +426,22 @@ function HearingRow({ hearing }: { hearing: DashboardUpcomingHearing }) {
         dateTime={hearing.starts_at}
         className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#fff4eb] text-[#f97316] dark:bg-orange-500/10"
       >
-        <strong className="text-lg leading-none">{validDate ? date.getDate() : '—'}</strong>
+        <strong className="text-lg leading-none">
+          {validDate
+            ? new Intl.DateTimeFormat('pt-BR', {
+                day: '2-digit',
+                timeZone: APP_TIME_ZONE,
+              }).format(date)
+            : '—'}
+        </strong>
         <span className="mt-1 text-[0.62rem] font-bold uppercase">
           {validDate
-            ? new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date).replace('.', '')
+            ? new Intl.DateTimeFormat('pt-BR', {
+                month: 'short',
+                timeZone: APP_TIME_ZONE,
+              })
+                .format(date)
+                .replace('.', '')
             : ''}
         </span>
       </time>
