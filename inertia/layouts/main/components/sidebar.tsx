@@ -1,177 +1,200 @@
 import { Link, usePage } from '@inertiajs/react'
-import { useState } from 'react'
 import {
-  ChevronDown,
   FileText,
   Home,
-  type LucideIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Search,
   Settings,
-  Shield,
+  ShieldCheck,
   Upload,
   Users,
+  type LucideIcon,
 } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
+import { BrandLogo } from '~/components/brand_logo'
 import { cn } from '~/lib/utils'
 
 interface MenuItem {
   title: string
-  href?: string
-  icon?: LucideIcon
-  children?: { title: string; href: string }[]
+  href: string
+  icon: LucideIcon
 }
 
-const menuItems: MenuItem[] = [
-  { title: 'Dashboard', href: '/dashboard', icon: Home },
+interface MenuSection {
+  title: string
+  items: MenuItem[]
+}
+
+const menuSections: MenuSection[] = [
   {
-    title: 'Users',
-    icon: Users,
-    children: [
-      { title: 'All Users', href: '/users' },
-      { title: 'Roles', href: '/roles' },
-      { title: 'Permissions', href: '/permissions' },
+    title: 'Páginas',
+    items: [{ title: 'Visão geral', href: '/dashboard', icon: Home }],
+  },
+  {
+    title: 'Gestão',
+    items: [
+      { title: 'Usuários', href: '/users', icon: Users },
+      { title: 'Arquivos', href: '/files', icon: Upload },
     ],
   },
-  { title: 'Files', href: '/files', icon: Upload },
   {
-    title: 'Security',
-    icon: Shield,
-    children: [
-      { title: 'Audit Logs', href: '/audit-logs' },
-      { title: 'Sessions', href: '/sessions' },
+    title: 'Acesso',
+    items: [
+      { title: 'Papéis', href: '/roles', icon: ShieldCheck },
+      { title: 'Permissões', href: '/permissions', icon: FileText },
+      { title: 'Configurações', href: '/settings', icon: Settings },
     ],
   },
-  { title: 'Components', href: '/ui-demo', icon: FileText },
-  { title: 'Settings', href: '/settings', icon: Settings },
 ]
 
-function useCurrentUrl() {
-  const { url } = usePage()
-  return url
+function currentPath(url: string) {
+  return url.split('?', 1)[0] ?? '/'
 }
 
-function isActive(url: string, href?: string) {
-  if (!href) return false
-  return url === href || url.startsWith(href + '/')
+function isActive(url: string, href: string) {
+  const path = currentPath(url)
+  return path === href || (href !== '/dashboard' && path.startsWith(`${href}/`))
 }
 
-/**
- * The navigation tree. Shared between the fixed desktop sidebar and the mobile
- * Sheet, so both stay in sync. `collapsed` renders an icon-only rail.
- */
-export function SidebarNav({
-  collapsed = false,
-  onNavigate,
-}: {
+interface SidebarNavProps {
   collapsed?: boolean
   onNavigate?: () => void
-}) {
-  const url = useCurrentUrl()
-  const [expanded, setExpanded] = useState<string[]>(() =>
-    menuItems
-      .filter((item) => item.children?.some((child) => isActive(url, child.href)))
-      .map((item) => item.title)
-  )
+}
 
-  const toggle = (title: string) =>
-    setExpanded((prev) =>
-      prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title]
-    )
+export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
+  const { url } = usePage()
+  const [search, setSearch] = useState('')
+
+  const visibleSections = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase('pt-BR')
+    if (!query) return menuSections
+
+    return menuSections
+      .map((section) => ({
+        ...section,
+        items: section.items.filter((item) =>
+          item.title.toLocaleLowerCase('pt-BR').includes(query)
+        ),
+      }))
+      .filter((section) => section.items.length > 0)
+  }, [search])
 
   return (
-    <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-      {menuItems.map((item) => {
-        const open = expanded.includes(item.title)
-        const parentActive =
-          isActive(url, item.href) || !!item.children?.some((c) => isActive(url, c.href))
+    <nav className="yol-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-6">
+      {!collapsed && (
+        <label className="relative mb-6 block">
+          <span className="sr-only">Filtrar navegação</span>
+          <Search className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-white/55" />
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Pesquisar"
+            className="h-11 w-full rounded-xl border border-white/5 bg-white/10 ps-10 pe-3 text-sm text-white outline-none transition placeholder:text-white/50 focus:border-[#f97316]/70 focus:bg-white/[0.14] focus:ring-2 focus:ring-[#f97316]/20"
+          />
+        </label>
+      )}
 
-        if (item.href) {
-          return (
-            <Link
-              key={item.title}
-              href={item.href}
-              onClick={onNavigate}
-              title={collapsed ? item.title : undefined}
-              className={cn(
-                'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                collapsed && 'justify-center px-0',
-                isActive(url, item.href)
-                  ? 'bg-primary text-primary-foreground shadow-xs'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              )}
-            >
-              {item.icon && <item.icon className="size-4.5 shrink-0" />}
-              {!collapsed && <span>{item.title}</span>}
-            </Link>
-          )
-        }
+      <div className="space-y-6">
+        {visibleSections.map((section) => (
+          <section key={section.title}>
+            {!collapsed && (
+              <h2 className="mb-2 px-3 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white/35">
+                {section.title}
+              </h2>
+            )}
 
-        return (
-          <div key={item.title}>
-            <button
-              type="button"
-              onClick={() => toggle(item.title)}
-              title={collapsed ? item.title : undefined}
-              className={cn(
-                'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                collapsed && 'justify-center px-0',
-                parentActive
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              )}
-            >
-              {item.icon && <item.icon className="size-4.5 shrink-0" />}
-              {!collapsed && (
-                <>
-                  <span className="flex-1 text-start">{item.title}</span>
-                  <ChevronDown
-                    className={cn('size-4 shrink-0 transition-transform', open && 'rotate-180')}
-                  />
-                </>
-              )}
-            </button>
+            <div className="space-y-1.5">
+              {section.items.map((item) => {
+                const active = isActive(url, item.href)
+                const Icon = item.icon
 
-            {item.children && open && !collapsed && (
-              <div className="ms-3.5 mt-1 space-y-1 border-s border-border ps-3">
-                {item.children.map((child) => (
+                return (
                   <Link
-                    key={child.href}
-                    href={child.href}
+                    key={item.href}
+                    href={item.href}
                     onClick={onNavigate}
+                    title={collapsed ? item.title : undefined}
+                    aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex items-center rounded-lg px-3 py-1.5 text-sm transition-colors',
-                      isActive(url, child.href)
-                        ? 'font-medium text-primary'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      'group flex h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors',
+                      collapsed && 'justify-center px-0',
+                      active
+                        ? 'bg-[#f97316] text-white shadow-[0_8px_24px_rgba(249,115,22,0.22)]'
+                        : 'text-white/72 hover:bg-white/10 hover:text-white'
                     )}
                   >
-                    {child.title}
+                    <Icon
+                      className={cn(
+                        'size-5 shrink-0 transition-colors',
+                        active ? 'text-white' : 'text-white/55 group-hover:text-white'
+                      )}
+                      strokeWidth={2}
+                    />
+                    {!collapsed && <span className="truncate">{item.title}</span>}
                   </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      })}
+                )
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
+
+      {!collapsed && visibleSections.length === 0 && (
+        <p className="px-3 py-8 text-center text-sm text-white/45">Nenhuma página encontrada.</p>
+      )}
     </nav>
   )
 }
 
 interface SidebarProps {
   isCollapsed?: boolean
+  onToggle: () => void
 }
 
-/**
- * Fixed desktop sidebar. Mobile navigation is handled by the Sheet rendered in
- * the header, so this is hidden below `lg`.
- */
-export function Sidebar({ isCollapsed = false }: SidebarProps) {
+export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'fixed start-0 top-16 z-40 hidden h-[calc(100vh-4rem)] border-e bg-background transition-[width] duration-300 lg:flex lg:flex-col',
-        isCollapsed ? 'w-[76px]' : 'w-[260px]'
+        'sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden bg-[#373737] text-white transition-[width] duration-300 lg:flex',
+        isCollapsed ? 'w-[88px]' : 'w-[300px]'
       )}
     >
+      <div
+        className={cn(
+          'flex h-[104px] shrink-0 items-center border-b border-white/10',
+          isCollapsed ? 'justify-center px-3' : 'justify-between px-6'
+        )}
+      >
+        <Link href="/dashboard" aria-label="Ir para a visão geral">
+          <BrandLogo collapsed={isCollapsed} inverse />
+        </Link>
+
+        {!isCollapsed && (
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-label="Recolher navegação"
+            className="flex size-9 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white"
+          >
+            <PanelLeftClose className="size-5" />
+          </button>
+        )}
+      </div>
+
+      {isCollapsed && (
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label="Expandir navegação"
+          className="mx-auto my-5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/65 transition hover:bg-white/15 hover:text-white"
+        >
+          <PanelLeftOpen className="size-5" />
+        </button>
+      )}
+
       <SidebarNav collapsed={isCollapsed} />
     </aside>
   )

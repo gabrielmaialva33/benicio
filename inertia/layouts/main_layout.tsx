@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Header } from './main/components/header'
 import { Sidebar } from './main/components/sidebar'
-import { cn } from '~/lib/utils'
 
 interface MainLayoutProps {
   children: ReactNode
@@ -11,19 +10,16 @@ export function MainLayout({ children }: MainLayoutProps) {
   const [collapsed, setCollapsed] = useState(false)
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header onToggleSidebar={() => setCollapsed((value) => !value)} collapsed={collapsed} />
+    <div className="flex min-h-screen bg-[#f1f1f2] dark:bg-background">
+      <Sidebar isCollapsed={collapsed} onToggle={() => setCollapsed((value) => !value)} />
 
-      <Sidebar isCollapsed={collapsed} />
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+        <Header onToggleSidebar={() => setCollapsed((value) => !value)} />
 
-      <main
-        className={cn(
-          'min-h-[calc(100vh-4rem)] transition-[padding] duration-300',
-          collapsed ? 'lg:ps-[76px]' : 'lg:ps-[260px]'
-        )}
-      >
-        <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">{children}</div>
-      </main>
+        <main className="min-w-0 flex-1">
+          <div className="mx-auto w-full max-w-[1480px] p-4 sm:p-6 lg:p-8">{children}</div>
+        </main>
+      </div>
     </div>
   )
 }
