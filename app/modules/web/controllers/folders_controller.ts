@@ -45,8 +45,8 @@ export default class InertiaFoldersController {
     const input = await ctx.request.validateUsing(createFolderValidator)
     try {
       const folder = await this.folderService.create(requireTenantId(ctx), input)
+      inertiaRedirectTo(ctx, `/folders/${folder.id}`)
       ctx.session.flash('success', `Pasta ${folder.code} criada com sucesso.`)
-      return inertiaRedirectTo(ctx, `/folders/${folder.id}`)
     } catch (error) {
       if (error instanceof ConflictException) {
         return this.redirectWithError(ctx, 'code', 'Já existe uma pasta ativa com este código.')
