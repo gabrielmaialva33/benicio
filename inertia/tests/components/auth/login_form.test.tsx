@@ -12,7 +12,7 @@ vi.mock('@inertiajs/react', async () => {
   const React = await import('react')
   return {
     // The form reads the success flash coming from the password reset.
-    usePage: () => ({ props: { flash: { success: null } } }),
+    usePage: () => ({ props: {}, flash: {} }),
     useForm: <T extends Record<string, unknown>>(initial: T) => {
       const [data, setData] = React.useState<T>(initial)
       return {

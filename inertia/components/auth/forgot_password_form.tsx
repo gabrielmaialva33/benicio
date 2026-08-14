@@ -1,11 +1,13 @@
-import { Link, useForm, usePage } from '@inertiajs/react'
+import { Link, useForm } from '@inertiajs/react'
 import type { FormEvent } from 'react'
+
+import { useFlash } from '~/hooks/use_flash'
 
 export function ForgotPasswordForm() {
   const { data, setData, post, processing, errors } = useForm({
     email: '',
   })
-  const { flash } = usePage().props as { flash?: { success?: string | null } }
+  const flash = useFlash()
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()

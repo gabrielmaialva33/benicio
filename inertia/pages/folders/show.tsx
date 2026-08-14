@@ -1,6 +1,7 @@
-import { Head, usePage } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
 
 import { FolderDetailContent } from '~/components/folders/folder_detail_content'
+import { useFlash } from '~/hooks/use_flash'
 import { MainLayout } from '~/layouts'
 import type {
   FolderActivity,
@@ -18,12 +19,8 @@ interface FolderDetailPageProps {
   activities: FolderActivity[]
 }
 
-interface SharedFlashProps {
-  flash?: { success?: string | null }
-}
-
 export default function FolderDetailPage(props: FolderDetailPageProps) {
-  const { flash } = usePage().props as SharedFlashProps
+  const flash = useFlash()
 
   return (
     <MainLayout>

@@ -38,15 +38,16 @@ export interface AuthSharedProps {
   roles: string[]
 }
 
+export interface AppFlashData {
+  success?: string
+  error?: string
+  warning?: string
+  info?: string
+}
+
 // Extend shared props with our app-specific props (declaration merging)
 declare module '@adonisjs/inertia/types' {
   export interface SharedProps {
     auth?: AuthSharedProps
-    flash?: {
-      success?: string
-      error?: string
-      warning?: string
-      info?: string
-    }
   }
 }

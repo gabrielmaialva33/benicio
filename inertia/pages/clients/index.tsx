@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
 import {
   AlertTriangle,
   Building2,
@@ -18,6 +18,7 @@ import { useState } from 'react'
 import { ClientList, formatClientDocument } from '~/components/clients/client_list'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
+import { useFlash } from '~/hooks/use_flash'
 import { MainLayout } from '~/layouts'
 import type {
   ClientFilters,
@@ -32,10 +33,6 @@ interface ClientsPageProps {
   clients: { data: ClientItem[]; meta: ClientPaginationMeta }
   filters: ClientFilters
   stats: ClientStats
-}
-
-interface SharedFlashProps {
-  flash?: { success?: string | null; error?: string | null }
 }
 
 function downloadClientsCsv(clients: ClientItem[]) {
@@ -92,7 +89,7 @@ function StatCard({
 }
 
 export default function ClientsPage({ clients, filters, stats }: ClientsPageProps) {
-  const { flash } = usePage().props as SharedFlashProps
+  const flash = useFlash()
   const [search, setSearch] = useState(filters.search)
   const [personType, setPersonType] = useState<ClientPersonType | ''>(filters.person_type ?? '')
 

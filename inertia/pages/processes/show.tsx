@@ -1,13 +1,10 @@
-import { Head, usePage } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
 
 import { ProcessDetailContent } from '~/components/processes/process_detail_content'
 import { formatProcessIdentifier } from '~/components/processes/process_formatters'
+import { useFlash } from '~/hooks/use_flash'
 import { MainLayout } from '~/layouts'
 import type { ProcessFolder, ProcessItem } from '~/types/process'
-
-interface SharedFlashProps {
-  flash?: { success?: string | null; error?: string | null }
-}
 
 export default function ProcessDetailPage({
   folder,
@@ -16,7 +13,7 @@ export default function ProcessDetailPage({
   folder: ProcessFolder
   process: ProcessItem
 }) {
-  const { flash } = usePage().props as SharedFlashProps
+  const flash = useFlash()
 
   return (
     <MainLayout>

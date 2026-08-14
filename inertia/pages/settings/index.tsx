@@ -1,4 +1,4 @@
-import { Head, useForm, usePage } from '@inertiajs/react'
+import { Head, useForm } from '@inertiajs/react'
 import { Building2, UserRound } from 'lucide-react'
 
 import { MainLayout } from '~/layouts'
@@ -9,6 +9,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { useAuth } from '~/hooks/use_auth'
+import { useFlash } from '~/hooks/use_flash'
 
 interface SettingsProfile {
   id: number
@@ -21,12 +22,8 @@ interface SettingsPageProps {
   profile: SettingsProfile
 }
 
-interface FlashProps {
-  flash?: { success?: string | null; error?: string | null }
-}
-
 function ProfileTab({ profile }: { profile: SettingsProfile }) {
-  const { flash } = usePage().props as FlashProps
+  const flash = useFlash()
   const { data, setData, post, processing, errors } = useForm({
     full_name: profile.full_name,
     username: profile.username ?? '',

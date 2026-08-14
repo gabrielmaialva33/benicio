@@ -1,6 +1,7 @@
 export { useApi } from './use_api'
 export { useAiChat } from './use_ai_chat'
 export { useAuth } from './use_auth'
+export { useFlash } from './use_flash'
 export { useIsMobile } from './use_mobile'
 export { useTheme } from './use_theme'
 export { useThemeConfig } from './use_theme_config'

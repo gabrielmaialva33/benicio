@@ -45,11 +45,23 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
 
     return {
       errors: this.getValidationErrors(ctx),
-      flash: {
-        success: ctx.session?.flashMessages.get('success') ?? null,
-        error: ctx.session?.flashMessages.get('error') ?? null,
-      },
       auth,
+    }
+  }
+
+  /**
+   * Inertia v3 transports ephemeral messages outside page props. Keeping them
+   * in the first-class flash bag prevents partial and background visits from
+   * preserving a stale value or clearing a fresh one.
+   */
+  flash(ctx: HttpContext) {
+    const messages = ctx.session?.flashMessages
+
+    return {
+      ...(messages?.has('success') ? { success: messages.get('success') } : {}),
+      ...(messages?.has('error') ? { error: messages.get('error') } : {}),
+      ...(messages?.has('warning') ? { warning: messages.get('warning') } : {}),
+      ...(messages?.has('info') ? { info: messages.get('info') } : {}),
     }
   }
 
