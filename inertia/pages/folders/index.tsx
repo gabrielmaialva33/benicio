@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react'
-import { ChevronLeft, ChevronRight, FilterX, Plus, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, FilterX, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 
 import { FolderList } from '~/components/folders/folder_list'
@@ -29,6 +29,35 @@ interface LocalFilters {
   search: string
   status: FolderStatus | ''
   area: string
+}
+
+function downloadFoldersCsv(folders: FolderItem[]) {
+  const cell = (value: string | number | null | undefined) => {
+    const text = String(value ?? '')
+    const safeText = /^[=+@-]/.test(text) ? `'${text}` : text
+    return `"${safeText.replaceAll('"', '""')}"`
+  }
+  const rows = [
+    ['Pasta', 'Título', 'Cliente', 'Responsável', 'Área', 'Status', 'Criada em'],
+    ...folders.map((folder) => [
+      folder.code,
+      folder.title,
+      folder.client.name,
+      folder.responsible_lawyer?.full_name ?? '',
+      folder.area,
+      folderStatusLabel(folder.status),
+      folder.created_at,
+    ]),
+  ]
+  const blob = new Blob([`\uFEFF${rows.map((row) => row.map(cell).join(';')).join('\n')}`], {
+    type: 'text/csv;charset=utf-8',
+  })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = 'pastas.csv'
+  anchor.click()
+  URL.revokeObjectURL(url)
 }
 
 export default function FoldersPage({
@@ -152,7 +181,7 @@ export default function FoldersPage({
               event.preventDefault()
               visit({ page: 1 })
             }}
-            className="grid gap-4 border-b border-gray-100 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-[minmax(240px,1fr)_220px_auto_auto] lg:gap-6"
+            className="grid gap-4 border-b border-gray-100 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-[minmax(240px,1fr)_220px_auto_auto_auto] lg:gap-4"
           >
             <div className="relative">
               <Search className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
@@ -205,6 +234,16 @@ export default function FoldersPage({
                 </Button>
               )}
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => downloadFoldersCsv(folders.data)}
+              disabled={folders.data.length === 0}
+              className="h-10 rounded-full border-[#00b8d9]/50 font-bold text-[#00b8d9] hover:bg-[#00b8d9]/5 hover:text-[#00b8d9]"
+            >
+              <Download className="size-4" />
+              Baixar
+            </Button>
             <Button
               variant="outline"
               asChild

@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react'
 import { ArrowUpDown, BriefcaseBusiness, UserRound } from 'lucide-react'
+import { useState } from 'react'
 
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
 import { APP_TIME_ZONE } from '~/lib/date'
@@ -102,6 +103,22 @@ function FolderMobileCard({ folder }: { folder: FolderItem }) {
 }
 
 export function FolderList({ folders, sortBy, direction, onSort }: FolderListProps) {
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const allSelected = folders.length > 0 && folders.every((folder) => selectedIds.has(folder.id))
+
+  const toggleAll = () => {
+    setSelectedIds(allSelected ? new Set() : new Set(folders.map((folder) => folder.id)))
+  }
+
+  const toggleOne = (folderId: number) => {
+    setSelectedIds((current) => {
+      const next = new Set(current)
+      if (next.has(folderId)) next.delete(folderId)
+      else next.add(folderId)
+      return next
+    })
+  }
+
   if (folders.length === 0) {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center">
@@ -125,22 +142,32 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
       </div>
 
       <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[960px] table-fixed text-left text-sm">
+        <table className="w-full min-w-[1040px] table-fixed text-left text-sm">
           <colgroup>
-            <col className="w-[24%]" />
+            <col className="w-12" />
+            <col className="w-[22%]" />
             <col className="w-[18%]" />
             <col className="w-[18%]" />
             <col className="w-[13%]" />
             <col className="w-[14%]" />
             <col className="w-[9%]" />
-            <col className="w-14" />
+            <col className="w-12" />
           </colgroup>
-          <thead className="border-y border-gray-200 bg-[#f7f8f9] text-xs uppercase tracking-wider text-gray-500">
+          <thead className="border-y border-gray-200 bg-[#f7f8f9] text-xs text-gray-500">
             <tr>
-              <th className="px-5 py-3.5">
+              <th className="py-3.5 pl-4">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  aria-label="Selecionar todas as pastas desta página"
+                  className="size-4 rounded border-gray-300 accent-cyan-500"
+                />
+              </th>
+              <th className="px-4 py-3.5">
                 <SortButton
                   field="code"
-                  label="Pasta"
+                  label="Nº Pasta"
                   sortBy={sortBy}
                   direction={direction}
                   onSort={onSort}
@@ -174,8 +201,23 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
             {folders.map((folder) => (
-              <tr key={folder.id} className="group transition hover:bg-cyan-50/30">
-                <td className="px-5 py-4">
+              <tr
+                key={folder.id}
+                className={cn(
+                  'group transition hover:bg-cyan-50/30',
+                  selectedIds.has(folder.id) && 'bg-cyan-50/40'
+                )}
+              >
+                <td className="py-4 pl-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(folder.id)}
+                    onChange={() => toggleOne(folder.id)}
+                    aria-label={`Selecionar pasta ${folder.code}`}
+                    className="size-4 rounded border-gray-300 accent-cyan-500"
+                  />
+                </td>
+                <td className="px-4 py-4">
                   <Link href={`/folders/${folder.id}`} className="block min-w-0">
                     <span className="block font-medium text-gray-900">#{folder.code}</span>
                     <span className="mt-1 block max-w-[280px] truncate text-xs text-gray-500">
@@ -230,14 +272,14 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
                   <Link
                     href={`/folders/${folder.id}`}
                     aria-label={`Abrir pasta ${folder.code}`}
-                    className="inline-flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200"
+                    className="inline-flex size-8 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200"
                   >
                     <img
                       src="/yol/icons/arrow-right.svg"
                       alt=""
                       width={24}
                       height={24}
-                      className="size-6"
+                      className="size-4"
                     />
                   </Link>
                 </td>

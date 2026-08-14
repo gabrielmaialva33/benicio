@@ -27,7 +27,7 @@ export function FolderStatusBadge({
   return (
     <span
       className={cn(
-        'inline-flex min-w-20 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium',
+        'inline-flex min-w-16 items-center justify-center rounded-md border px-2.5 py-1 text-xs font-semibold',
         statusClasses[status],
         className
       )}
