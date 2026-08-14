@@ -15,6 +15,8 @@ import {
 
 import { Button } from '~/components/ui/button'
 import { NativeSelect } from '~/components/ui/native-select'
+import { formatDateTime } from '~/lib/format'
+import { NOTIFICATION_TYPE_LABELS } from '~/lib/labels'
 import { MainLayout } from '~/layouts'
 import { cn } from '~/lib/utils'
 
@@ -53,30 +55,11 @@ const typeIcons: Record<NotificationType, LucideIcon> = {
   system: Settings,
 }
 
-const typeLabels: Record<NotificationType, string> = {
-  info: 'Informação',
-  success: 'Sucesso',
-  warning: 'Atenção',
-  error: 'Erro',
-  task: 'Tarefa',
-  hearing: 'Audiência',
-  deadline: 'Prazo',
-  message: 'Mensagem',
-  system: 'Sistema',
-}
-
 const FILTER_TABS = [
   { value: 'all', label: 'Todas' },
   { value: 'unread', label: 'Não lidas' },
   { value: 'read', label: 'Lidas' },
 ] as const
-
-function formatDateTime(value: string) {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Data indisponível'
-
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(date)
-}
 
 function NotificationRow({ notification }: { notification: WebNotification }) {
   const Icon = typeIcons[notification.type]
@@ -124,7 +107,7 @@ function NotificationRow({ notification }: { notification: WebNotification }) {
         <p className="mt-1 text-sm leading-5 text-slate-600">{notification.message}</p>
         <p className="mt-1.5 text-xs text-slate-400">
           {[
-            typeLabels[notification.type],
+            NOTIFICATION_TYPE_LABELS[notification.type],
             notification.actor_name,
             formatDateTime(notification.created_at),
           ]
@@ -209,7 +192,7 @@ export default function NotificationsPage({
                   <option value="">Todos os tipos</option>
                   {availableTypes.map((type) => (
                     <option key={type} value={type}>
-                      {typeLabels[type]}
+                      {NOTIFICATION_TYPE_LABELS[type]}
                     </option>
                   ))}
                 </NativeSelect>
