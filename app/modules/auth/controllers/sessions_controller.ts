@@ -4,6 +4,7 @@ import { createUserValidator, signInValidator } from '#modules/users/validators/
 import SignInService from '#modules/auth/services/sign_in_service'
 import SignUpService from '#modules/auth/services/sign_up_service'
 import RefreshSessionService from '#modules/auth/services/refresh_session_service'
+import JwtAuthTokensService from '#modules/auth/services/jwt_auth_tokens_service'
 import UnauthorizedException from '#exceptions/unauthorized_exception'
 import jwt from 'jsonwebtoken'
 
@@ -44,6 +45,8 @@ export default class SessionsController {
 
     const service = await app.container.make(RefreshSessionService)
     const tokens = await service.rotate(refreshToken, ctx)
+    const tokenService = await app.container.make(JwtAuthTokensService)
+    tokenService.setAccessCookie(ctx, tokens.access_token)
     return ctx.response.ok(tokens)
   }
 

@@ -24,8 +24,19 @@ export default class JwtAuthTokensService {
     const familyId = randomUUID()
     const { raw: refreshToken } = await this.createRefreshToken(payload, familyId, ctx)
     const accessToken = await this.generateAccessToken(payload, familyId)
+    if (ctx) this.setAccessCookie(ctx, accessToken)
 
     return { access_token: accessToken, refresh_token: refreshToken }
+  }
+
+  setAccessCookie(ctx: HttpContext, accessToken: string): void {
+    ctx.response.cookie('token', accessToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: env.get('NODE_ENV') === 'production',
+      path: '/',
+      expires: DateTime.now().plus({ minutes: 15 }).toJSDate(),
+    })
   }
 
   generateAccessToken(payload: JwtContent, familyId: string): Promise<string> {
