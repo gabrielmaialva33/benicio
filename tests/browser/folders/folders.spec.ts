@@ -119,6 +119,25 @@ test.group('Folders Inertia', () => {
     await page.locator('table').getByText(folder.code, { exact: true }).waitFor()
     assert.equal(await page.getByText(`FOREIGN-${suffix}`, { exact: true }).count(), 0)
 
+    await page.fill('input[name="search"]', folder.code)
+    await page.getByRole('button', { name: 'Buscar' }).click()
+    await page.waitForURL((url) => url.pathname === '/folders' && url.searchParams.has('search'))
+    await page.locator('table').getByText(folder.code, { exact: true }).waitFor()
+
+    await page.goto('/folders/create')
+    await page.getByTestId('folder-create-form').waitFor()
+    assert.equal(
+      await page.locator(`select[name="client_id"] option:has-text("${localClient.name}")`).count(),
+      1
+    )
+    assert.equal(
+      await page
+        .locator(`select[name="client_id"] option:has-text("${foreignClient.name}")`)
+        .count(),
+      0
+    )
+
+    await page.goto('/folders')
     await page.locator(`table a[href="/folders/${folder.id}"]`).first().click()
     await page.waitForURL(`**/folders/${folder.id}`)
     await page.getByTestId('folder-detail').waitFor()
