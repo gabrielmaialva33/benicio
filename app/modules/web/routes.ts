@@ -14,6 +14,7 @@ import IPermission from '#modules/permissions/interfaces/permission_interface'
 const InertiaAuthController = () => import('#modules/web/controllers/auth_controller')
 const InertiaDashboardController = () => import('#modules/web/controllers/dashboard_controller')
 const InertiaFoldersController = () => import('#modules/web/controllers/folders_controller')
+const InertiaClientsController = () => import('#modules/web/controllers/clients_controller')
 const InertiaUsersController = () => import('#modules/web/controllers/users_controller')
 const InertiaFilesController = () => import('#modules/web/controllers/files_controller')
 const InertiaTenantController = () => import('#modules/web/controllers/tenant_controller')
@@ -103,6 +104,73 @@ router
           )
       })
       .prefix('/folders')
+      .use(middleware.tenant({ required: true }))
+
+    // Clients
+    router
+      .group(() => {
+        router
+          .get('/', [InertiaClientsController, 'index'])
+          .as('web.clients.index')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.CLIENTS}.${IPermission.Actions.LIST}`,
+            })
+          )
+        router
+          .get('/create', [InertiaClientsController, 'create'])
+          .as('web.clients.create')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.CLIENTS}.${IPermission.Actions.CREATE}`,
+            })
+          )
+        router
+          .post('/', [InertiaClientsController, 'store'])
+          .as('web.clients.store')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.CLIENTS}.${IPermission.Actions.CREATE}`,
+            })
+          )
+        router
+          .get('/:id/edit', [InertiaClientsController, 'edit'])
+          .where('id', /^[0-9]+$/)
+          .as('web.clients.edit')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.CLIENTS}.${IPermission.Actions.UPDATE}`,
+            })
+          )
+        router
+          .put('/:id', [InertiaClientsController, 'update'])
+          .where('id', /^[0-9]+$/)
+          .as('web.clients.update')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.CLIENTS}.${IPermission.Actions.UPDATE}`,
+            })
+          )
+        router
+          .delete('/:id', [InertiaClientsController, 'destroy'])
+          .where('id', /^[0-9]+$/)
+          .as('web.clients.destroy')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.CLIENTS}.${IPermission.Actions.DELETE}`,
+            })
+          )
+        router
+          .get('/:id', [InertiaClientsController, 'show'])
+          .where('id', /^[0-9]+$/)
+          .as('web.clients.show')
+          .use(
+            middleware.permission({
+              permissions: `${IPermission.Resources.CLIENTS}.${IPermission.Actions.READ}`,
+            })
+          )
+      })
+      .prefix('/clients')
       .use(middleware.tenant({ required: true }))
 
     // UI Demo Page

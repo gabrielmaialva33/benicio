@@ -18,6 +18,12 @@ import type {
   WebFolderStatusCount,
   WebPaginationMeta,
 } from '#modules/web/interfaces/folder_page_interface'
+import type {
+  WebClient,
+  WebClientFilters,
+  WebClientFolder,
+  WebClientStats,
+} from '#modules/web/interfaces/client_page_interface'
 import type { WebRole } from '#modules/web/services/list_roles_with_permissions_service'
 import type { WebPermission } from '#modules/web/services/list_all_permissions_service'
 
@@ -56,6 +62,16 @@ declare module '@adonisjs/inertia/types' {
       deadlines: WebFolderDeadline[]
       activities: WebFolderActivity[]
     }
+
+    // Clients
+    'clients/index': {
+      clients: { data: WebClient[]; meta: WebPaginationMeta }
+      filters: WebClientFilters
+      stats: WebClientStats
+    }
+    'clients/create': Record<string, never>
+    'clients/show': { client: WebClient; folders: WebClientFolder[] }
+    'clients/edit': { client: WebClient }
 
     // Files
     'files/index': Record<string, never>
