@@ -36,6 +36,18 @@ function pageCopy(url: string) {
       description: 'Suas tarefas principais estão nessa seção.',
     }
   }
+  if (path === '/folders/create') {
+    return { title: 'Nova Pasta', description: 'Organize o caso antes de vincular seus processos.' }
+  }
+  if (/^\/folders\/\d+$/.test(path)) {
+    return {
+      title: 'Detalhes da Pasta',
+      description: 'Acompanhe o contexto jurídico e operacional.',
+    }
+  }
+  if (path.startsWith('/folders')) {
+    return { title: 'Pastas', description: 'Consulte e organize os casos do escritório.' }
+  }
   if (path === '/users/create') {
     return { title: 'Novo usuário', description: 'Cadastre uma pessoa na plataforma.' }
   }

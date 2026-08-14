@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react'
 import {
   FileText,
+  FolderOpen,
   Home,
   PanelLeftClose,
   PanelLeftOpen,
@@ -30,7 +31,10 @@ interface MenuSection {
 const menuSections: MenuSection[] = [
   {
     title: 'Páginas',
-    items: [{ title: 'Visão geral', href: '/dashboard', icon: Home }],
+    items: [
+      { title: 'Visão geral', href: '/dashboard', icon: Home },
+      { title: 'Pastas', href: '/folders', icon: FolderOpen },
+    ],
   },
   {
     title: 'Gestão',
