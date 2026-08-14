@@ -78,6 +78,20 @@ export const apiThrottle = limiter.define('api', async (ctx) => {
   return limiter.allowRequests(10).every('1 minute').usingKey(`api_ip_${ctx.request.ip()}`)
 })
 
+/** Cost-aware throttle for authenticated AI generation endpoints. */
+export const aiThrottle = limiter.define('ai', (ctx) => {
+  const tenantId = ctx.tenant?.id ?? 'none'
+  const userId = ctx.auth.user?.id ?? `ip_${ctx.request.ip()}`
+
+  return limiter
+    .allowRequests(20)
+    .every('1 minute')
+    .usingKey(`ai_tenant_${tenantId}_user_${userId}`)
+    .limitExceeded((error) => {
+      error.setMessage('Limite de solicitações de IA excedido. Tente novamente em instantes.')
+    })
+})
+
 /**
  * Upload throttle for file upload endpoints
  * - 10 uploads per hour for authenticated users

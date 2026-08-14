@@ -1,10 +1,12 @@
-import env from '#start/env'
+import aiConfig from '#config/ai'
 import ServiceUnavailableException from '#exceptions/service_unavailable_exception'
-import type { AiProvider } from '#modules/ai/interfaces/ai_interface'
 import OpenAiCompatibleProvider from '#modules/ai/providers/openai_compatible_provider'
+import RoutedAiProvider from '#modules/ai/providers/routed_ai_provider'
+import type { AiProfile, AiProvider } from '#modules/ai/interfaces/ai_interface'
 
 export default class AiProviderFactory {
   private overrideProvider?: AiProvider
+  private readonly routedProviders = new Map<AiProfile, AiProvider>()
 
   static forProvider(provider: AiProvider): AiProviderFactory {
     const factory = new AiProviderFactory()
@@ -12,53 +14,67 @@ export default class AiProviderFactory {
     return factory
   }
 
-  getOrFail(): AiProvider {
+  getOrFail(profile: AiProfile = aiConfig.defaultProfile): AiProvider {
     if (this.overrideProvider) return this.overrideProvider
-
-    const provider = env.get('AI_PROVIDER') ?? 'disabled'
-    if (provider === 'disabled') {
+    if (aiConfig.provider === 'disabled') {
       throw new ServiceUnavailableException('AI provider is disabled')
     }
+    if (aiConfig.provider === 'openai_compatible') return this.legacyProvider()
 
-    const baseUrl = env.get('AI_BASE_URL')
-    const model = env.get('AI_MODEL')
-    const timeoutMs = env.get('AI_TIMEOUT_MS') ?? 60_000
-    const maxContextMessages = env.get('AI_MAX_CONTEXT_MESSAGES') ?? 24
+    const cached = this.routedProviders.get(profile)
+    if (cached) return cached
+
+    const candidates = aiConfig.profiles[profile].candidates
+      .filter((candidate) => candidate.apiKey?.trim())
+      .map(
+        (candidate) =>
+          new OpenAiCompatibleProvider({
+            providerName: candidate.provider,
+            baseUrl: candidate.baseUrl,
+            apiKey: candidate.apiKey,
+            model: candidate.model,
+            maxTokens: candidate.maxTokens,
+            timeouts: candidate.timeouts,
+          })
+      )
+    if (!candidates.length) {
+      throw new ServiceUnavailableException('No AI provider is configured for this profile')
+    }
+
+    const routed = new RoutedAiProvider({
+      profile,
+      candidates,
+      ...aiConfig.routing,
+    })
+    this.routedProviders.set(profile, routed)
+    return routed
+  }
+
+  isAvailable(profile: AiProfile = aiConfig.defaultProfile): boolean {
+    try {
+      this.getOrFail(profile)
+      return true
+    } catch (error) {
+      if (error instanceof ServiceUnavailableException) return false
+      throw error
+    }
+  }
+
+  private legacyProvider(): AiProvider {
+    const { baseUrl, apiKey, model, timeoutMs } = aiConfig.legacy
     if (!baseUrl?.trim() || !model?.trim()) {
       throw new ServiceUnavailableException('AI provider is not fully configured')
-    }
-    if (
-      !Number.isInteger(timeoutMs) ||
-      timeoutMs < 1_000 ||
-      timeoutMs > 300_000 ||
-      !Number.isInteger(maxContextMessages) ||
-      maxContextMessages < 1 ||
-      maxContextMessages > 200
-    ) {
-      throw new ServiceUnavailableException('AI provider configuration is invalid')
     }
 
     try {
       return new OpenAiCompatibleProvider({
         baseUrl: baseUrl.trim(),
-        apiKey: env.get('AI_API_KEY'),
+        apiKey,
         model: model.trim(),
         timeoutMs,
       })
     } catch {
       throw new ServiceUnavailableException('AI provider configuration is invalid')
-    }
-  }
-
-  isAvailable(): boolean {
-    try {
-      this.getOrFail()
-      return true
-    } catch (error) {
-      if (error instanceof ServiceUnavailableException) {
-        return false
-      }
-      throw error
     }
   }
 }

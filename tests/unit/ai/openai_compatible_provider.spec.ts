@@ -42,6 +42,7 @@ test.group('OpenAI-compatible provider', () => {
   })
 
   test('parses OpenAI-compatible SSE across transport chunks', async ({ assert }) => {
+    let requestPayload: Record<string, unknown> = {}
     const encoder = new TextEncoder()
     const body = new ReadableStream<Uint8Array>({
       start(controller) {
@@ -49,11 +50,19 @@ test.group('OpenAI-compatible provider', () => {
         controller.enqueue(
           encoder.encode('}}]}\r\n\r\ndata: {"choices":[{"delta":{"content":" mundo"}}]}\n\n')
         )
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[],"usage":{"prompt_tokens":4,"completion_tokens":2,"total_tokens":6}}\n\n'
+          )
+        )
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))
         controller.close()
       },
     })
-    const fetcher = (async () => new Response(body, { status: 200 })) as typeof globalThis.fetch
+    const fetcher = (async (_input: Parameters<typeof globalThis.fetch>[0], init?: RequestInit) => {
+      requestPayload = JSON.parse(String(init?.body)) as Record<string, unknown>
+      return new Response(body, { status: 200 })
+    }) as typeof globalThis.fetch
     const provider = new OpenAiCompatibleProvider(
       {
         baseUrl: 'https://provider.example/v1',
@@ -64,10 +73,14 @@ test.group('OpenAI-compatible provider', () => {
     )
 
     const chunks: string[] = []
+    let usage: Record<string, unknown> = {}
     for await (const chunk of provider.stream([{ role: 'user', content: 'Pergunta' }])) {
-      chunks.push(chunk.content)
+      if (chunk.content) chunks.push(chunk.content)
+      if (chunk.usage) usage = chunk.usage
     }
     assert.deepEqual(chunks, ['Olá', ' mundo'])
+    assert.deepEqual(usage, { prompt_tokens: 4, completion_tokens: 2, total_tokens: 6 })
+    assert.deepEqual(requestPayload.stream_options, { include_usage: true })
   })
 
   test('normalizes upstream failures without exposing the provider body', async ({ assert }) => {
@@ -92,7 +105,29 @@ test.group('OpenAI-compatible provider', () => {
       assert.instanceOf(error, AiProviderRequestError)
       assert.equal((error as AiProviderRequestError).status, 429)
       assert.equal((error as AiProviderRequestError).requestId, 'req_test')
+      assert.equal((error as AiProviderRequestError).code, 'http')
+      assert.isTrue((error as AiProviderRequestError).retryable)
       assert.notInclude((error as Error).message, 'sensitive upstream detail')
+    }
+  })
+
+  test('does not mark ordinary client errors as retryable', async ({ assert }) => {
+    const fetcher = (async () => new Response('{}', { status: 400 })) as typeof globalThis.fetch
+    const provider = new OpenAiCompatibleProvider(
+      {
+        baseUrl: 'https://provider.example/v1',
+        model: 'legal-model',
+        timeoutMs: 1_000,
+      },
+      fetcher
+    )
+
+    try {
+      await provider.generate([{ role: 'user', content: 'Pergunta' }])
+      assert.fail('Expected provider request to fail')
+    } catch (error) {
+      assert.instanceOf(error, AiProviderRequestError)
+      assert.isFalse((error as AiProviderRequestError).retryable)
     }
   })
 
