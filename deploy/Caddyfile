@@ -1,0 +1,28 @@
+{
+	email {$ACME_EMAIL}
+	# Cloudflare proxies this host, so ACME HTTP-01 still reaches us on :80.
+	# Keeping the default issuers means Caddy falls back to ZeroSSL on its own.
+}
+
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	# Adonis reads the visitor address from X-Forwarded-For; see the trustProxy
+	# predicate in config/app.ts, which is what makes the rate limiter key on the
+	# real client instead of on this proxy.
+	reverse_proxy app:3333 {
+		header_up X-Real-IP {remote_host}
+	}
+
+	log {
+		output stdout
+		format json
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}

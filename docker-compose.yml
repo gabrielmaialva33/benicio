@@ -1,10 +1,56 @@
 # Local containerized environment for Benício.
-# - `docker compose up postgres redis qdrant` -> project datastores (app runs on the host)
+# - `docker compose up postgres redis qdrant`      -> datastores only (app runs on the host)
+# - `docker compose --profile app up --build`      -> datastores + the app in a container
 #
-# Generate a real APP_KEY once:  node ace generate:key  (then export APP_KEY=...).
+# The `app` service sits behind a profile so the datastore-only workflow above
+# stays the default; production uses deploy/docker-compose.prod.yml instead.
+#
+# Generate a real APP_KEY once:  pnpm ace generate:key  (then export APP_KEY=...).
 name: benicio
 
 services:
+  app:
+    profiles: ['app']
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3333
+      # Inside the compose network the datastores answer on their service names,
+      # not on the host-published ports the .env points at.
+      DB_HOST: postgres
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: redis
+      BENICIO_QDRANT_URL: http://qdrant:6333
+      APP_KEY: ${APP_KEY:?run `pnpm ace generate:key` and export APP_KEY}
+    ports:
+      - '127.0.0.1:3333:3333'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3333/api/v1/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped

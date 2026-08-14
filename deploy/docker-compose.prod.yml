@@ -1,0 +1,111 @@
+# Production stack for benicio.juridicai.com.br.
+#
+# Self-contained on purpose: the server runs this file alone, so there is no
+# override chain to get wrong at 3am. The root docker-compose.yml stays the
+# local-development file.
+#
+#   cd /opt/benicio
+#   docker compose -f deploy/docker-compose.prod.yml up -d --build
+#
+# The image is built from the checkout on the server (no registry auth, no
+# image transfer). Every secret comes from /opt/benicio/.env, which is never
+# committed — see deploy/make_env.sh.
+name: benicio
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_DATABASE}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}', '--appendonly', 'yes']
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -a "$$REDIS_PASSWORD" ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+  qdrant:
+    image: qdrant/qdrant:v1.18.2
+    restart: unless-stopped
+    volumes:
+      - qdrantdata:/qdrant/storage
+    healthcheck:
+      test: ['CMD-SHELL', 'timeout 3 bash -c "</dev/tcp/127.0.0.1/6333"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      target: production
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    # Never published to the host: Caddy is the only way in.
+    expose:
+      - '3333'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # Uploads land on the `fs` drive disk by default; keep them off the
+      # container layer so a redeploy does not wipe them.
+      - appstorage:/app/tmp
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3333/api/v1/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:-benicio.juridicai.com.br}
+      # Let's Encrypt uses this address for expiry warnings.
+      ACME_EMAIL: ${ACME_EMAIL:-gabrielmaialva33@gmail.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on:
+      - app
+
+volumes:
+  pgdata:
+  redisdata:
+  qdrantdata:
+  appstorage:
+  caddydata:
+  caddyconfig:
