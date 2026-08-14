@@ -9,21 +9,14 @@ export default class DashboardService {
   constructor(private dashboardRepository: DashboardRepository) {}
 
   async overview(tenantId: number, userId: number) {
-    const [
-      summary,
-      urgentTasks,
-      upcomingHearings,
-      upcomingDeadlines,
-      favoriteFolders,
-      recentActivity,
-    ] = await Promise.all([
-      this.summary(tenantId),
-      this.dashboardRepository.urgentTasks(tenantId),
-      this.dashboardRepository.upcomingHearings(tenantId),
-      this.dashboardRepository.upcomingDeadlines(tenantId),
-      this.dashboardRepository.favoriteFolders(tenantId, userId),
-      this.dashboardRepository.recentActivity(tenantId),
-    ])
+    // A transaction provides one PostgreSQL connection, so these stay
+    // sequential and remain safe when the dashboard is composed inside one.
+    const summary = await this.summary(tenantId)
+    const urgentTasks = await this.dashboardRepository.urgentTasks(tenantId)
+    const upcomingHearings = await this.dashboardRepository.upcomingHearings(tenantId)
+    const upcomingDeadlines = await this.dashboardRepository.upcomingDeadlines(tenantId)
+    const favoriteFolders = await this.dashboardRepository.favoriteFolders(tenantId, userId)
+    const recentActivity = await this.dashboardRepository.recentActivity(tenantId)
 
     return {
       generated_at: DateTime.utc().toISO(),
@@ -37,27 +30,15 @@ export default class DashboardService {
   }
 
   async summary(tenantId: number): Promise<DashboardSummary> {
-    const [
-      folders,
-      folderStatuses,
-      folderAreas,
-      folderMonthlyEvolution,
-      tasks,
-      taskPriorities,
-      hearings,
-      deadlines,
-      clients,
-    ] = await Promise.all([
-      this.dashboardRepository.folderSummary(tenantId),
-      this.dashboardRepository.folderByStatus(tenantId),
-      this.dashboardRepository.folderByArea(tenantId),
-      this.dashboardRepository.folderMonthlyEvolution(tenantId),
-      this.dashboardRepository.taskSummary(tenantId),
-      this.dashboardRepository.tasksByPriority(tenantId),
-      this.dashboardRepository.hearingSummary(tenantId),
-      this.dashboardRepository.deadlineSummary(tenantId),
-      this.dashboardRepository.clientSummary(tenantId),
-    ])
+    const folders = await this.dashboardRepository.folderSummary(tenantId)
+    const folderStatuses = await this.dashboardRepository.folderByStatus(tenantId)
+    const folderAreas = await this.dashboardRepository.folderByArea(tenantId)
+    const folderMonthlyEvolution = await this.dashboardRepository.folderMonthlyEvolution(tenantId)
+    const tasks = await this.dashboardRepository.taskSummary(tenantId)
+    const taskPriorities = await this.dashboardRepository.tasksByPriority(tenantId)
+    const hearings = await this.dashboardRepository.hearingSummary(tenantId)
+    const deadlines = await this.dashboardRepository.deadlineSummary(tenantId)
+    const clients = await this.dashboardRepository.clientSummary(tenantId)
 
     return {
       folders: {
