@@ -1,9 +1,11 @@
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import jwt from 'jsonwebtoken'
 
 import BadRequestException from '#exceptions/bad_request_exception'
 import ForbiddenException from '#exceptions/forbidden_exception'
+import TenantMembershipService from '#modules/tenants/services/tenant_membership_service'
 
 interface TenantMiddlewareOptions {
   required?: boolean
@@ -25,7 +27,10 @@ interface TenantMiddlewareOptions {
  * requested), the request is allowed through WITHOUT `ctx.tenant`. Routes that
  * truly require a tenant should account for `ctx.tenant` being undefined.
  */
+@inject()
 export default class TenantMiddleware {
+  constructor(private tenantMembershipService: TenantMembershipService) {}
+
   async handle(ctx: HttpContext, next: NextFn, options: TenantMiddlewareOptions = {}) {
     const user = ctx.auth?.user
     if (!user) {
@@ -36,8 +41,8 @@ export default class TenantMiddleware {
     const resolvedTenantId = this.#resolveRequestedTenantId(ctx)
 
     if (resolvedTenantId !== null) {
-      const isMember = await this.#isMember(user.id, resolvedTenantId)
-      if (!isMember) {
+      const tenant = await this.tenantMembershipService.findActive(user.id, resolvedTenantId)
+      if (!tenant) {
         const message = ctx.i18n?.t('errors.permission_denied') || 'Access denied to this tenant'
         throw new ForbiddenException(message)
       }
@@ -46,7 +51,7 @@ export default class TenantMiddleware {
     }
 
     // Fallback: first tenant the user belongs to.
-    const firstTenant = await user.related('tenants').query().where('is_active', true).first()
+    const firstTenant = await this.tenantMembershipService.firstActive(user.id)
     if (firstTenant) {
       ctx.tenant = { id: firstTenant.id }
     } else if (options.required) {
@@ -110,18 +115,6 @@ export default class TenantMiddleware {
     }
 
     return null
-  }
-
-  async #isMember(userId: number, tenantId: number): Promise<boolean> {
-    const { default: db } = await import('@adonisjs/lucid/services/db')
-    const row = await db
-      .from('user_tenants')
-      .innerJoin('tenants', 'tenants.id', 'user_tenants.tenant_id')
-      .where('user_id', userId)
-      .where('tenant_id', tenantId)
-      .where('tenants.is_active', true)
-      .first()
-    return row !== null && row !== undefined
   }
 }
 

@@ -1,6 +1,5 @@
 import { inject } from '@adonisjs/core'
 import { HttpContext } from '@adonisjs/core/http'
-import app from '@adonisjs/core/services/app'
 
 import PaginateUserService from '#modules/users/services/paginate_user_service'
 import GetUserService from '#modules/users/services/get_user_service'
@@ -8,24 +7,30 @@ import CreateUserService from '#modules/users/services/create_user_service'
 import EditUserService from '#modules/users/services/edit_user_service'
 import DeleteUserService from '#modules/users/services/delete_user_service'
 
-import { createUserValidator, editUserValidator } from '#modules/users/validators/users_validator'
+import {
+  createUserValidator,
+  editUserValidator,
+  listUsersValidator,
+} from '#modules/users/validators/users_validator'
 
 @inject()
 export default class UsersController {
-  async paginate({ request, response }: HttpContext) {
-    const page = request.input('page', 1)
-    const perPage = request.input('per_page', 10)
-    const sortBy = request.input('sort_by', 'id')
-    const direction = request.input('order', 'asc')
-    const search = request.input('search', undefined)
+  constructor(
+    private paginateUserService: PaginateUserService,
+    private getUserService: GetUserService,
+    private createUserService: CreateUserService,
+    private editUserService: EditUserService,
+    private deleteUserService: DeleteUserService
+  ) {}
 
-    const service = await app.container.make(PaginateUserService)
-    const users = await service.run({
-      page,
-      perPage,
-      sortBy,
-      direction,
-      search,
+  async paginate({ request, response }: HttpContext) {
+    const input = await listUsersValidator.validate(request.qs())
+    const users = await this.paginateUserService.run({
+      page: input.page,
+      perPage: input.per_page,
+      sortBy: input.sort_by,
+      direction: input.order,
+      search: input.search,
     })
 
     return response.json(users)
@@ -34,9 +39,7 @@ export default class UsersController {
   async get({ params, response }: HttpContext) {
     const userId = +params.id
 
-    const service = await app.container.make(GetUserService)
-
-    const user = await service.run(userId)
+    const user = await this.getUserService.run(userId)
     if (!user) {
       return response.status(404).json({
         message: 'User not found',
@@ -48,9 +51,7 @@ export default class UsersController {
   async create({ request, response }: HttpContext) {
     const payload = await createUserValidator.validate(request.all())
 
-    const service = await app.container.make(CreateUserService)
-
-    const user = await service.run(payload)
+    const user = await this.createUserService.run(payload)
     return response.created(user)
   }
 
@@ -58,17 +59,14 @@ export default class UsersController {
     const userId = +params.id
     const payload = await editUserValidator.validate(request.all(), { meta: { userId } })
 
-    const service = await app.container.make(EditUserService)
-
-    const user = await service.run(userId, payload)
+    const user = await this.editUserService.run(userId, payload)
     return response.json(user)
   }
 
   async delete({ params, response }: HttpContext) {
     const userId = +params.id
 
-    const service = await app.container.make(DeleteUserService)
-    await service.run(userId)
+    await this.deleteUserService.run(userId)
 
     return response.noContent()
   }

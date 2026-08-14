@@ -1,7 +1,10 @@
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 import jwt from 'jsonwebtoken'
+
+import TenantMembershipService from '#modules/tenants/services/tenant_membership_service'
 
 type SharedUser = {
   id: number
@@ -29,7 +32,12 @@ type SharedTenant = {
  * tenant id, so the React layout (header/sidebar/tenant switcher) can read them
  * straight from `usePage().props`.
  */
+@inject()
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
+  constructor(private tenantMembershipService: TenantMembershipService) {
+    super()
+  }
+
   async share(ctx: HttpContext) {
     const auth = await this.#resolveAuth(ctx)
 
@@ -71,15 +79,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       return empty
     }
 
-    const tenantRecords = await user.related('tenants').query()
-
-    const tenants: SharedTenant[] = tenantRecords.map((tenant) => ({
-      id: tenant.id,
-      name: tenant.name,
-      slug: tenant.slug,
-      is_active: tenant.is_active,
-      role: (tenant.$extras.pivot_role as string | undefined) ?? null,
-    }))
+    const tenants: SharedTenant[] = await this.tenantMembershipService.list(user.id)
 
     const activeTenantId = this.#resolveActiveTenantId(ctx, tenants)
 

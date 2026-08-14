@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import db from '@adonisjs/lucid/services/db'
 import { createLegalAdmin } from '#tests/helpers/legal_context'
 
 test.group('Auth login', () => {
@@ -134,6 +135,25 @@ test.group('Auth login', () => {
     await page.waitForURL('**/dashboard', { timeout: 30000 })
   })
 
+  test('should switch the active tenant through the web service', async ({ browserContext }) => {
+    const { user, tenants } = await createLegalAdmin(2)
+    const [firstTenant, secondTenant] = tenants
+    const page = await browserContext.newPage()
+
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
+    await page.fill('input[name="uid"]', user.email)
+    await page.fill('input[name="password"]', 'password123')
+    await page.click('button[type="submit"]:has-text("Sign in")')
+    await page.waitForURL('**/dashboard', { timeout: 30000 })
+
+    await page.getByRole('button', { name: new RegExp(firstTenant.name) }).click()
+    await page.getByRole('menuitem', { name: new RegExp(secondTenant.name) }).click()
+
+    await page
+      .getByRole('button', { name: new RegExp(secondTenant.name) })
+      .waitFor({ timeout: 30_000 })
+  })
+
   test('should clear the browser token on logout', async ({ browserContext, assert }) => {
     const { user } = await createLegalAdmin()
     const page = await browserContext.newPage()
@@ -144,6 +164,12 @@ test.group('Auth login', () => {
     await page.click('button[type="submit"]:has-text("Sign in")')
     await page.waitForURL('**/dashboard', { timeout: 30000 })
 
+    const activeSessions = await db
+      .from('refresh_tokens')
+      .where('user_id', user.id)
+      .whereNull('revoked_at')
+    assert.isAbove(activeSessions.length, 0)
+
     await page.getByRole('button', { name: 'Abrir menu do usuário' }).click()
     await page.getByRole('menuitem', { name: 'Sair' }).click()
     await page.waitForURL('**/login', { timeout: 30000 })
@@ -151,6 +177,9 @@ test.group('Auth login', () => {
     const cookies = await browserContext.cookies()
     const tokenCookie = cookies.find((cookie) => cookie.name === 'token')
     assert.isUndefined(tokenCookie)
+
+    const sessionsAfterLogout = await db.from('refresh_tokens').where('user_id', user.id)
+    assert.isTrue(sessionsAfterLogout.every((session) => session.revoked_at !== null))
 
     const protectedResponse = await page.goto('/dashboard')
     assert.equal(protectedResponse?.status(), 401)

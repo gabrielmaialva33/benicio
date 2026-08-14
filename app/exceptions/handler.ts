@@ -2,6 +2,8 @@ import app from '@adonisjs/core/services/app'
 import { ExceptionHandler, type HttpContext } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 
+import { inertiaRedirectBack } from '#shared/http/inertia_redirect'
+
 function toInputErrorsBag(messages: unknown): Record<string, string[]> {
   if (!Array.isArray(messages)) {
     return { general: ['Não foi possível validar os dados enviados.'] }
@@ -74,7 +76,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       }
       ctx.session.flashAll()
       ctx.session.flash('inputErrorsBag', toInputErrorsBag(validationError.messages))
-      return ctx.response.redirect().back()
+      return inertiaRedirectBack(ctx)
     }
 
     /**

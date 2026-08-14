@@ -1,13 +1,16 @@
 import { inject } from '@adonisjs/core'
 import { HttpContext } from '@adonisjs/core/http'
 
-import JwtAuthTokensService from '#modules/auth/services/jwt_auth_tokens_service'
-import ForbiddenException from '#exceptions/forbidden_exception'
 import BadRequestException from '#exceptions/bad_request_exception'
+import SwitchTenantService from '#modules/tenants/services/switch_tenant_service'
+import TenantMembershipService from '#modules/tenants/services/tenant_membership_service'
 
 @inject()
 export default class TenantsController {
-  constructor(private jwtAuthTokensService: JwtAuthTokensService) {}
+  constructor(
+    private tenantMembershipService: TenantMembershipService,
+    private switchTenantService: SwitchTenantService
+  ) {}
 
   /**
    * Lists the tenants the authenticated user belongs to, including the user's
@@ -15,17 +18,7 @@ export default class TenantsController {
    */
   async me({ auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
-    const tenants = await user.related('tenants').query()
-
-    const data = tenants.map((tenant) => ({
-      id: tenant.id,
-      name: tenant.name,
-      slug: tenant.slug,
-      is_active: tenant.is_active,
-      role: tenant.$extras.pivot_role as string,
-    }))
-
-    return response.ok({ data })
+    return response.ok({ data: await this.tenantMembershipService.list(user.id) })
   }
 
   /**
@@ -42,24 +35,6 @@ export default class TenantsController {
       throw new BadRequestException('tenant_id is required and must be an integer')
     }
 
-    const tenant = await user.related('tenants').query().where('tenants.id', tenantId).first()
-    if (!tenant) {
-      throw new ForbiddenException('You do not belong to this tenant')
-    }
-
-    const tokens = await this.jwtAuthTokensService.run(
-      { userId: user.id, tenantId: tenant.id },
-      ctx
-    )
-
-    return response.ok({
-      tenant: {
-        id: tenant.id,
-        name: tenant.name,
-        slug: tenant.slug,
-        role: tenant.$extras.pivot_role as string,
-      },
-      auth: tokens,
-    })
+    return response.ok(await this.switchTenantService.run(user.id, tenantId, ctx))
   }
 }

@@ -23,6 +23,14 @@ Use Node 24 from `.nvmrc`. Copy `.env.example` to `.env` for local development; 
 
 TypeScript is strict. Use two-space indentation, LF endings, snake_case filenames, PascalCase classes and React components, and camelCase functions and variables. Run `pnpm format` (Prettier) and `pnpm lint` before submitting. Follow neighboring modules instead of introducing a new layering pattern. Do not restore removed aliases such as `#controllers/*` or `#models/*`.
 
+### Backend dependency rule
+
+Keep the dependency direction `Controller -> Service -> Repository -> Model/Database`. Controllers handle HTTP input
+and responses; services own business orchestration and use `UnitOfWork` for cross-repository transactions;
+repositories are the only application layer allowed to execute Lucid/SQL queries or relationship persistence.
+Controllers and middleware must not import repositories directly. These boundaries are enforced in
+`eslint.config.js`; add an intent-named repository method instead of disabling the rule.
+
 ## Testing Guidelines
 
 Japa backend tests use `*.spec.ts`; Vitest/Testing Library frontend tests use `*.test.tsx` or `*.spec.tsx`. Add regression coverage in the closest matching suite. Tests migrate and seed the database automatically from `.env.test`; browser tests require Playwright Chromium. No coverage threshold is enforced, but changed behavior should be exercised.

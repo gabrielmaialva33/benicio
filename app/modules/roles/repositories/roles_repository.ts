@@ -31,6 +31,15 @@ export default class RolesRepository
     return this.model.query().where('slug', slug).preload('permissions').first()
   }
 
+  async findExistingIds(roleIds: number[], trx?: TransactionClientContract): Promise<number[]> {
+    const rows = await this.model.query({ client: trx }).whereIn('id', roleIds).select('id')
+    return rows.map((role) => role.id)
+  }
+
+  listWithPermissionsAndUserCount(): Promise<Role[]> {
+    return this.model.query().preload('permissions').withCount('users').orderBy('name', 'asc')
+  }
+
   /**
    * Replace the role permissions with the given ids (sync removes old and adds
    * new). Runs inside the provided transaction when present.

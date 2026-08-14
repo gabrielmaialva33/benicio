@@ -1,10 +1,19 @@
+import { inject } from '@adonisjs/core'
 import { type HttpContext } from '@adonisjs/core/http'
-import app from '@adonisjs/core/services/app'
 import { signInValidator, createUserValidator } from '#modules/users/validators/users_validator'
-import UsersRepository from '#modules/users/repositories/users_repository'
+import SignInService from '#modules/auth/services/sign_in_service'
 import SignUpService from '#modules/auth/services/sign_up_service'
+import LogoutSessionService from '#modules/auth/services/logout_session_service'
+import { inertiaRedirectBack, inertiaRedirectTo } from '#shared/http/inertia_redirect'
 
+@inject()
 export default class InertiaAuthController {
+  constructor(
+    private signInService: SignInService,
+    private signUpService: SignUpService,
+    private logoutSessionService: LogoutSessionService
+  ) {}
+
   async showLogin({ inertia }: HttpContext) {
     return inertia.render('auth/login', {})
   }
@@ -14,40 +23,31 @@ export default class InertiaAuthController {
   }
 
   async login(ctx: HttpContext) {
-    const { request, response, session, auth } = ctx
+    const { request, session } = ctx
     const { uid, password } = await request.validateUsing(signInValidator)
 
     try {
-      // Verify credentials using the repository directly
-      const usersRepository = await app.container.make(UsersRepository)
-      const user = await usersRepository.verifyCredentials(uid, password)
+      await this.signInService.run({ uid, password, ctx, accessTokenLifetime: '1h' })
 
-      // Use the JWT guard to generate and set the token as cookie
-      await auth.use('jwt').generate(user)
-
-      // Redirect to dashboard after successful login
-      return response.redirect('/dashboard')
+      return inertiaRedirectTo(ctx, '/dashboard')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Invalid credentials'
       session.flash('errors', { general: message })
-      return response.redirect().back()
+      return inertiaRedirectBack(ctx)
     }
   }
 
   async register(ctx: HttpContext) {
-    const { request, response, session } = ctx
+    const { request, session } = ctx
 
     try {
       const data = await request.validateUsing(createUserValidator)
 
-      // Use the SignUpService to create the user
-      const signUpService = await app.container.make(SignUpService)
-      await signUpService.run(data)
+      await this.signUpService.run(data, { ctx, accessTokenLifetime: '1h' })
 
       // SignUpService already handles JWT generation and login
 
-      // Redirect to dashboard after successful registration
-      return response.redirect('/dashboard')
+      return inertiaRedirectTo(ctx, '/dashboard')
     } catch (error) {
       // Handle validation errors
       if (error && typeof error === 'object' && 'messages' in error) {
@@ -56,12 +56,12 @@ export default class InertiaAuthController {
         const message = error instanceof Error ? error.message : 'Registration failed'
         session.flash('errors', { general: message })
       }
-      return response.redirect().back()
+      return inertiaRedirectBack(ctx)
     }
   }
 
-  async logout({ response }: HttpContext) {
-    response.clearCookie('token')
-    return response.redirect('/login')
+  async logout(ctx: HttpContext) {
+    await this.logoutSessionService.run(ctx, ctx.auth.getUserOrFail().id)
+    return inertiaRedirectTo(ctx, '/login')
   }
 }

@@ -7,8 +7,6 @@ export default class GetUserService {
   constructor(private userRepository: UsersRepository) {}
 
   async run(userId: number): Promise<User | null> {
-    return this.userRepository.findBy('id', userId, {
-      modifyQuery: (query) => query.preload('roles'),
-    })
+    return this.userRepository.findByIdWithRoles(userId)
   }
 }

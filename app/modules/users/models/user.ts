@@ -10,6 +10,7 @@ import {
   beforePaginate,
   beforeSave,
   column,
+  computed,
   manyToMany,
   SnakeCaseNamingStrategy,
 } from '@adonisjs/lucid/orm'
@@ -61,6 +62,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare is_deleted: boolean
 
   @column({
+    serializeAs: null,
     prepare: (value) => JSON.stringify(value),
     consume: (value) => {
       if (typeof value === 'string') {
@@ -74,6 +76,18 @@ export default class User extends compose(BaseModel, AuthFinder) {
     email_verification_token: string | null
     email_verification_sent_at: string | null
     email_verified_at: string | null
+  }
+
+  /** Public verification state; secret verification metadata stays private. */
+  @computed()
+  get email_verified(): boolean {
+    return this.metadata?.email_verified ?? false
+  }
+
+  /** Safe timestamp projection used by API and Inertia user views. */
+  @computed()
+  get email_verified_at(): string | null {
+    return this.metadata?.email_verified_at ?? null
   }
 
   @column.dateTime({ autoCreate: true })

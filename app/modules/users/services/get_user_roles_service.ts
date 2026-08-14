@@ -11,7 +11,7 @@ export default class GetUserRolesService {
   async run(userId: number) {
     const { i18n } = HttpContext.getOrFail()
 
-    const user = await this.usersRepository.findBy('id', userId)
+    const user = await this.usersRepository.findByIdWithRoles(userId)
     if (!user) {
       throw new NotFoundException(
         i18n.t('errors.not_found', {
@@ -19,11 +19,6 @@ export default class GetUserRolesService {
         })
       )
     }
-
-    await user.load('roles', (query) => {
-      query.select('id', 'name', 'description', 'created_at', 'updated_at')
-      query.orderBy('name')
-    })
 
     const roles = user.roles.map((role) => ({
       id: role.id,

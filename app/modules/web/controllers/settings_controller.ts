@@ -1,10 +1,14 @@
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import app from '@adonisjs/core/services/app'
 
 import UpdateProfileService from '#modules/web/services/update_profile_service'
 import { updateProfileValidator } from '#modules/web/validators/settings_validator'
+import { inertiaRedirectTo } from '#shared/http/inertia_redirect'
 
+@inject()
 export default class InertiaSettingsController {
+  constructor(private updateProfileService: UpdateProfileService) {}
+
   async index({ inertia, auth }: HttpContext) {
     const user = auth.getUserOrFail()
 
@@ -18,18 +22,17 @@ export default class InertiaSettingsController {
     })
   }
 
-  async updateProfile({ request, response, session, auth }: HttpContext) {
-    const user = auth.getUserOrFail()
+  async updateProfile(ctx: HttpContext) {
+    const user = ctx.auth.getUserOrFail()
 
-    const payload = await request.validateUsing(updateProfileValidator, {
+    const payload = await ctx.request.validateUsing(updateProfileValidator, {
       meta: { userId: user.id },
     })
 
-    const updateProfile = await app.container.make(UpdateProfileService)
-    await updateProfile.run(user.id, payload)
+    await this.updateProfileService.run(user.id, payload)
 
-    session.flash('success', 'Profile updated successfully.')
+    ctx.session.flash('success', 'Profile updated successfully.')
 
-    return response.redirect().toPath('/settings')
+    return inertiaRedirectTo(ctx, '/settings')
   }
 }

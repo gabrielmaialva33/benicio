@@ -1,5 +1,25 @@
 import vine from '@vinejs/vine'
 
+export const USER_SORT_FIELDS = [
+  'id',
+  'full_name',
+  'email',
+  'username',
+  'email_verified_at',
+  'created_at',
+  'updated_at',
+] as const
+
+export const listUsersValidator = vine.compile(
+  vine.object({
+    page: vine.number().min(1).optional(),
+    per_page: vine.number().min(1).max(100).optional(),
+    search: vine.string().trim().maxLength(255).optional(),
+    sort_by: vine.enum(USER_SORT_FIELDS).optional(),
+    order: vine.enum(['asc', 'desc'] as const).optional(),
+  })
+)
+
 export const createUserValidator = vine.compile(
   vine.object({
     full_name: vine.string().trim(),

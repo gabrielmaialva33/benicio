@@ -3,6 +3,27 @@ import User from '#modules/users/models/user'
 import type IUser from '#modules/users/interfaces/user_interface'
 import LucidRepository from '#shared/lucid/lucid_repository'
 import { type AccessToken } from '@adonisjs/auth/access_tokens'
+import db from '@adonisjs/lucid/services/db'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
+import type { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
+
+export type PaginateUsersOptions = {
+  page?: number
+  perPage?: number
+  search?: string
+  sortBy?: string
+  direction?: 'asc' | 'desc'
+}
+
+export type UserPermissionRow = {
+  id: number
+  name: string
+  resource: string
+  action: string
+  description: string | null
+  expires_at?: Date | string | null
+  granted?: boolean
+}
 
 export default class UsersRepository
   extends LucidRepository<typeof User>
@@ -14,6 +35,109 @@ export default class UsersRepository
 
   async verifyCredentials(uid: string, password: string): Promise<User> {
     return this.model.verifyCredentials(uid, password)
+  }
+
+  async verifyCredentialsWithRoles(uid: string, password: string): Promise<User> {
+    const user = await this.verifyCredentials(uid, password)
+    await this.loadRoles(user)
+    return user
+  }
+
+  async loadRoles(user: User): Promise<void> {
+    await user.load('roles')
+  }
+
+  paginateWithRoles(options: PaginateUsersOptions): Promise<ModelPaginatorContract<User>> {
+    const sortBy = options.sortBy ?? 'id'
+    const direction = options.direction ?? 'asc'
+    this.validateSortBy(sortBy)
+    this.validateDirection(direction)
+
+    const query = this.model.query().preload('roles')
+    if (options.search) {
+      query.where((builder) => {
+        builder
+          .whereILike('full_name', `%${options.search}%`)
+          .orWhereILike('email', `%${options.search}%`)
+      })
+    }
+
+    return query
+      .orderBy(sortBy, direction)
+      .paginate(options.page ?? this.DEFAULT_PAGE, options.perPage ?? this.DEFAULT_PER_PAGE)
+  }
+
+  findByIdWithRoles(userId: number): Promise<User | null> {
+    return this.model
+      .query()
+      .where('id', userId)
+      .preload('roles', (query) => {
+        query.select('id', 'name', 'description', 'created_at', 'updated_at')
+        query.orderBy('name')
+      })
+      .first()
+  }
+
+  async persist(user: User): Promise<User> {
+    return user.save()
+  }
+
+  async attachRoles(
+    user: User,
+    roleIds: number[],
+    client?: TransactionClientContract
+  ): Promise<void> {
+    await user.related('roles').attach(roleIds, client)
+  }
+
+  async findExistingRoleIds(
+    userId: number,
+    roleIds: number[],
+    client?: TransactionClientContract
+  ): Promise<number[]> {
+    const query = client ? client.from('user_roles') : db.from('user_roles')
+    const rows = await query.where('user_id', userId).whereIn('role_id', roleIds).select('role_id')
+    return rows.map((row) => Number(row.role_id))
+  }
+
+  async listGrantedDirectPermissionRows(userId: number): Promise<UserPermissionRow[]> {
+    return db
+      .from('user_permissions')
+      .join('permissions', 'user_permissions.permission_id', 'permissions.id')
+      .where('user_permissions.user_id', userId)
+      .where('user_permissions.granted', true)
+      .where((query) => {
+        query.whereNull('user_permissions.expires_at')
+        query.orWhere('user_permissions.expires_at', '>', new Date())
+      })
+      .select(
+        'permissions.id',
+        'permissions.name',
+        'permissions.resource',
+        'permissions.action',
+        'permissions.description',
+        'user_permissions.expires_at',
+        'user_permissions.granted'
+      )
+      .orderBy('permissions.resource')
+      .orderBy('permissions.action')
+  }
+
+  async listRolePermissionRows(userId: number): Promise<UserPermissionRow[]> {
+    return db
+      .from('user_roles')
+      .join('role_permissions', 'user_roles.role_id', 'role_permissions.role_id')
+      .join('permissions', 'role_permissions.permission_id', 'permissions.id')
+      .where('user_roles.user_id', userId)
+      .select(
+        'permissions.id',
+        'permissions.name',
+        'permissions.resource',
+        'permissions.action',
+        'permissions.description'
+      )
+      .orderBy('permissions.resource')
+      .orderBy('permissions.action')
   }
 
   /**

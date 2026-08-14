@@ -32,11 +32,7 @@ export default class ListRolesWithPermissionsService {
   constructor(private rolesRepository: RolesRepository) {}
 
   async run(): Promise<WebRole[]> {
-    const roles = await this.rolesRepository.list({
-      modifyQuery: (query) => query.preload('permissions').withCount('users'),
-      sortBy: 'name',
-      direction: 'asc',
-    })
+    const roles = await this.rolesRepository.listWithPermissionsAndUserCount()
 
     return roles.map((role) => ({
       id: role.id,
