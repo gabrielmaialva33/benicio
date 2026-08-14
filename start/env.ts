@@ -58,6 +58,19 @@ export default await Env.create(new URL('../', import.meta.url), {
   REDIS_HOST: Env.schema.string.optional({ format: 'host' }),
   REDIS_PORT: Env.schema.number.optional(),
   REDIS_PASSWORD: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the AI chat provider
+  |----------------------------------------------------------
+  */
+  AI_PROVIDER: Env.schema.enum.optional(['disabled', 'openai_compatible'] as const),
+  AI_BASE_URL: Env.schema.string.optional(),
+  AI_API_KEY: Env.schema.string.optional(),
+  AI_MODEL: Env.schema.string.optional(),
+  AI_TIMEOUT_MS: Env.schema.number.optional(),
+  AI_MAX_CONTEXT_MESSAGES: Env.schema.number.optional(),
+  AI_SYSTEM_PROMPT: Env.schema.string.optional(),
   /*
   |----------------------------------------------------------
   | Variables for @rlanz/bull-queue
