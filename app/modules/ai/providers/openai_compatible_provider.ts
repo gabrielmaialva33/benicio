@@ -97,7 +97,16 @@ export default class OpenAiCompatibleProvider implements AiProvider {
   ): Promise<AiProviderResult> {
     const abort = this.createAbortContext(signal)
     try {
-      abort.setPhaseTimeout('connect', this.timeouts.connectMs)
+      /**
+       * Deliberately the first-token budget, not the connect one.
+       *
+       * `fetch` settles when response headers arrive, and a non-streaming
+       * completion withholds them until the whole answer is generated — so a
+       * connect-sized budget here silently caps generation. Every provider was
+       * dying at exactly connectMs while the streaming path, which gets headers
+       * immediately, sailed through. The total timeout still bounds the call.
+       */
+      abort.setPhaseTimeout('first_token', this.timeouts.firstTokenMs)
       const response = await this.fetcher(this.endpoint, {
         method: 'POST',
         headers: this.headers(),
