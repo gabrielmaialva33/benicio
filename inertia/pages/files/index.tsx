@@ -2,27 +2,19 @@ import { Head } from '@inertiajs/react'
 
 import { MainLayout } from '~/layouts'
 import { FileUpload } from '~/components/file'
-import { PageHeader } from '~/components/page_header'
 import { Card, CardContent, CardHeader, CardHeading, CardTitle } from '~/components/ui/card'
 
 export default function FilesPage() {
   return (
     <MainLayout>
-      <Head title="Files" />
+      <Head title="Arquivos" />
 
-      <div className="space-y-6">
-        <PageHeader
-          title="File management"
-          description="Upload and manage your files across providers."
-        />
-
-        <Card>
+      <div>
+        <Card className="border-gray-100">
           <CardHeader>
             <CardHeading>
-              <CardTitle>Upload files</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Drag and drop or browse to upload new files.
-              </p>
+              <CardTitle>Enviar arquivos</CardTitle>
+              <p className="text-sm text-gray-500">Arraste um arquivo ou escolha no computador.</p>
             </CardHeading>
           </CardHeader>
           <CardContent>

@@ -12,7 +12,6 @@ import {
   CardToolbar,
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
-import { PageHeader } from '~/components/page_header'
 
 interface RolePermission {
   id: number
@@ -57,11 +56,11 @@ function RoleCard({ role }: { role: RoleRow }) {
   const grouped = useMemo(() => groupByResource(role.permissions), [role.permissions])
 
   return (
-    <Card>
+    <Card className="border-gray-100">
       <CardHeader>
         <CardHeading>
           <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-[#00b8d9]">
               <ShieldCheck className="size-4.5" />
             </div>
             <div className="min-w-0">
@@ -86,14 +85,14 @@ function RoleCard({ role }: { role: RoleRow }) {
       </CardHeader>
       <CardContent>
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-sm font-medium">Permissions</p>
+          <p className="text-sm font-medium">Permissões</p>
           <Badge variant="secondary" appearance="light" size="sm">
             {role.permissions.length}
           </Badge>
         </div>
 
         {role.permissions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No permissions assigned.</p>
+          <p className="text-sm text-muted-foreground">Nenhuma permissão atribuída.</p>
         ) : (
           <div className="space-y-3">
             {grouped.map(([resource, permissions]) => (
@@ -123,18 +122,13 @@ function RoleCard({ role }: { role: RoleRow }) {
 export default function RolesPage({ roles }: RolesPageProps) {
   return (
     <MainLayout>
-      <Head title="Roles" />
+      <Head title="Papéis" />
 
-      <div className="space-y-6">
-        <PageHeader
-          title="Roles"
-          description="Roles bundle permissions and are assigned to users across the application."
-        />
-
+      <div>
         {roles.length === 0 ? (
           <Card>
             <CardContent className="py-10 text-center text-sm text-muted-foreground">
-              No roles found.
+              Nenhum papel encontrado.
             </CardContent>
           </Card>
         ) : (

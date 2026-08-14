@@ -47,11 +47,11 @@ export function FileUpload() {
       if (fileRejections.length > 0) {
         const firstError = fileRejections[0]?.errors[0]
         if (firstError?.code === 'file-too-large') {
-          setRejectionError(`File is too large. Maximum size is ${formatFileSize(MAX_FILE_SIZE)}.`)
+          setRejectionError(`Arquivo muito grande. O limite é ${formatFileSize(MAX_FILE_SIZE)}.`)
         } else if (firstError?.code === 'file-invalid-type') {
-          setRejectionError('Unsupported file type.')
+          setRejectionError('Tipo de arquivo não suportado.')
         } else {
-          setRejectionError(firstError?.message ?? 'File could not be accepted.')
+          setRejectionError(firstError?.message ?? 'Não foi possível aceitar o arquivo.')
         }
         return
       }
@@ -97,29 +97,29 @@ export function FileUpload() {
       <div
         {...getRootProps()}
         className={cn(
-          'flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-input bg-background px-6 py-10 text-center transition-colors',
+          'flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-gray-300 bg-[#f7f8f9] px-6 py-12 text-center transition-colors',
           loading
             ? 'cursor-not-allowed opacity-60'
-            : 'cursor-pointer hover:border-primary/50 hover:bg-accent/40',
-          isDragActive && 'border-primary bg-primary/5'
+            : 'cursor-pointer hover:border-[#1cd6f4] hover:bg-cyan-50/40',
+          isDragActive && 'border-[#1cd6f4] bg-cyan-50'
         )}
       >
         <input {...getInputProps()} />
-        <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="flex size-12 items-center justify-center rounded-full bg-cyan-50 text-[#00b8d9]">
           <CloudUpload className="size-6" />
         </div>
         <div className="space-y-1">
           <p className="text-sm font-medium text-foreground">
-            Drag &amp; drop files here, or click to browse
+            Arraste o arquivo aqui ou clique para escolher
           </p>
           <p className="text-xs text-muted-foreground">
-            Images, PDFs, documents and more — up to {formatFileSize(MAX_FILE_SIZE)}
+            Imagens, PDFs e documentos de até {formatFileSize(MAX_FILE_SIZE)}
           </p>
         </div>
       </div>
 
       {selectedFile && (
-        <div className="flex items-center gap-3 rounded-md border border-border bg-muted/40 p-3">
+        <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-[#f7f8f9] p-4">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-background text-muted-foreground">
             <FileIcon className="size-5" />
           </div>
@@ -134,7 +134,7 @@ export function FileUpload() {
             size="sm"
             onClick={clearSelection}
             disabled={loading}
-            aria-label="Remove selected file"
+            aria-label="Remover arquivo selecionado"
           >
             <X className="size-4" />
           </Button>
@@ -149,7 +149,7 @@ export function FileUpload() {
           disabled={!selectedFile || loading}
         >
           {loading && <Loader2 className="size-4 animate-spin" />}
-          {loading ? 'Uploading...' : 'Upload File'}
+          {loading ? 'Enviando...' : 'Enviar arquivo'}
         </Button>
       </div>
 
@@ -159,7 +159,7 @@ export function FileUpload() {
             <X className="size-4" />
           </AlertIcon>
           <AlertContent>
-            <AlertTitle>File rejected</AlertTitle>
+            <AlertTitle>Arquivo rejeitado</AlertTitle>
             <AlertDescription>{rejectionError}</AlertDescription>
           </AlertContent>
         </Alert>
@@ -171,7 +171,7 @@ export function FileUpload() {
             <X className="size-4" />
           </AlertIcon>
           <AlertContent>
-            <AlertTitle>Upload failed</AlertTitle>
+            <AlertTitle>Falha no envio</AlertTitle>
             <AlertDescription>{error.message}</AlertDescription>
           </AlertContent>
         </Alert>
@@ -183,17 +183,17 @@ export function FileUpload() {
             <CloudUpload className="size-4" />
           </AlertIcon>
           <AlertContent>
-            <AlertTitle>Upload successful</AlertTitle>
+            <AlertTitle>Arquivo enviado</AlertTitle>
             <AlertDescription>
               <div className="mt-1 space-y-1">
                 <p>
-                  <strong>File:</strong> {uploadedFile.clientName}
+                  <strong>Arquivo:</strong> {uploadedFile.clientName}
                 </p>
                 <p>
-                  <strong>Type:</strong> {uploadedFile.fileType}
+                  <strong>Tipo:</strong> {uploadedFile.fileType}
                 </p>
                 <p>
-                  <strong>Size:</strong> {formatFileSize(uploadedFile.size)}
+                  <strong>Tamanho:</strong> {formatFileSize(uploadedFile.size)}
                 </p>
                 <p className="truncate">
                   <strong>URL:</strong>{' '}

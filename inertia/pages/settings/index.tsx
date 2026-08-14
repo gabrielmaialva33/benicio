@@ -1,6 +1,5 @@
 import { Head, useForm, usePage } from '@inertiajs/react'
-import { useTheme } from 'next-themes'
-import { Building2, Check, Monitor, Moon, Sun, type LucideIcon } from 'lucide-react'
+import { Building2, UserRound } from 'lucide-react'
 
 import { MainLayout } from '~/layouts'
 import { Card, CardContent, CardHeader, CardHeading, CardTitle } from '~/components/ui/card'
@@ -9,9 +8,7 @@ import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
-import { PageHeader } from '~/components/page_header'
 import { useAuth } from '~/hooks/use_auth'
-import { cn } from '~/lib/utils'
 
 interface SettingsProfile {
   id: number
@@ -28,12 +25,6 @@ interface FlashProps {
   flash?: { success?: string | null; error?: string | null }
 }
 
-const THEMES: { value: string; label: string; icon: LucideIcon }[] = [
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'system', label: 'System', icon: Monitor },
-]
-
 function ProfileTab({ profile }: { profile: SettingsProfile }) {
   const { flash } = usePage().props as FlashProps
   const { data, setData, post, processing, errors } = useForm({
@@ -47,15 +38,15 @@ function ProfileTab({ profile }: { profile: SettingsProfile }) {
   }
 
   return (
-    <Card>
+    <Card className="border-gray-100">
       <CardHeader>
         <CardHeading>
-          <CardTitle>Profile</CardTitle>
-          <p className="text-sm text-muted-foreground">Update your personal information.</p>
+          <CardTitle>Meu perfil</CardTitle>
+          <p className="text-sm text-gray-500">Atualize suas informações pessoais.</p>
         </CardHeading>
       </CardHeader>
       <CardContent>
-        <form onSubmit={submit} className="max-w-xl space-y-5">
+        <form onSubmit={submit} className="max-w-2xl space-y-6">
           {flash?.success && (
             <div className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success">
               {flash.success}
@@ -63,7 +54,7 @@ function ProfileTab({ profile }: { profile: SettingsProfile }) {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="full_name">Full name</Label>
+            <Label htmlFor="full_name">Nome completo</Label>
             <Input
               id="full_name"
               value={data.full_name}
@@ -74,7 +65,7 @@ function ProfileTab({ profile }: { profile: SettingsProfile }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username">Nome de usuário</Label>
             <Input
               id="username"
               value={data.username}
@@ -85,62 +76,24 @@ function ProfileTab({ profile }: { profile: SettingsProfile }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-mail</Label>
             <Input id="email" value={profile.email} readOnly disabled />
-            <p className="text-xs text-muted-foreground">
-              Your email is used to sign in and cannot be changed here.
+            <p className="text-xs text-gray-500">
+              Este e-mail é usado no acesso e não pode ser alterado aqui.
             </p>
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit" variant="primary" disabled={processing}>
-              {processing ? 'Saving...' : 'Save changes'}
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={processing}
+              className="bg-[#00b8d9] shadow-none hover:bg-[#00a7c6]"
+            >
+              {processing ? 'Salvando...' : 'Salvar alterações'}
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
-  )
-}
-
-function AppearanceTab() {
-  const { theme, setTheme } = useTheme()
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardHeading>
-          <CardTitle>Appearance</CardTitle>
-          <p className="text-sm text-muted-foreground">Customize how the interface looks.</p>
-        </CardHeading>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {THEMES.map((option) => {
-            const active = theme === option.value
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setTheme(option.value)}
-                className={cn(
-                  'relative flex flex-col items-center gap-3 rounded-lg border p-5 text-sm font-medium transition-colors',
-                  active
-                    ? 'border-primary bg-primary/5 text-foreground'
-                    : 'border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                )}
-              >
-                {active && (
-                  <span className="absolute end-2 top-2 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Check className="size-3" />
-                  </span>
-                )}
-                <option.icon className="size-6" />
-                {option.label}
-              </button>
-            )
-          })}
-        </div>
       </CardContent>
     </Card>
   )
@@ -150,25 +103,23 @@ function WorkspacesTab() {
   const { tenants, activeTenantId } = useAuth()
 
   return (
-    <Card>
+    <Card className="border-gray-100">
       <CardHeader>
         <CardHeading>
-          <CardTitle>Workspaces</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Tenants you belong to and your role in each.
+          <CardTitle>Escritórios</CardTitle>
+          <p className="text-sm text-gray-500">
+            Escritórios aos quais você pertence e seu papel em cada um.
           </p>
         </CardHeading>
       </CardHeader>
       <CardContent className="p-0">
         {tenants.length === 0 ? (
-          <p className="p-5 text-sm text-muted-foreground">
-            You don&apos;t belong to any workspace yet.
-          </p>
+          <p className="p-6 text-sm text-gray-500">Você ainda não pertence a nenhum escritório.</p>
         ) : (
           <ul className="divide-y divide-border">
             {tenants.map((tenant) => (
               <li key={tenant.id} className="flex items-center gap-3 px-5 py-3.5">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-[#00b8d9]">
                   <Building2 className="size-4.5" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -183,7 +134,7 @@ function WorkspacesTab() {
                   )}
                   {tenant.id === activeTenantId && (
                     <Badge variant="primary" appearance="light" size="sm">
-                      Active
+                      Ativo
                     </Badge>
                   )}
                 </div>
@@ -199,32 +150,38 @@ function WorkspacesTab() {
 export default function SettingsPage({ profile }: SettingsPageProps) {
   return (
     <MainLayout>
-      <Head title="Settings" />
+      <Head title="Configurações" />
 
-      <div className="space-y-6">
-        <PageHeader
-          title="Settings"
-          description="Manage your account, appearance and workspaces."
-        />
+      <Tabs
+        defaultValue="profile"
+        className="grid items-start gap-6 lg:grid-cols-[288px_minmax(0,1fr)]"
+      >
+        <TabsList className="h-auto w-full flex-col items-stretch gap-2 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_4px_4px_rgba(0,0,0,0.03)]">
+          <TabsTrigger
+            value="profile"
+            className="justify-start gap-3 rounded-lg px-4 py-3 text-gray-500 data-[state=active]:bg-[#00b8d9] data-[state=active]:text-white"
+          >
+            <UserRound className="size-5" />
+            Meu perfil
+          </TabsTrigger>
+          <TabsTrigger
+            value="workspaces"
+            className="justify-start gap-3 rounded-lg px-4 py-3 text-gray-500 data-[state=active]:bg-[#00b8d9] data-[state=active]:text-white"
+          >
+            <Building2 className="size-5" />
+            Escritórios
+          </TabsTrigger>
+        </TabsList>
 
-        <Tabs defaultValue="profile" className="space-y-4">
-          <TabsList variant="line">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="appearance">Appearance</TabsTrigger>
-            <TabsTrigger value="workspaces">Workspaces</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="profile">
+        <div className="min-w-0">
+          <TabsContent value="profile" className="mt-0">
             <ProfileTab profile={profile} />
           </TabsContent>
-          <TabsContent value="appearance">
-            <AppearanceTab />
-          </TabsContent>
-          <TabsContent value="workspaces">
+          <TabsContent value="workspaces" className="mt-0">
             <WorkspacesTab />
           </TabsContent>
-        </Tabs>
-      </div>
+        </div>
+      </Tabs>
     </MainLayout>
   )
 }

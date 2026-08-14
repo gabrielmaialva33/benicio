@@ -1,11 +1,8 @@
 import { Head, Link, useForm } from '@inertiajs/react'
-import { ArrowLeft } from 'lucide-react'
-
 import { MainLayout } from '~/layouts'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { Button } from '~/components/ui/button'
 import { Field } from '~/components/forms/field'
-import { PageHeader } from '~/components/page_header'
 
 export default function CreateUserPage() {
   const { data, setData, post, processing, errors } = useForm({
@@ -22,30 +19,22 @@ export default function CreateUserPage() {
 
   return (
     <MainLayout>
-      <Head title="Create user" />
+      <Head title="Novo usuário" />
 
-      <div className="space-y-6">
-        <PageHeader
-          title="Create new user"
-          description="Fill out the form to add a new user."
-          actions={
-            <Link href="/users">
-              <Button variant="outline">
-                <ArrowLeft className="size-4" />
-                Back to users
-              </Button>
-            </Link>
-          }
-        />
-
+      <div>
         <form onSubmit={handleSubmit}>
-          <Card className="max-w-2xl">
-            <CardHeader>
-              <CardTitle>User details</CardTitle>
+          <Card className="border-gray-100">
+            <CardHeader className="px-8 pt-8">
+              <div>
+                <CardTitle>Dados do usuário</CardTitle>
+                <p className="mt-1 text-sm text-gray-500">
+                  Preencha os dados de acesso à plataforma.
+                </p>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-5">
+            <CardContent className="grid gap-6 px-8 py-6 md:grid-cols-2">
               <Field
-                label="Full name"
+                label="Nome completo"
                 name="full_name"
                 value={data.full_name}
                 onChange={(event) => setData('full_name', event.target.value)}
@@ -54,7 +43,7 @@ export default function CreateUserPage() {
                 required
               />
               <Field
-                label="Email"
+                label="E-mail"
                 name="email"
                 type="email"
                 value={data.email}
@@ -64,18 +53,18 @@ export default function CreateUserPage() {
                 required
               />
               <Field
-                label="Password"
+                label="Senha"
                 name="password"
                 type="password"
                 value={data.password}
                 onChange={(event) => setData('password', event.target.value)}
                 error={errors.password}
-                hint="Must be at least 8 characters"
+                hint="Use pelo menos 8 caracteres"
                 autoComplete="new-password"
                 required
               />
               <Field
-                label="Confirm password"
+                label="Confirmar senha"
                 name="password_confirmation"
                 type="password"
                 value={data.password_confirmation}
@@ -85,14 +74,14 @@ export default function CreateUserPage() {
                 required
               />
             </CardContent>
-            <CardFooter className="justify-end gap-2 border-t pt-5">
+            <CardFooter className="justify-end gap-3 px-8 py-5">
               <Link href="/users">
                 <Button variant="outline" type="button">
-                  Cancel
+                  Cancelar
                 </Button>
               </Link>
               <Button variant="primary" type="submit" disabled={processing}>
-                {processing ? 'Saving...' : 'Save user'}
+                {processing ? 'Salvando...' : 'Cadastrar usuário'}
               </Button>
             </CardFooter>
           </Card>

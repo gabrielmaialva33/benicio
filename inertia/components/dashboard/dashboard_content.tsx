@@ -90,14 +90,12 @@ function DashboardCard({ title, children, className, titleAside }: DashboardCard
   return (
     <section
       className={cn(
-        'flex min-w-0 flex-col rounded-2xl border border-slate-200/70 bg-white p-5 shadow-[0_4px_18px_rgba(15,23,42,0.035)] dark:border-white/10 dark:bg-card',
+        'flex min-w-0 flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_4px_4px_rgba(0,0,0,0.03)]',
         className
       )}
     >
-      <header className="mb-5 flex min-h-7 items-center justify-between gap-3">
-        <h2 className="text-lg font-bold tracking-[-0.025em] text-[#1f2a37] dark:text-white">
-          {title}
-        </h2>
+      <header className="mb-4 flex min-h-7 items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold text-[#1f2a37]">{title}</h2>
         {titleAside}
       </header>
       {children}
@@ -122,7 +120,7 @@ function ActiveFoldersCard({ dashboard }: { dashboard: DashboardOverview }) {
   return (
     <DashboardCard title="Pastas ativas" className="justify-between">
       <div>
-        <strong className="block text-5xl font-black tracking-[-0.06em] text-[#1f2a37] dark:text-white">
+        <strong className="block text-5xl font-bold text-[#1f2a37]">
           {formatNumber(dashboard.folders.active)}
         </strong>
         <span className="mt-1 block text-sm text-slate-500">
@@ -130,7 +128,7 @@ function ActiveFoldersCard({ dashboard }: { dashboard: DashboardOverview }) {
         </span>
       </div>
 
-      <div className="-mx-2 mt-4 h-24" aria-label="Evolução mensal de pastas">
+      <div className="-mx-6 mt-4 h-24" aria-label="Evolução mensal de pastas">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
             <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} />
@@ -144,7 +142,7 @@ function ActiveFoldersCard({ dashboard }: { dashboard: DashboardOverview }) {
               type="monotone"
               dataKey="count"
               stroke="#06b6d4"
-              strokeWidth={3}
+              strokeWidth={2}
               dot={false}
               activeDot={{ r: 4, fill: '#06b6d4' }}
             />
@@ -152,7 +150,7 @@ function ActiveFoldersCard({ dashboard }: { dashboard: DashboardOverview }) {
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-white/10">
+      <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
         <span>{formatNumber(dashboard.folders.total)} no total</span>
         <span>{formatNumber(dashboard.folders.completed)} concluídas</span>
       </div>
@@ -173,8 +171,8 @@ function AreaDivisionCard({ dashboard }: { dashboard: DashboardOverview }) {
       {data.length === 0 ? (
         <EmptyMessage>As áreas aparecem quando as primeiras pastas forem cadastradas.</EmptyMessage>
       ) : (
-        <div className="grid flex-1 grid-cols-[minmax(120px,0.9fr)_minmax(0,1fr)] items-center gap-4">
-          <div className="h-40 min-w-0">
+        <div className="flex flex-1 items-center justify-between gap-4 pb-4">
+          <div className="h-[136px] w-[136px] shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -183,10 +181,40 @@ function AreaDivisionCard({ dashboard }: { dashboard: DashboardOverview }) {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  innerRadius="42%"
-                  outerRadius="78%"
-                  paddingAngle={2}
-                  stroke="transparent"
+                  outerRadius={68}
+                  stroke="white"
+                  labelLine={false}
+                  label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
+                    if (
+                      typeof cx !== 'number' ||
+                      typeof cy !== 'number' ||
+                      typeof midAngle !== 'number' ||
+                      typeof innerRadius !== 'number' ||
+                      typeof outerRadius !== 'number' ||
+                      typeof value !== 'number' ||
+                      value < 2
+                    ) {
+                      return null
+                    }
+                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+                    const x = cx + radius * Math.cos((-midAngle * Math.PI) / 180)
+                    const y = cy + radius * Math.sin((-midAngle * Math.PI) / 180)
+                    const total = data.reduce((sum, item) => sum + item.value, 0)
+                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0
+
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        fill="white"
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize={10}
+                      >
+                        {percentage}%
+                      </text>
+                    )
+                  }}
                 >
                   {data.map((item) => (
                     <Cell key={item.name} fill={item.color} />
@@ -197,19 +225,16 @@ function AreaDivisionCard({ dashboard }: { dashboard: DashboardOverview }) {
             </ResponsiveContainer>
           </div>
 
-          <ul className="min-w-0 space-y-2.5">
+          <ul className="min-w-0 space-y-2">
             {data.map((item) => (
-              <li key={item.name} className="flex min-w-0 items-center gap-2.5 text-sm">
+              <li key={item.name} className="flex min-w-0 items-center gap-2 text-[13px]">
                 <span
                   className="size-2.5 shrink-0 rounded-full"
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="min-w-0 flex-1 truncate font-medium text-slate-600 dark:text-slate-300">
+                <span className="min-w-0 flex-1 truncate font-medium text-gray-800">
                   {item.name}
                 </span>
-                <strong className="tabular-nums text-slate-900 dark:text-white">
-                  {item.percentage}%
-                </strong>
               </li>
             ))}
           </ul>
@@ -223,7 +248,7 @@ function FolderActivityCard({ dashboard }: { dashboard: DashboardOverview }) {
   const statuses = dashboard.folders.by_status
 
   return (
-    <DashboardCard title="Atividade de pastas">
+    <DashboardCard title="Atividade de Pastas">
       {statuses.length === 0 ? (
         <EmptyMessage>A distribuição por status será exibida aqui.</EmptyMessage>
       ) : (
@@ -297,7 +322,7 @@ function TaskRow({ task }: { task: DashboardUrgentTask }) {
 function TasksCard({ dashboard }: { dashboard: DashboardOverview }) {
   return (
     <DashboardCard
-      title="Suas tarefas urgentes"
+      title="Suas tarefas"
       titleAside={
         <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600 dark:bg-white/10 dark:text-slate-300">
           {dashboard.tasks.pending} pendentes
@@ -531,7 +556,7 @@ function RecentActivityCard({ dashboard }: { dashboard: DashboardOverview }) {
 export function DashboardContent({ dashboard }: { dashboard: DashboardOverview }) {
   return (
     <div data-testid="dashboard" className="space-y-6">
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <ActiveFoldersCard dashboard={dashboard} />
         <AreaDivisionCard dashboard={dashboard} />
         <FolderActivityCard dashboard={dashboard} />

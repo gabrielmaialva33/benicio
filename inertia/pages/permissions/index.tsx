@@ -13,7 +13,6 @@ import {
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
-import { PageHeader } from '~/components/page_header'
 
 interface PermissionRow {
   id: number
@@ -68,20 +67,15 @@ export default function PermissionsPage({ permissions }: PermissionsPageProps) {
 
   return (
     <MainLayout>
-      <Head title="Permissions" />
+      <Head title="Permissões" />
 
       <div className="space-y-6">
-        <PageHeader
-          title="Permissions"
-          description="Granular permissions follow the resource.action.context convention, grouped by resource."
-        />
-
-        <div className="relative max-w-sm">
-          <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative max-w-md">
+          <Search className="absolute start-4 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
           <Input
             type="search"
-            placeholder="Search permissions..."
-            className="w-full ps-9"
+            placeholder="Pesquisar permissões..."
+            className="w-full ps-11"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -90,17 +84,17 @@ export default function PermissionsPage({ permissions }: PermissionsPageProps) {
         {grouped.length === 0 ? (
           <Card>
             <CardContent className="py-10 text-center text-sm text-muted-foreground">
-              No permissions match your search.
+              Nenhuma permissão corresponde à pesquisa.
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {grouped.map(([resource, items]) => (
-              <Card key={resource}>
+              <Card key={resource} className="border-gray-100">
                 <CardHeader>
                   <CardHeading>
                     <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <div className="flex size-9 items-center justify-center rounded-lg bg-cyan-50 text-[#00b8d9]">
                         <KeyRound className="size-4" />
                       </div>
                       <CardTitle className="capitalize">{resource}</CardTitle>
@@ -116,7 +110,7 @@ export default function PermissionsPage({ permissions }: PermissionsPageProps) {
                   {items.map((permission) => (
                     <div
                       key={permission.id}
-                      className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2"
+                      className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-4 py-3 transition hover:border-cyan-200 hover:bg-cyan-50/30"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium capitalize">

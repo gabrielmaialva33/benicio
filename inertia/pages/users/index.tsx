@@ -45,7 +45,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog'
-import { PageHeader } from '~/components/page_header'
 import type { PaginatedResponse } from '~/types'
 
 interface UserRole {
@@ -84,7 +83,7 @@ function initialsOf(name: string) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
+  return new Date(iso).toLocaleDateString('pt-BR', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -142,11 +141,11 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
       columnHelper.columns([
         columnHelper.accessor('full_name', {
           id: 'full_name',
-          header: ({ column }) => <DataGridColumnHeader column={column} title="Name" />,
+          header: ({ column }) => <DataGridColumnHeader column={column} title="Nome" />,
           cell: ({ row }) => (
             <div className="flex items-center gap-3">
               <Avatar className="size-8">
-                <AvatarFallback className="bg-primary/10 text-xs text-primary">
+                <AvatarFallback className="bg-cyan-50 text-xs text-cyan-700">
                   {initialsOf(row.original.full_name)}
                 </AvatarFallback>
               </Avatar>
@@ -160,7 +159,7 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
         }),
         columnHelper.accessor('roles', {
           id: 'roles',
-          header: 'Roles',
+          header: 'Papéis',
           cell: ({ row }) => {
             const roles = row.original.roles ?? []
             if (roles.length === 0) {
@@ -184,18 +183,18 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
           cell: ({ row }) =>
             row.original.email_verified_at ? (
               <Badge variant="success" appearance="light" size="sm">
-                Verified
+                Verificado
               </Badge>
             ) : (
               <Badge variant="warning" appearance="light" size="sm">
-                Unverified
+                Não verificado
               </Badge>
             ),
           enableSorting: false,
         }),
         columnHelper.accessor('created_at', {
           id: 'created_at',
-          header: ({ column }) => <DataGridColumnHeader column={column} title="Created" />,
+          header: ({ column }) => <DataGridColumnHeader column={column} title="Cadastro" />,
           cell: ({ row }) => (
             <span className="text-sm text-muted-foreground">
               {formatDate(row.original.created_at)}
@@ -214,12 +213,12 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuLabel>Ações</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href={`/users/${row.original.id}/edit`}>
                     <Edit className="size-4" />
-                    Edit user
+                    Editar usuário
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -228,7 +227,7 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
                   onSelect={() => setUserToDelete(row.original)}
                 >
                   <Trash2 className="size-4" />
-                  Delete user
+                  Excluir usuário
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -261,47 +260,43 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
 
   return (
     <MainLayout>
-      <Head title="Users" />
+      <Head title="Usuários" />
 
       <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete user?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir usuário?</AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently deletes <strong>{userToDelete?.full_name}</strong>. This action
-              cannot be undone.
+              Isso exclui <strong>{userToDelete?.full_name}</strong> permanentemente. A ação não
+              pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <div className="space-y-6">
-        <PageHeader
-          title="Users"
-          description="Manage your application users and their roles."
-          actions={
+        <div className="flex justify-end">
+          <Button asChild variant="primary" className="bg-[#00b8d9] shadow-none hover:bg-[#00a7c6]">
             <Link href="/users/create">
-              <Button variant="primary">
-                <Plus className="size-4" />
-                Add user
-              </Button>
+              <Plus className="size-4" />
+              Novo usuário
             </Link>
-          }
-        />
+          </Button>
+        </div>
 
-        <Card>
+        <Card className="border-gray-100">
           <CardHeader>
             <CardHeading>
-              <CardTitle>All users</CardTitle>
+              <CardTitle>Usuários cadastrados</CardTitle>
             </CardHeading>
             <CardToolbar>
               <form
@@ -314,8 +309,8 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
                 <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search users..."
-                  className="w-full ps-9 sm:w-64"
+                  placeholder="Pesquisar usuários..."
+                  className="w-full ps-10 sm:w-72"
                   value={searchValue}
                   onChange={(event) => setSearchValue(event.target.value)}
                 />
@@ -327,7 +322,7 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
               table={table}
               recordCount={total}
               tableLayout={{ rowBorder: true, headerBackground: true }}
-              emptyMessage="No users found."
+              emptyMessage="Nenhum usuário encontrado."
             >
               <DataGridContainer border={false}>
                 <DataGridTable />

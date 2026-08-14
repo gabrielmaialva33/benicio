@@ -1,11 +1,8 @@
 import { Head, Link, useForm } from '@inertiajs/react'
-import { ArrowLeft } from 'lucide-react'
-
 import { MainLayout } from '~/layouts'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { Button } from '~/components/ui/button'
 import { Field } from '~/components/forms/field'
-import { PageHeader } from '~/components/page_header'
 import type { User } from '~/types'
 
 interface EditUserPageProps {
@@ -25,30 +22,20 @@ export default function EditUserPage({ user }: EditUserPageProps) {
 
   return (
     <MainLayout>
-      <Head title={`Edit user: ${user.full_name}`} />
+      <Head title={`Editar usuário: ${user.full_name}`} />
 
-      <div className="space-y-6">
-        <PageHeader
-          title="Edit user"
-          description="Update the user's details."
-          actions={
-            <Link href="/users">
-              <Button variant="outline">
-                <ArrowLeft className="size-4" />
-                Back to users
-              </Button>
-            </Link>
-          }
-        />
-
+      <div>
         <form onSubmit={handleSubmit}>
-          <Card className="max-w-2xl">
-            <CardHeader>
-              <CardTitle>User details</CardTitle>
+          <Card className="border-gray-100">
+            <CardHeader className="px-8 pt-8">
+              <div>
+                <CardTitle>Dados do usuário</CardTitle>
+                <p className="mt-1 text-sm text-gray-500">Atualize os dados cadastrais.</p>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-5">
+            <CardContent className="grid gap-6 px-8 py-6 md:grid-cols-2">
               <Field
-                label="Full name"
+                label="Nome completo"
                 name="full_name"
                 value={data.full_name}
                 onChange={(event) => setData('full_name', event.target.value)}
@@ -57,7 +44,7 @@ export default function EditUserPage({ user }: EditUserPageProps) {
                 required
               />
               <Field
-                label="Email"
+                label="E-mail"
                 name="email"
                 type="email"
                 value={data.email}
@@ -67,14 +54,14 @@ export default function EditUserPage({ user }: EditUserPageProps) {
                 required
               />
             </CardContent>
-            <CardFooter className="justify-end gap-2 border-t pt-5">
+            <CardFooter className="justify-end gap-3 px-8 py-5">
               <Link href="/users">
                 <Button variant="outline" type="button">
-                  Cancel
+                  Cancelar
                 </Button>
               </Link>
               <Button variant="primary" type="submit" disabled={processing}>
-                {processing ? 'Saving...' : 'Save changes'}
+                {processing ? 'Salvando...' : 'Salvar alterações'}
               </Button>
             </CardFooter>
           </Card>
