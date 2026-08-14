@@ -28,6 +28,9 @@ import '#modules/hearings/routes'
 import '#modules/deadlines/routes'
 import '#modules/movements/routes'
 import '#modules/activities/routes'
+import '#modules/documents/routes'
+import '#modules/favorites/routes'
+import '#modules/dashboard/routes'
 
 import '#modules/web/routes'
 
