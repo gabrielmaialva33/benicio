@@ -42,7 +42,7 @@ proceedings, always backed by real data and contract tests.
 ### 🏗️ Architecture Overview
 
 The backend is **modular (domain-driven)**: each domain (`auth`, `users`, `roles`, `permissions`, `files`, `audits`,
-`tenants`, `health`, `web`, and progressively the legal modules) owns its controllers, services, repositories, models, validators, and routes under
+`tenants`, `health`, `web`, and the legal workflow modules) owns its controllers, services, repositories, models, validators, and routes under
 `app/modules/<domain>/`. Cross-cutting code (middleware, JWT guard, base repository/models) lives in `app/shared/`, and
 typed exceptions in `app/exceptions/`.
 
@@ -87,11 +87,12 @@ graph TD
 
 ## Current Status
 
-- **Foundation available**: authentication, users, tenants, RBAC, auditing, files, the web shell, and API infrastructure.
-- **Legal foundation available**: tenant-safe clients, folders, processes, and normalized parties, with reviewed schema, RBAC, validation, soft delete, and REST contract tests.
-- **Next slice**: tenant-safe tasks, following the API and dashboard contract from `yol-benicio`.
+- **Platform foundation available**: rotating refresh-token families, users, tenants, RBAC, auditing, files, the web shell, and API infrastructure.
+- **Legal API available**: tenant-safe clients, folders, processes/parties, tasks, hearings, deadlines, movements, append-only activity, file-linked documents, and per-user favorites.
+- **Operations available**: real dashboard aggregates, recipient-owned notifications, internal messages, private realtime channels, and persisted AI conversations with an explicit provider boundary.
+- **Contract covered**: every public API/Transmit route is represented in `docs/openapi.yaml`, with functional tests for tenant and owner isolation.
 - **Canonical web**: thin Inertia controllers reuse the same application services as the API.
-- **Mobile**: the Flutter client will connect once the REST v1 contract is stable and covered by tests.
+- **Next product slice**: port the approved `yol-benicio` frontend onto this reviewed API and the kit's Inertia shell.
 
 ## 🌟 Key Features
 
@@ -102,6 +103,10 @@ graph TD
 - **🏢 Multi-Tenancy (N:N)**: Users belong to many tenants via a `user_tenants` pivot (with `owner`/`admin`/`member`
   roles). The active tenant is carried in the JWT and switchable through both API and web endpoints.
 - **📁 File Management**: Pre-configured file upload service with support for local, S3, Spaces, R2, and GCS drivers.
+- **⚖️ Legal Workflows**: Cases, tasks, hearings, deadlines, movements, activity timelines, file-linked documents, and user-scoped favorites.
+- **📊 Operational Read Models**: Tenant-scoped dashboard aggregates and widgets backed by real PostgreSQL queries.
+- **📨 Private Realtime**: Persisted notifications and internal messages delivered over authenticated Transmit/SSE channels.
+- **🤖 Provider-Backed AI Chat**: User-owned conversation history, concurrency control, safe failure states, and OpenAI-compatible streaming without a production mock fallback.
 - **⚡️ Full-Stack Reactivity**: The power of React combined with the simplicity of a traditional server-rendered app,
   thanks to Inertia.js.
 - **🎨 UI Component Library**: ~78 Metronic (shadcn-style) components built on Radix UI, Tailwind CSS v4, and
@@ -136,6 +141,7 @@ graph TD
 - **[Lucid ORM](https://lucid.adonisjs.com/)**: Models, migrations, and query building with a snake_case naming strategy.
 - **[VineJS](https://vinejs.dev/)**: Request validation at the edge.
 - **[Bull Queue](https://github.com/RomainLanz/adonis-bull-queue)**: Background jobs on top of Redis.
+- **[AdonisJS Transmit](https://docs.adonisjs.com/guides/digging-deeper/server-sent-events)**: Authenticated Server-Sent Events with Redis-backed distribution.
 
 ### Testing
 
@@ -180,6 +186,10 @@ graph TD
    ```
 
    _Open the `.env` file and configure your database credentials and other settings._
+
+   AI chat is fail-closed by default. To enable an OpenAI-compatible provider, set
+   `AI_PROVIDER=openai_compatible`, `AI_BASE_URL`, `AI_MODEL`, and (when required) `AI_API_KEY`.
+   The base URL must expose `POST /chat/completions`; no fake provider is used outside tests.
 
 4. **Start PostgreSQL and Redis:**
 
