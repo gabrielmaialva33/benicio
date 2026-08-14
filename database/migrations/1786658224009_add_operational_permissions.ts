@@ -46,9 +46,7 @@ export default class extends BaseSchema {
             if (permission.resource === IPermission.Resources.DASHBOARD) {
               return permission.action === IPermission.Actions.READ
             }
-            if (
-              permission.resource === IPermission.Resources.NOTIFICATIONS
-            ) {
+            if (permission.resource === IPermission.Resources.NOTIFICATIONS) {
               return [
                 IPermission.Actions.READ,
                 IPermission.Actions.UPDATE,
