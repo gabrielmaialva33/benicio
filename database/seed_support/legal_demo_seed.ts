@@ -26,9 +26,9 @@ import {
   seedLegalDemoAccess,
   type LegalDemoAccessContext,
 } from '#database/seed_support/demo_access'
+import { seedLegalDemoInfrastructure } from '#database/seed_support/legal_demo_infrastructure_seed'
 import { withinSeedTransaction } from '#database/seed_support/transaction'
 import Activity from '#modules/activities/models/activity'
-import AuditLog from '#modules/audits/models/audit_log'
 import Client from '#modules/clients/models/client'
 import Deadline from '#modules/deadlines/models/deadline'
 import LegalDocument from '#modules/documents/models/legal_document'
@@ -62,6 +62,12 @@ export interface LegalDemoSeedSummary {
   messages: number
   notifications: number
   favorites: number
+  specialPermissions: number
+  userPermissions: number
+  authTokens: number
+  sessionRefreshTokens: number
+  standaloneFiles: number
+  rateLimits: number
   auditLogs: number
 }
 
@@ -575,7 +581,7 @@ async function seedCommunications(
   }
 }
 
-async function seedFavoritesAndAudits(
+async function seedFavorites(
   client: QueryClientContract,
   access: LegalDemoAccessContext,
   folderIds: Record<LegalDemoFolderKey, number>
@@ -592,77 +598,23 @@ async function seedFavoritesAndAudits(
     )
   }
 
-  const auditFixtures = [
-    {
-      key: 'folder-create',
-      user: 'andre' as const,
-      resource: 'folders',
-      action: 'create',
-      folder: 'crypto' as const,
-    },
-    {
-      key: 'process-update',
-      user: 'marcos' as const,
-      resource: 'processes',
-      action: 'update',
-      folder: 'zurichConflict' as const,
-    },
-    {
-      key: 'document-create',
-      user: 'patricia' as const,
-      resource: 'documents',
-      action: 'create',
-      folder: 'caixaMortgage' as const,
-    },
-    {
-      key: 'dashboard-read',
-      user: 'admin' as const,
-      resource: 'dashboard',
-      action: 'read',
-      folder: null,
-    },
-  ]
-
-  for (const fixture of auditFixtures) {
-    await AuditLog.updateOrCreate(
-      { session_id: `${LEGAL_DEMO_SEED_KEY}:${fixture.key}` },
-      {
-        user_id: access.userIds[fixture.user],
-        session_id: `${LEGAL_DEMO_SEED_KEY}:${fixture.key}`,
-        ip_address: '127.0.0.1',
-        user_agent: 'Benicio legal demo seeder',
-        resource: fixture.resource,
-        action: fixture.action,
-        context: 'tenant',
-        resource_id: fixture.folder ? folderIds[fixture.folder] : null,
-        method: null,
-        url: null,
-        request_data: null,
-        result: 'granted',
-        reason: 'Deterministic development fixture',
-        response_code: null,
-        metadata: seededMetadata({ tenant_id: access.tenantId }),
-      },
-      { client }
-    )
-  }
-
-  return auditFixtures.length
+  return legalDemoFavorites.length
 }
 
 /** Ports the useful legacy scenario into the canonical tenant-aware contracts. */
 export async function seedLegalDemo(client: QueryClientContract): Promise<LegalDemoSeedSummary> {
   assertFixtureContracts()
-  const access = await seedLegalDemoAccess(client)
 
   return withinSeedTransaction(client, async (trx) => {
+    const access = await seedLegalDemoAccess(trx)
     const { clientIds, folderIds } = await seedClientsAndFolders(trx, access)
     const { processIds, parties } = await seedProcesses(trx, access, clientIds, folderIds)
     await seedOperationalData(trx, access, folderIds, processIds)
     const activities = await seedTimeline(trx, access, folderIds, processIds)
     await seedDocuments(trx, access, folderIds, processIds)
     await seedCommunications(trx, access, folderIds)
-    const auditLogs = await seedFavoritesAndAudits(trx, access, folderIds)
+    const favorites = await seedFavorites(trx, access, folderIds)
+    const infrastructure = await seedLegalDemoInfrastructure(trx, access, clientIds, folderIds)
 
     return {
       tenantId: access.tenantId,
@@ -679,8 +631,8 @@ export async function seedLegalDemo(client: QueryClientContract): Promise<LegalD
       documents: legalDemoDocuments.length,
       messages: legalDemoMessages.length,
       notifications: legalDemoNotifications.length,
-      favorites: legalDemoFavorites.length,
-      auditLogs,
+      favorites,
+      ...infrastructure,
     }
   })
 }
