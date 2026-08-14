@@ -34,7 +34,10 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5432:5432
+          # 5433 on purpose: docker-compose.yml publishes Postgres there to dodge
+          # a host-level instance, and .env.test follows it. Publishing 5432 here
+          # would make CI the only environment where .env.test is wrong.
+          - 5433:5432
 
       redis:
         image: redis:7
