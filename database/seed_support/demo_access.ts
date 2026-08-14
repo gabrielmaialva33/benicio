@@ -94,19 +94,22 @@ export function seedDemoAccess<UserKey extends string>(
         .merge({ role: fixture.tenantRole })
 
       const desiredRoleIds = fixture.systemRoles.map((slug) => roleIds.get(slug)!)
-      const existingRoles = await trx
+      const managedRoleIds = [...roleIds.values()]
+
+      // Reconcile only the built-in roles managed by this fixture. Custom roles
+      // remain untouched, while stale demo assignments cannot survive a rerun.
+      await trx
         .from('user_roles')
         .where('user_id', user.id)
-        .whereIn('role_id', desiredRoleIds)
-        .select('role_id')
-      const existingRoleIds = new Set(existingRoles.map((row) => Number(row.role_id)))
-      const missingRoles = desiredRoleIds
-        .filter((roleId) => !existingRoleIds.has(roleId))
-        .map((roleId) => ({ user_id: user.id, role_id: roleId }))
+        .whereIn('role_id', managedRoleIds)
+        .whereNotIn('role_id', desiredRoleIds)
+        .delete()
 
-      if (missingRoles.length > 0) {
-        await trx.table('user_roles').multiInsert(missingRoles)
-      }
+      await trx
+        .table('user_roles')
+        .insert(desiredRoleIds.map((roleId) => ({ user_id: user.id, role_id: roleId })))
+        .onConflict(['user_id', 'role_id'])
+        .ignore()
     }
 
     return { tenantId: tenant.id, userIds }

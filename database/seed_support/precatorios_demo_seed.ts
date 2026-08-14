@@ -213,7 +213,10 @@ async function seedFoldersAndProcesses(
         name: entity.name,
         document: entity.document,
         person_type: 'company',
-        metadata: seededMetadata({ represented_client: true, client_id: clientIds[fixture.entity] }),
+        metadata: seededMetadata({
+          represented_client: true,
+          client_id: clientIds[fixture.entity],
+        }),
       },
       { client }
     )
@@ -242,9 +245,7 @@ async function seedDocuments(
         {
           tenant_id: access.tenantId,
           owner_id:
-            template.key === 'calculation'
-              ? access.userIds.manager
-              : access.userIds.assistant,
+            template.key === 'calculation' ? access.userIds.manager : access.userIds.assistant,
           client_name: `${fixture.code} - ${template.title}`,
           file_name: storedName,
           file_size: assets.get(template.file_name)!,
@@ -263,9 +264,7 @@ async function seedDocuments(
           process_id: processIds[fixture.code],
           file_id: file.id,
           created_by:
-            template.key === 'calculation'
-              ? access.userIds.manager
-              : access.userIds.assistant,
+            template.key === 'calculation' ? access.userIds.manager : access.userIds.assistant,
           document_type: template.document_type,
           title: template.title,
           description: template.description,

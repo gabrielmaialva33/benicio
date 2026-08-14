@@ -125,7 +125,10 @@ async function seedAuthTokens(
   client: QueryClientContract,
   access: LegalDemoAccessContext
 ): Promise<{ authTokens: number; sessionRefreshTokens: number }> {
-  const now = DateTime.now()
+  const now = DateTime.fromISO(LEGAL_DEMO_REFERENCE_DATE, { setZone: true })
+  if (!now.isValid) {
+    throw new Error(`Invalid legal demo reference date: ${now.invalidExplanation}`)
+  }
   let authTokens = 0
   let sessionRefreshTokens = 0
 
@@ -233,7 +236,11 @@ async function seedRateLimits(
   client: QueryClientContract,
   access: LegalDemoAccessContext
 ): Promise<number> {
-  const now = DateTime.now().toUnixInteger()
+  const reference = DateTime.fromISO(LEGAL_DEMO_REFERENCE_DATE, { setZone: true })
+  if (!reference.isValid) {
+    throw new Error(`Invalid legal demo reference date: ${reference.invalidExplanation}`)
+  }
+  const now = reference.toUnixInteger()
   for (const [key, points, ttl] of legalDemoRateLimits) {
     await client
       .table('rate_limits')
