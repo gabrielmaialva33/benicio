@@ -38,6 +38,9 @@ import {
   processPartySideLabels,
   processPhaseLabels,
 } from './process_formatters'
+import { useActiveSection } from '~/hooks/use_active_section'
+import { cn } from '~/lib/utils'
+
 import { ProcessStatusBadge } from './process_status_badge'
 
 interface ProcessDetailContentProps {
@@ -56,6 +59,22 @@ function Definition({ label, children }: { label: string; children: ReactNode })
   )
 }
 
+/**
+ * Declared once outside the component: the observer hook keys off this array,
+ * and a fresh literal each render would tear the observer down every time.
+ */
+const PROCESS_SECTIONS: Array<[string, string]> = [
+  ['processo', 'Processo'],
+  ['informacoes-gerais', 'Informações Gerais'],
+  ['agenda', 'Agenda'],
+  ['instancia', 'Instância'],
+  ['verbas', 'Verbas'],
+  ['partes', 'Partes'],
+  ['cliente', 'Cliente'],
+]
+
+const PROCESS_SECTION_IDS = PROCESS_SECTIONS.map(([id]) => id)
+
 function DetailPanel({
   id,
   icon: Icon,
@@ -72,7 +91,7 @@ function DetailPanel({
   return (
     <section
       id={id}
-      className={`scroll-mt-6 rounded-2xl border border-gray-100 bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)] ${className ?? ''}`}
+      className={`scroll-mt-24 rounded-2xl border border-gray-100 bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)] ${className ?? ''}`}
     >
       <header className="flex items-center gap-3 border-b border-gray-100 px-6 py-5">
         <Icon className="size-5 text-yol-cyan" />
@@ -95,6 +114,7 @@ export function ProcessDetailContent({
   errorMessage,
 }: ProcessDetailContentProps) {
   const processPath = `/folders/${folder.id}/processes/${process.id}`
+  const activeSection = useActiveSection(PROCESS_SECTION_IDS)
   const identifier = formatProcessIdentifier(process)
 
   return (
@@ -195,30 +215,36 @@ export function ProcessDetailContent({
 
       <nav
         aria-label="Seções do processo"
-        className="overflow-x-auto rounded-2xl border border-gray-100 bg-white px-2 shadow-[0_4px_4px_rgba(0,0,0,0.03)]"
+        className="sticky top-0 z-10 overflow-x-auto rounded-2xl border border-gray-100 bg-white px-2 shadow-[0_4px_4px_rgba(0,0,0,0.03)]"
       >
         <div className="flex min-w-max">
-          {[
-            ['processo', 'Processo'],
-            ['informacoes-gerais', 'Informações Gerais'],
-            ['agenda', 'Agenda'],
-            ['instancia', 'Instância'],
-            ['verbas', 'Verbas'],
-            ['partes', 'Partes'],
-            ['cliente', 'Cliente'],
-          ].map(([id, label], index) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              className={`border-b-2 px-4 py-4 text-sm font-semibold transition hover:text-yol-cyan ${
-                index === 0
-                  ? 'border-yol-cyan text-yol-cyan'
-                  : 'border-transparent text-slate-500 hover:border-slate-200'
-              }`}
-            >
-              {label}
-            </a>
-          ))}
+          {PROCESS_SECTIONS.map(([id, label]) => {
+            const active = activeSection === id
+            return (
+              <a
+                key={id}
+                href={`#${id}`}
+                aria-current={active ? 'true' : undefined}
+                onClick={(event) => {
+                  // Native anchor jumping lands the heading under the sticky
+                  // strip; scroll-margin plus a smooth scroll keeps it visible.
+                  event.preventDefault()
+                  document
+                    .getElementById(id)
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  history.replaceState(null, '', `#${id}`)
+                }}
+                className={cn(
+                  'border-b-2 px-4 py-4 text-sm font-semibold transition hover:text-yol-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yol-cyan/40',
+                  active
+                    ? 'border-yol-cyan text-yol-cyan'
+                    : 'border-transparent text-slate-500 hover:border-slate-200'
+                )}
+              >
+                {label}
+              </a>
+            )
+          })}
         </div>
       </nav>
 
