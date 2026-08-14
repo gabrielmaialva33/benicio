@@ -5,7 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { X } from 'lucide-react'
 import { cn } from '~/utils/cn'
 import { Button } from './button'
-import { AnimatePresence, motion, type HTMLMotionProps } from 'framer-motion'
+import { AnimatePresence, type HTMLMotionProps, motion } from 'framer-motion'
 import { Slot as SlotPrimitive } from 'radix-ui'
 
 const drawerVariants = cva('fixed z-50 bg-background shadow-xl transition-transform', {

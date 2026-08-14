@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react'
-import { useDropzone, type FileRejection } from 'react-dropzone'
+import { type FileRejection, useDropzone } from 'react-dropzone'
 import { CloudUpload, File as FileIcon, Loader2, X } from 'lucide-react'
 
 import { Button } from '~/components/ui/button'
-import { Alert, AlertIcon, AlertTitle, AlertContent, AlertDescription } from '~/components/ui/alert'
+import { Alert, AlertContent, AlertDescription, AlertIcon, AlertTitle } from '~/components/ui/alert'
 import { cn } from '~/lib/utils'
 import { useApi } from '~/hooks/use_api'
 import type { FileUploadResponse } from '~/types'

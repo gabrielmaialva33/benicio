@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
-  ShellDataError,
   getFavoriteFolders,
   getMessageFeed,
   getNotificationFeed,
   markAllMessagesRead,
   markNotificationRead,
+  ShellDataError,
 } from '~/services/shell_data'
 
 function jsonResponse(payload: unknown, status = 200) {

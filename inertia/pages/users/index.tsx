@@ -2,10 +2,10 @@ import { Head, Link, router } from '@inertiajs/react'
 import { useMemo, useState } from 'react'
 import {
   createColumnHelper,
-  useTable,
   type OnChangeFn,
   type PaginationState,
   type SortingState,
+  useTable,
 } from '@tanstack/react-table'
 import { Edit, MoreVertical, Plus, Search, Trash2 } from 'lucide-react'
 

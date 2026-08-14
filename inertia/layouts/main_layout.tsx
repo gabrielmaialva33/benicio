@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react'
-import { useState, type ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { FloatingChat } from '~/components/chat/floating_chat'
 import { useShellRealtime } from '~/hooks/use_shell_realtime'
 import { Header } from './main/components/header'

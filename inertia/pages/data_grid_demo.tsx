@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Head } from '@inertiajs/react'
-import { createColumnHelper, useTable, type ColumnOrderState } from '@tanstack/react-table'
+import { type ColumnOrderState, createColumnHelper, useTable } from '@tanstack/react-table'
 import { arrayMove } from '@dnd-kit/sortable'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { Settings2 } from 'lucide-react'

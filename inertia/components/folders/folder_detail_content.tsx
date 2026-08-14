@@ -13,7 +13,7 @@ import {
   Search,
   UserRound,
 } from 'lucide-react'
-import { useMemo, useState, type ReactNode } from 'react'
+import { type ReactNode, useMemo, useState } from 'react'
 
 import { Button } from '~/components/ui/button'
 import { APP_TIME_ZONE } from '~/lib/date'

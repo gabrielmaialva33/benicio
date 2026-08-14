@@ -6,10 +6,10 @@ import {
   CircleAlert,
   Gavel,
   ListTodo,
+  type LucideIcon,
   MessageSquare,
   Settings,
   TriangleAlert,
-  type LucideIcon,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
