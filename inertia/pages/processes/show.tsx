@@ -2,7 +2,6 @@ import { Head } from '@inertiajs/react'
 
 import { ProcessDetailContent } from '~/components/processes/process_detail_content'
 import { formatProcessIdentifier } from '~/components/processes/process_formatters'
-import { useFlash } from '~/hooks/use_flash'
 import { MainLayout } from '~/layouts'
 import type { ProcessFolder, ProcessItem } from '~/types/process'
 
@@ -13,17 +12,10 @@ export default function ProcessDetailPage({
   folder: ProcessFolder
   process: ProcessItem
 }) {
-  const flash = useFlash()
-
   return (
     <MainLayout>
       <Head title={formatProcessIdentifier(process)} />
-      <ProcessDetailContent
-        folder={folder}
-        process={process}
-        successMessage={flash?.success}
-        errorMessage={flash?.error}
-      />
+      <ProcessDetailContent folder={folder} process={process} />
     </MainLayout>
   )
 }

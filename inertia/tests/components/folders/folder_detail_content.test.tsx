@@ -119,7 +119,6 @@ describe('FolderDetailContent', () => {
         processes={processes}
         deadlines={deadlines}
         activities={activities}
-        successMessage="Pasta criada com sucesso."
       />
     )
 
@@ -129,7 +128,6 @@ describe('FolderDetailContent', () => {
     expect(screen.getByText('PROC-0010')).toBeInTheDocument()
     expect(screen.getByText('Protocolar manifestação')).toBeInTheDocument()
     expect(screen.getByText('Processo cadastrado')).toBeInTheDocument()
-    expect(screen.getByText('Pasta criada com sucesso.')).toBeInTheDocument()
   })
 
   it('shows honest empty states when the folder has no related records', () => {

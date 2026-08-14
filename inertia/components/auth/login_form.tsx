@@ -1,31 +1,23 @@
 import { Link, useForm } from '@inertiajs/react'
 import type { FormEvent } from 'react'
 
-import { useFlash } from '~/hooks/use_flash'
-
 export function LoginForm() {
   const { data, setData, post, processing, errors } = useForm({
     uid: '',
     password: '',
   })
-  const flash = useFlash()
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     post('/login')
   }
 
+  /*
+   * Flash feedback (e.g. "password reset, sign in again") is raised as a toast
+   * by `AuthSplitLayout`, so the form itself only owns field-level errors.
+   */
   return (
     <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5" noValidate>
-      {flash?.success && (
-        <p
-          role="status"
-          className="rounded-md bg-emerald-50 px-3 py-3 text-sm leading-5 text-emerald-800"
-        >
-          {flash.success}
-        </p>
-      )}
-
       <div>
         <label htmlFor="uid" className="sr-only">
           E-mail

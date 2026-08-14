@@ -57,11 +57,7 @@ const folders: ClientFolder[] = [
 describe('ClientDetailContent', () => {
   it('renders the persisted client aggregate and its navigation', () => {
     render(
-      <ClientDetailContent
-        client={client}
-        folders={folders}
-        successMessage="Cliente cadastrado com sucesso."
-      />
+      <ClientDetailContent client={client} folders={folders} />
     )
 
     expect(screen.getByText(client.name)).toBeInTheDocument()
@@ -79,7 +75,6 @@ describe('ClientDetailContent', () => {
       'href',
       `/folders/create?client_id=${client.id}`
     )
-    expect(screen.getByText('Cliente cadastrado com sucesso.')).toBeInTheDocument()
   })
 
   it('shows honest fallbacks when optional client data is absent', () => {

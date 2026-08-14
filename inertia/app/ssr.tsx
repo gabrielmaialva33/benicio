@@ -4,6 +4,7 @@ import type { RenderInertiaSsrApp } from '@adonisjs/inertia/types'
 
 import { ThemeProvider } from '~/providers/theme_provider'
 import { QueryProvider } from '~/providers/query_provider'
+import { Toaster } from '~/components/ui/sonner'
 
 /**
  * Inertia's own page shape, pulled from `createInertiaApp` so we don't have to
@@ -38,6 +39,8 @@ const render: RenderInertiaSsrApp = (page) => {
       >
         <QueryProvider>
           <App {...props} />
+          {/* Must mirror `app.tsx` exactly, otherwise hydration diverges. */}
+          <Toaster position="top-right" theme="light" closeButton />
         </QueryProvider>
       </ThemeProvider>
     ),

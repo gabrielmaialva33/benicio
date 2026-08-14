@@ -15,7 +15,6 @@ import {
 
 import { Button } from '~/components/ui/button'
 import { NativeSelect } from '~/components/ui/native-select'
-import { useFlash } from '~/hooks/use_flash'
 import { MainLayout } from '~/layouts'
 import { cn } from '~/lib/utils'
 
@@ -157,7 +156,6 @@ export default function NotificationsPage({
   unread_count: unreadCount,
   available_types: availableTypes,
 }: NotificationsPageProps) {
-  const flash = useFlash()
 
   const visit = (overrides: Record<string, string | number | undefined>) => {
     const query: Record<string, string | number> = { page: 1 }
@@ -174,13 +172,6 @@ export default function NotificationsPage({
       <Head title="Notificações" />
 
       <div className="space-y-4">
-        {flash?.success && (
-          <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-            <CheckCircle2 className="size-4" aria-hidden="true" />
-            {flash.success}
-          </div>
-        )}
-
         <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-4">
             <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1">

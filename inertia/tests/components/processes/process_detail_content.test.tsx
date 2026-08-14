@@ -74,11 +74,7 @@ const process: ProcessItem = {
 describe('ProcessDetailContent', () => {
   it('renders the complete persisted process aggregate', () => {
     render(
-      <ProcessDetailContent
-        folder={folder}
-        process={process}
-        successMessage="Processo cadastrado com sucesso."
-      />
+      <ProcessDetailContent folder={folder} process={process} />
     )
 
     expect(screen.getByRole('heading', { name: '5144506-05.2026.8.09.0112' })).toBeInTheDocument()
@@ -88,7 +84,6 @@ describe('ProcessDetailContent', () => {
     expect(screen.getByText(/25\.000,50/)).toBeInTheDocument()
     expect(screen.getAllByText(process.parties[0].name)).toHaveLength(2)
     expect(screen.getByText(process.observation!)).toBeInTheDocument()
-    expect(screen.getByText('Processo cadastrado com sucesso.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Editar' })).toHaveAttribute(
       'href',
       `/folders/${folder.id}/processes/${process.id}/edit`

@@ -1,7 +1,6 @@
 import { Head } from '@inertiajs/react'
 
 import { ChatShell } from '~/components/chat/chat_shell'
-import { useFlash } from '~/hooks/use_flash'
 import { MainLayout } from '~/layouts'
 import type { AiConversation } from '~/types/ai'
 
@@ -12,8 +11,6 @@ interface ChatPageProps {
 }
 
 export default function ChatPage(props: ChatPageProps) {
-  const flash = useFlash()
-
   return (
     <MainLayout>
       <Head title={props.conversation?.title ?? 'Assistente IA'} />
@@ -21,8 +18,6 @@ export default function ChatPage(props: ChatPageProps) {
         conversations={props.conversations}
         conversation={props.conversation}
         aiAvailable={props.ai_available}
-        successMessage={flash?.success}
-        errorMessage={flash?.error}
       />
     </MainLayout>
   )

@@ -1,30 +1,19 @@
 import { Link, useForm } from '@inertiajs/react'
 import type { FormEvent } from 'react'
 
-import { useFlash } from '~/hooks/use_flash'
-
 export function ForgotPasswordForm() {
   const { data, setData, post, processing, errors } = useForm({
     email: '',
   })
-  const flash = useFlash()
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     post('/forgot-password')
   }
 
+  /* The "reset link sent" confirmation is toasted by `AuthSplitLayout`. */
   return (
     <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5" noValidate>
-      {flash?.success && (
-        <p
-          role="status"
-          className="rounded-md bg-emerald-50 px-3 py-3 text-sm leading-5 text-emerald-800"
-        >
-          {flash.success}
-        </p>
-      )}
-
       <div>
         <label htmlFor="email" className="sr-only">
           E-mail

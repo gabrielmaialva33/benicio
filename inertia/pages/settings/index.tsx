@@ -9,7 +9,6 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { useAuth } from '~/hooks/use_auth'
-import { useFlash } from '~/hooks/use_flash'
 
 interface SettingsProfile {
   id: number
@@ -23,7 +22,6 @@ interface SettingsPageProps {
 }
 
 function ProfileTab({ profile }: { profile: SettingsProfile }) {
-  const flash = useFlash()
   const { data, setData, post, processing, errors } = useForm({
     full_name: profile.full_name,
     username: profile.username ?? '',
@@ -44,12 +42,6 @@ function ProfileTab({ profile }: { profile: SettingsProfile }) {
       </CardHeader>
       <CardContent>
         <form onSubmit={submit} className="max-w-2xl space-y-6">
-          {flash?.success && (
-            <div className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success">
-              {flash.success}
-            </div>
-          )}
-
           <div className="space-y-2">
             <Label htmlFor="full_name">Nome completo</Label>
             <Input

@@ -1,8 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react'
 import {
-  AlertTriangle,
   Building2,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -18,7 +16,6 @@ import { useState } from 'react'
 import { ClientList, formatClientDocument } from '~/components/clients/client_list'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
-import { useFlash } from '~/hooks/use_flash'
 import { NativeSelect } from '~/components/ui/native-select'
 import { MainLayout } from '~/layouts'
 import type {
@@ -92,7 +89,6 @@ function StatCard({
 }
 
 export default function ClientsPage({ clients, filters, stats }: ClientsPageProps) {
-  const flash = useFlash()
   const [search, setSearch] = useState(filters.search)
   const [personType, setPersonType] = useState<ClientPersonType | ''>(filters.person_type ?? '')
 
@@ -146,18 +142,6 @@ export default function ClientsPage({ clients, filters, stats }: ClientsPageProp
     <MainLayout>
       <Head title="Clientes" />
       <div className="space-y-6" data-testid="clients-index">
-        {flash?.success && (
-          <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-            <CheckCircle2 className="size-4" />
-            {flash.success}
-          </div>
-        )}
-        {flash?.error && (
-          <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            <AlertTriangle className="size-4" />
-            {flash.error}
-          </div>
-        )}
         <div className="flex flex-wrap justify-end gap-2">
           <Button
             type="button"

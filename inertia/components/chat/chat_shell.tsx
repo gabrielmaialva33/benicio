@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react'
-import { AlertTriangle, CheckCircle2, MessageSquare, ShieldAlert, Trash2 } from 'lucide-react'
+import { AlertTriangle, MessageSquare, ShieldAlert, Trash2 } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 
 import {
@@ -24,17 +24,9 @@ interface ChatShellProps {
   conversations: AiConversation[]
   conversation: AiConversation | null
   aiAvailable: boolean
-  successMessage?: string | null
-  errorMessage?: string | null
 }
 
-export function ChatShell({
-  conversations,
-  conversation,
-  aiAvailable,
-  successMessage,
-  errorMessage,
-}: ChatShellProps) {
+export function ChatShell({ conversations, conversation, aiAvailable }: ChatShellProps) {
   const chat = useAiChat(conversation, aiAvailable)
   const messagesEnd = useRef<HTMLDivElement>(null)
   const busy = chat.isStreaming || conversation?.status === 'generating'
@@ -45,19 +37,6 @@ export function ChatShell({
 
   return (
     <div className="flex h-full min-h-0 flex-col" data-testid="chat-page">
-      {successMessage && (
-        <div className="flex items-center gap-2 border-b border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-          <CheckCircle2 className="size-4" />
-          {successMessage}
-        </div>
-      )}
-      {errorMessage && (
-        <div className="flex items-center gap-2 border-b border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-          <AlertTriangle className="size-4" />
-          {errorMessage}
-        </div>
-      )}
-
       <section className="flex min-h-0 flex-1 overflow-hidden bg-white">
         <div className="flex min-h-0 w-full flex-col lg:flex-row">
           <ConversationSidebar

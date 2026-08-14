@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 
+import { useFlashToast } from '~/hooks/use_flash_toast'
+
 interface AuthSplitLayoutProps {
   title: string
   subtitle?: string
@@ -8,6 +10,8 @@ interface AuthSplitLayoutProps {
 }
 
 export function AuthSplitLayout({ title, subtitle, children, footer }: AuthSplitLayoutProps) {
+  useFlashToast()
+
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#373737]">
       <div className="absolute -left-80 top-60 hidden size-[1136px] rounded-full border-[15px] border-orange-500/50 shadow-[0_4px_94.6px_13px_#0F172A] md:block" />

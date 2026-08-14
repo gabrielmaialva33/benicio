@@ -6,6 +6,7 @@ import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
 import { ThemeProvider } from '~/providers/theme_provider'
 import { QueryProvider } from '~/providers/query_provider'
+import { Toaster } from '~/components/ui/sonner'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Benício'
 
@@ -38,6 +39,12 @@ createInertiaApp({
       >
         <QueryProvider>
           <App {...props} />
+          {/*
+            `theme` is pinned rather than read from next-themes: the server
+            renders before a theme is resolved, and letting it default to
+            "system" produced a different class list on hydration.
+          */}
+          <Toaster position="top-right" theme="light" closeButton />
         </QueryProvider>
       </ThemeProvider>
     )

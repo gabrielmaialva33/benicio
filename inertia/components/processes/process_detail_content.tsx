@@ -1,9 +1,7 @@
 import { Link, router } from '@inertiajs/react'
 import {
-  AlertTriangle,
   ArrowLeft,
   CalendarDays,
-  CheckCircle2,
   CircleDollarSign,
   Edit3,
   FileSearch,
@@ -46,8 +44,6 @@ import { ProcessStatusBadge } from './process_status_badge'
 interface ProcessDetailContentProps {
   folder: ProcessFolder
   process: ProcessItem
-  successMessage?: string | null
-  errorMessage?: string | null
 }
 
 function Definition({ label, children }: { label: string; children: ReactNode }) {
@@ -107,31 +103,13 @@ function yesNo(value: boolean | null) {
   return value ? 'Sim' : 'Não'
 }
 
-export function ProcessDetailContent({
-  folder,
-  process,
-  successMessage,
-  errorMessage,
-}: ProcessDetailContentProps) {
+export function ProcessDetailContent({ folder, process }: ProcessDetailContentProps) {
   const processPath = `/folders/${folder.id}/processes/${process.id}`
   const activeSection = useActiveSection(PROCESS_SECTION_IDS)
   const identifier = formatProcessIdentifier(process)
 
   return (
     <div className="space-y-6" data-testid="process-detail">
-      {successMessage && (
-        <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-          <CheckCircle2 className="size-4" />
-          {successMessage}
-        </div>
-      )}
-      {errorMessage && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-          <AlertTriangle className="size-4" />
-          {errorMessage}
-        </div>
-      )}
-
       <section
         id="processo"
         className="scroll-mt-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_4px_4px_rgba(0,0,0,0.03)] sm:p-8"

@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react'
 import { type ReactNode, useState } from 'react'
 import { FloatingChat } from '~/components/chat/floating_chat'
+import { useFlashToast } from '~/hooks/use_flash_toast'
 import { useShellRealtime } from '~/hooks/use_shell_realtime'
 import { Header } from './main/components/header'
 import { Sidebar } from './main/components/sidebar'
@@ -11,6 +12,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   useShellRealtime()
+  useFlashToast()
   const [collapsed, setCollapsed] = useState(false)
   const { url } = usePage()
   const isChatPage = (url.split('?', 1)[0] ?? '').startsWith('/chat')
