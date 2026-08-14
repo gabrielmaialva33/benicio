@@ -1,44 +1,4 @@
-import type {
-  ProcessDistributionType,
-  ProcessInstance,
-  ProcessPartySide,
-  ProcessPhase,
-  ProcessStatus,
-} from '~/types/process'
 import { APP_TIME_ZONE } from '~/lib/date'
-
-export const processStatusLabels: Record<ProcessStatus, string> = {
-  active: 'Ativo',
-  suspended: 'Suspenso',
-  archived: 'Arquivado',
-  closed: 'Encerrado',
-}
-
-export const processInstanceLabels: Record<ProcessInstance, string> = {
-  first: '1ª instância',
-  second: '2ª instância',
-  superior: 'Tribunal superior',
-}
-
-export const processPhaseLabels: Record<ProcessPhase, string> = {
-  knowledge: 'Conhecimento',
-  execution: 'Execução',
-  appeal: 'Recurso',
-  sentence_compliance: 'Cumprimento de sentença',
-}
-
-export const processDistributionLabels: Record<ProcessDistributionType, string> = {
-  lottery: 'Sorteio',
-  dependency: 'Dependência',
-  prevention: 'Prevenção',
-}
-
-export const processPartySideLabels: Record<ProcessPartySide, string> = {
-  active: 'Polo ativo',
-  passive: 'Polo passivo',
-  third: 'Terceiro',
-  other: 'Outro',
-}
 
 export function formatCnj(value: string | null) {
   if (!value) return null

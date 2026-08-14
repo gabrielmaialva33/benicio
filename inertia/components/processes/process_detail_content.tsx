@@ -9,34 +9,25 @@ import {
   MapPin,
   Scale,
   Star,
-  Trash2,
   UsersRound,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '~/components/ui/alert-dialog'
+import { DeleteDialog } from '~/components/shared/delete_dialog'
 import { Button } from '~/components/ui/button'
 import type { ProcessFolder, ProcessItem } from '~/types/process'
 import {
   formatProcessCurrency,
   formatProcessDate,
   formatProcessIdentifier,
-  processDistributionLabels,
-  processInstanceLabels,
-  processPartySideLabels,
-  processPhaseLabels,
 } from './process_formatters'
 import { useActiveSection } from '~/hooks/use_active_section'
+import {
+  PROCESS_DISTRIBUTION_LABELS,
+  PROCESS_INSTANCE_LABELS,
+  PROCESS_PARTY_SIDE_LABELS,
+  PROCESS_PHASE_LABELS,
+} from '~/lib/labels'
 import { cn } from '~/lib/utils'
 
 import { ProcessStatusBadge } from './process_status_badge'
@@ -157,36 +148,13 @@ export function ProcessDetailContent({ folder, process }: ProcessDetailContentPr
                 Editar
               </Link>
             </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="destructive"
-                  mode="icon"
-                  aria-label="Excluir processo"
-                  className="size-10 shrink-0"
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Excluir este processo?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    O registro será removido da pasta, preservando o histórico relacionado para
-                    auditoria.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction
-                    variant="destructive"
-                    onClick={() => router.delete(processPath)}
-                  >
-                    Excluir processo
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <DeleteDialog
+              url={processPath}
+              title="Excluir este processo?"
+              description="O registro será removido da pasta, preservando o histórico relacionado para auditoria."
+              confirmLabel="Excluir processo"
+              triggerLabel="Excluir processo"
+            />
           </div>
         </div>
       </section>
@@ -244,14 +212,14 @@ export function ProcessDetailContent({ folder, process }: ProcessDetailContentPr
                 {process.internal_code ?? 'Não informado'}
               </Definition>
               <Definition label="Instância">
-                {process.instance ? processInstanceLabels[process.instance] : 'Não informada'}
+                {process.instance ? PROCESS_INSTANCE_LABELS[process.instance] : 'Não informada'}
               </Definition>
               <Definition label="Fase">
-                {process.phase ? processPhaseLabels[process.phase] : 'Não informada'}
+                {process.phase ? PROCESS_PHASE_LABELS[process.phase] : 'Não informada'}
               </Definition>
               <Definition label="Distribuição">
                 {process.distribution_type
-                  ? processDistributionLabels[process.distribution_type]
+                  ? PROCESS_DISTRIBUTION_LABELS[process.distribution_type]
                   : 'Não informada'}
               </Definition>
               <Definition label="Natureza">{process.nature ?? 'Não informada'}</Definition>
@@ -300,7 +268,7 @@ export function ProcessDetailContent({ folder, process }: ProcessDetailContentPr
                       </p>
                     </div>
                     <span className="self-start rounded-full bg-cyan-50 px-2.5 py-1 text-xs font-bold text-cyan-700">
-                      {processPartySideLabels[party.side]}
+                      {PROCESS_PARTY_SIDE_LABELS[party.side]}
                     </span>
                   </article>
                 ))}
