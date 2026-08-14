@@ -101,7 +101,11 @@ export function ClientForm({ client }: { client?: ClientItem }) {
             </p>
           </div>
           <span className="flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
-            {form.data.person_type === 'company' ? <Building2 className="size-5" /> : <UserRound className="size-5" />}
+            {form.data.person_type === 'company' ? (
+              <Building2 className="size-5" />
+            ) : (
+              <UserRound className="size-5" />
+            )}
           </span>
         </CardHeader>
         <CardContent className="grid gap-5 pt-6 md:grid-cols-2 xl:grid-cols-3">
@@ -111,7 +115,9 @@ export function ClientForm({ client }: { client?: ClientItem }) {
               id="person_type"
               name="person_type"
               value={form.data.person_type}
-              onChange={(event) => form.setData('person_type', event.target.value as ClientPersonType)}
+              onChange={(event) =>
+                form.setData('person_type', event.target.value as ClientPersonType)
+              }
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
             >
               <option value="individual">Pessoa física</option>
@@ -167,19 +173,78 @@ export function ClientForm({ client }: { client?: ClientItem }) {
         <CardHeader className="min-h-16 bg-slate-50/60 dark:bg-white/[0.025]">
           <div>
             <CardTitle>Endereço</CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">Opcional, mas útil para contratos e documentos.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Opcional, mas útil para contratos e documentos.
+            </p>
           </div>
           <MapPin className="size-5 text-slate-400" />
         </CardHeader>
         <CardContent className="grid gap-5 pt-6 md:grid-cols-2 xl:grid-cols-4">
-          <Field label="CEP" name="address.postal_code" value={form.data.address.postal_code} onChange={(event) => updateAddress('postal_code', event.target.value)} error={errors['address.postal_code']} maxLength={20} />
-          <Field label="Rua" name="address.street" value={form.data.address.street} onChange={(event) => updateAddress('street', event.target.value)} error={errors['address.street']} maxLength={255} className="xl:col-span-2" />
-          <Field label="Número" name="address.number" value={form.data.address.number} onChange={(event) => updateAddress('number', event.target.value)} error={errors['address.number']} maxLength={40} />
-          <Field label="Complemento" name="address.complement" value={form.data.address.complement} onChange={(event) => updateAddress('complement', event.target.value)} error={errors['address.complement']} maxLength={120} />
-          <Field label="Bairro" name="address.neighborhood" value={form.data.address.neighborhood} onChange={(event) => updateAddress('neighborhood', event.target.value)} error={errors['address.neighborhood']} maxLength={120} />
-          <Field label="Cidade" name="address.city" value={form.data.address.city} onChange={(event) => updateAddress('city', event.target.value)} error={errors['address.city']} maxLength={120} />
-          <Field label="Estado" name="address.state" value={form.data.address.state} onChange={(event) => updateAddress('state', event.target.value.toUpperCase())} error={errors['address.state']} maxLength={80} />
-          <Field label="País" name="address.country" value={form.data.address.country} onChange={(event) => updateAddress('country', event.target.value.toUpperCase())} error={errors['address.country']} maxLength={80} />
+          <Field
+            label="CEP"
+            name="address.postal_code"
+            value={form.data.address.postal_code}
+            onChange={(event) => updateAddress('postal_code', event.target.value)}
+            error={errors['address.postal_code']}
+            maxLength={20}
+          />
+          <Field
+            label="Rua"
+            name="address.street"
+            value={form.data.address.street}
+            onChange={(event) => updateAddress('street', event.target.value)}
+            error={errors['address.street']}
+            maxLength={255}
+            className="xl:col-span-2"
+          />
+          <Field
+            label="Número"
+            name="address.number"
+            value={form.data.address.number}
+            onChange={(event) => updateAddress('number', event.target.value)}
+            error={errors['address.number']}
+            maxLength={40}
+          />
+          <Field
+            label="Complemento"
+            name="address.complement"
+            value={form.data.address.complement}
+            onChange={(event) => updateAddress('complement', event.target.value)}
+            error={errors['address.complement']}
+            maxLength={120}
+          />
+          <Field
+            label="Bairro"
+            name="address.neighborhood"
+            value={form.data.address.neighborhood}
+            onChange={(event) => updateAddress('neighborhood', event.target.value)}
+            error={errors['address.neighborhood']}
+            maxLength={120}
+          />
+          <Field
+            label="Cidade"
+            name="address.city"
+            value={form.data.address.city}
+            onChange={(event) => updateAddress('city', event.target.value)}
+            error={errors['address.city']}
+            maxLength={120}
+          />
+          <Field
+            label="Estado"
+            name="address.state"
+            value={form.data.address.state}
+            onChange={(event) => updateAddress('state', event.target.value.toUpperCase())}
+            error={errors['address.state']}
+            maxLength={80}
+          />
+          <Field
+            label="País"
+            name="address.country"
+            value={form.data.address.country}
+            onChange={(event) => updateAddress('country', event.target.value.toUpperCase())}
+            error={errors['address.country']}
+            maxLength={80}
+          />
         </CardContent>
       </Card>
 
@@ -189,7 +254,9 @@ export function ClientForm({ client }: { client?: ClientItem }) {
           <StickyNote className="size-5 text-slate-400" />
         </CardHeader>
         <CardContent className="pt-6">
-          <Label htmlFor="notes" className="sr-only">Observações internas</Label>
+          <Label htmlFor="notes" className="sr-only">
+            Observações internas
+          </Label>
           <Textarea
             id="notes"
             name="notes"
@@ -209,7 +276,11 @@ export function ClientForm({ client }: { client?: ClientItem }) {
               Cancelar
             </Link>
           </Button>
-          <Button type="submit" disabled={form.processing} className="bg-[#f97316] text-white hover:bg-[#ea680c]">
+          <Button
+            type="submit"
+            disabled={form.processing}
+            className="bg-[#f97316] text-white hover:bg-[#ea680c]"
+          >
             <Save className="size-4" />
             {form.processing ? 'Salvando...' : editing ? 'Salvar alterações' : 'Cadastrar cliente'}
           </Button>

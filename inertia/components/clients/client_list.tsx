@@ -169,12 +169,17 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
                   {...{ sortBy, direction, onSort }}
                 />
               </th>
-              <th className="px-5 py-3.5"><span className="sr-only">Abrir</span></th>
+              <th className="px-5 py-3.5">
+                <span className="sr-only">Abrir</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-white/10">
             {clients.map((client) => (
-              <tr key={client.id} className="group transition hover:bg-orange-50/30 dark:hover:bg-white/[0.025]">
+              <tr
+                key={client.id}
+                className="group transition hover:bg-orange-50/30 dark:hover:bg-white/[0.025]"
+              >
                 <td className="px-5 py-4">
                   <Link href={`/clients/${client.id}`} className="flex min-w-0 items-center gap-3">
                     <Avatar className="size-10 shrink-0 rounded-xl">
@@ -192,7 +197,9 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
                     </span>
                   </Link>
                 </td>
-                <td className="px-5 py-4"><ClientPersonBadge personType={client.person_type} /></td>
+                <td className="px-5 py-4">
+                  <ClientPersonBadge personType={client.person_type} />
+                </td>
                 <td className="px-5 py-4">
                   <div className="min-w-0 space-y-1 text-xs text-slate-500">
                     <span className="block max-w-56 truncate font-medium text-slate-700 dark:text-slate-200">
@@ -214,7 +221,12 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
                   {formatDate(client.created_at)}
                 </td>
                 <td className="px-5 py-4 text-right">
-                  <Button variant="ghost" mode="icon" asChild aria-label={`Abrir cliente ${client.name}`}>
+                  <Button
+                    variant="ghost"
+                    mode="icon"
+                    asChild
+                    aria-label={`Abrir cliente ${client.name}`}
+                  >
                     <Link href={`/clients/${client.id}`}>
                       <ArrowRight className="size-4 transition group-hover:translate-x-0.5 group-hover:text-[#f97316]" />
                     </Link>

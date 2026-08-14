@@ -1,9 +1,6 @@
 import { inject } from '@adonisjs/core'
 
-import type {
-  ClientAddress,
-  ClientListInput,
-} from '#modules/clients/interfaces/client_interface'
+import type { ClientAddress, ClientListInput } from '#modules/clients/interfaces/client_interface'
 import type Client from '#modules/clients/models/client'
 import ClientReadRepository from '#modules/clients/repositories/client_read_repository'
 import ClientService from '#modules/clients/services/client_service'
