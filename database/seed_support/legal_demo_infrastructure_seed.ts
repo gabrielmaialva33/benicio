@@ -226,10 +226,16 @@ async function seedStandaloneFiles(
 }
 
 function resolveRateLimitKey(key: string, access: LegalDemoAccessContext): string {
-  return key
-    .replace(':user:1', `:user:${access.userIds.admin}`)
-    .replace(':user:2', `:user:${access.userIds.andre}`)
-    .replace(':user:3', `:user:${access.userIds.marcos}`)
+  const fixtureUserBySlot = {
+    '1': 'admin',
+    '2': 'andre',
+    '3': 'marcos',
+  } as const
+  const match = key.match(/:user:([123])/)
+  if (!match) return key
+
+  const slot = match[1] as keyof typeof fixtureUserBySlot
+  return key.replace(`:user:${slot}`, `:user:${access.userIds[fixtureUserBySlot[slot]]}`)
 }
 
 async function seedRateLimits(

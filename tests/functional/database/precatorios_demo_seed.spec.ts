@@ -51,14 +51,12 @@ const MANAGED_TABLES = [
 ] as const
 
 async function snapshotRowCounts(client: QueryClientContract): Promise<Record<string, number>> {
-  return Object.fromEntries(
-    await Promise.all(
-      MANAGED_TABLES.map(async (table) => {
-        const row = await client.from(table).count('* as total').first()
-        return [table, Number(row?.total ?? 0)] as const
-      })
-    )
-  )
+  const counts: Record<string, number> = {}
+  for (const table of MANAGED_TABLES) {
+    const row = await client.from(table).count('* as total').first()
+    counts[table] = Number(row?.total ?? 0)
+  }
+  return counts
 }
 
 test.group('Precatórios demo database seed', (group) => {

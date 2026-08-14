@@ -85,20 +85,23 @@ async function countRows(
 }
 
 async function snapshotRowCounts(client: QueryClientContract): Promise<Record<string, number>> {
-  return Object.fromEntries(
-    await Promise.all(
-      MANAGED_TABLES.map(async (table) => [table, await countRows(client, table)] as const)
-    )
-  )
+  const counts: Record<string, number> = {}
+  for (const table of MANAGED_TABLES) counts[table] = await countRows(client, table)
+  return counts
 }
 
 function resolvedRateLimitKeys(userIds: Record<string, number>): string[] {
-  return legalDemoRateLimits.map(([key]) =>
-    key
-      .replace(':user:1', `:user:${userIds.admin}`)
-      .replace(':user:2', `:user:${userIds.andre}`)
-      .replace(':user:3', `:user:${userIds.marcos}`)
-  )
+  const userIdBySlot = {
+    '1': userIds.admin,
+    '2': userIds.andre,
+    '3': userIds.marcos,
+  }
+  return legalDemoRateLimits.map(([key]) => {
+    const match = key.match(/:user:([123])/)
+    if (!match) return key
+    const slot = match[1] as keyof typeof userIdBySlot
+    return key.replace(`:user:${slot}`, `:user:${userIdBySlot[slot]}`)
+  })
 }
 
 test.group('Legal demo database seed', (group) => {
