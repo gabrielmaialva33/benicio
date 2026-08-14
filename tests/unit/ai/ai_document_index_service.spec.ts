@@ -1,11 +1,11 @@
 import { test } from '@japa/runner'
 
 import type { AiDocumentSource } from '#modules/ai/interfaces/ai_interface'
-import NvidiaRetrievalProvider from '#modules/ai/providers/nvidia_retrieval_provider'
-import AiKnowledgeRepository from '#modules/ai/repositories/ai_knowledge_repository'
-import AiVectorRepository from '#modules/ai/repositories/ai_vector_repository'
+import type NvidiaRetrievalProvider from '#modules/ai/providers/nvidia_retrieval_provider'
+import type AiKnowledgeRepository from '#modules/ai/repositories/ai_knowledge_repository'
+import type AiVectorRepository from '#modules/ai/repositories/ai_vector_repository'
 import AiDocumentIndexService from '#modules/ai/services/ai_document_index_service'
-import DocumentContentService from '#modules/ai/services/document_content_service'
+import type DocumentContentService from '#modules/ai/services/document_content_service'
 
 const source: AiDocumentSource = {
   id: 41,
