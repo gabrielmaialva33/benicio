@@ -17,7 +17,11 @@ export default class FolderFavoriteRepository {
   }
 
   findFolder(tenantId: number, folderId: number) {
-    return db.from('folders').where({ tenant_id: tenantId, id: folderId }).whereNull('deleted_at').first()
+    return db
+      .from('folders')
+      .where({ tenant_id: tenantId, id: folderId })
+      .whereNull('deleted_at')
+      .first()
   }
 
   async exists(tenantId: number, userId: number, folderId: number): Promise<boolean> {

@@ -10,9 +10,7 @@ import type {
   UpdateDocumentData,
 } from '#modules/documents/interfaces/document_interface'
 
-type ListOptions = Required<
-  Pick<DocumentListInput, 'page' | 'per_page' | 'sort_by' | 'order'>
-> &
+type ListOptions = Required<Pick<DocumentListInput, 'page' | 'per_page' | 'sort_by' | 'order'>> &
   Omit<DocumentListInput, 'page' | 'per_page' | 'sort_by' | 'order'>
 
 @inject()
@@ -55,7 +53,11 @@ export default class DocumentRepository {
   }
 
   findFolder(tenantId: number, folderId: number) {
-    return db.from('folders').where({ tenant_id: tenantId, id: folderId }).whereNull('deleted_at').first()
+    return db
+      .from('folders')
+      .where({ tenant_id: tenantId, id: folderId })
+      .whereNull('deleted_at')
+      .first()
   }
 
   findProcess(tenantId: number, processId: number) {
