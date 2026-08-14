@@ -246,7 +246,9 @@ const aiConfig = {
         },
         {
           provider: 'gemini',
-          baseUrl: env.get('AI_GEMINI_BASE_URL') ?? 'https://generativelanguage.googleapis.com/v1beta/openai',
+          baseUrl:
+            env.get('AI_GEMINI_BASE_URL') ??
+            'https://generativelanguage.googleapis.com/v1beta/openai',
           apiKey: env.get('AI_GEMINI_API_KEY'),
           model: env.get('AI_GEMINI_FAST_MODEL') ?? 'gemini-flash-lite-latest',
           maxTokens: fastMaxTokens,
@@ -266,7 +268,9 @@ const aiConfig = {
         },
         {
           provider: 'gemini',
-          baseUrl: env.get('AI_GEMINI_BASE_URL') ?? 'https://generativelanguage.googleapis.com/v1beta/openai',
+          baseUrl:
+            env.get('AI_GEMINI_BASE_URL') ??
+            'https://generativelanguage.googleapis.com/v1beta/openai',
           apiKey: env.get('AI_GEMINI_API_KEY'),
           model: env.get('AI_GEMINI_DEEP_MODEL') ?? 'gemini-3-flash-preview',
           maxTokens: deepMaxTokens,
