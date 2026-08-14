@@ -1,7 +1,11 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 
+import aiConfig from '#config/ai'
 import NotFoundException from '#exceptions/not_found_exception'
 import ValidationException from '#exceptions/validation_exception'
+import IndexLegalDocumentJob from '#modules/ai/jobs/index_legal_document_job'
+import RemoveLegalDocumentIndexJob from '#modules/ai/jobs/remove_legal_document_index_job'
 import DocumentRepository from '#modules/documents/repositories/document_repository'
 import type {
   CreateDocumentData,
@@ -40,7 +44,11 @@ export default class DocumentService {
       prepared.process_id ?? null,
       prepared.file_id
     )
-    return existing ?? this.documentRepository.create(tenantId, creatorId, prepared)
+    if (existing) return existing
+
+    const document = await this.documentRepository.create(tenantId, creatorId, prepared)
+    await this.scheduleIndex(tenantId, document)
+    return document
   }
 
   async update(
@@ -56,11 +64,14 @@ export default class DocumentService {
     if (input.process_id !== undefined) {
       await this.validateProcess(tenantId, document.folder_id, input.process_id)
     }
-    return this.documentRepository.update(document, actorId, input)
+    const updated = await this.documentRepository.update(document, actorId, input)
+    await this.scheduleIndex(tenantId, updated)
+    return updated
   }
 
   async delete(tenantId: number, documentId: number, actorId: number): Promise<void> {
     await this.documentRepository.softDelete(await this.findOrFail(tenantId, documentId), actorId)
+    await this.scheduleIndexRemoval(tenantId, documentId)
   }
 
   private async validateReferences(
@@ -94,5 +105,47 @@ export default class DocumentService {
     const document = await this.documentRepository.find(tenantId, documentId)
     if (!document) throw new NotFoundException('Document not found')
     return document
+  }
+
+  private async scheduleIndex(tenantId: number, document: LegalDocument): Promise<void> {
+    if (aiConfig.provider === 'disabled' || !aiConfig.retrieval.apiKey?.trim()) return
+
+    try {
+      await IndexLegalDocumentJob.dispatch({
+        tenantId,
+        documentId: document.id,
+      }).dedup({
+        id: `${tenantId}:${document.id}`,
+        ttl: '5m',
+        replace: true,
+        extend: true,
+      })
+    } catch (error) {
+      logger.error(
+        {
+          err: error,
+          tenantId,
+          documentId: document.id,
+        },
+        'Failed to enqueue legal document indexing; ai:reindex can reconcile it'
+      )
+    }
+  }
+
+  private async scheduleIndexRemoval(tenantId: number, documentId: number): Promise<void> {
+    if (aiConfig.provider === 'disabled' || !aiConfig.retrieval.apiKey?.trim()) return
+
+    try {
+      await RemoveLegalDocumentIndexJob.dispatch({ tenantId, documentId }).dedup({
+        id: `${tenantId}:${documentId}`,
+        ttl: '5m',
+        extend: true,
+      })
+    } catch (error) {
+      logger.error(
+        { err: error, tenantId, documentId },
+        'Failed to enqueue legal document index removal'
+      )
+    }
   }
 }

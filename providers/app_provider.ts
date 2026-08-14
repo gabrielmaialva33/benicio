@@ -1,12 +1,16 @@
 import type { ApplicationService } from '@adonisjs/core/types'
 
+import AiVectorRepository from '#modules/ai/repositories/ai_vector_repository'
+
 export default class AppProvider {
   constructor(protected app: ApplicationService) {}
 
   /**
    * Register bindings to the container
    */
-  register() {}
+  register() {
+    this.app.container.singleton(AiVectorRepository, () => new AiVectorRepository())
+  }
 
   /**
    * The container bindings have booted
