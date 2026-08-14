@@ -131,7 +131,11 @@ function UserMenu() {
               Escritório
             </DropdownMenuLabel>
             {tenants.map((tenant) => (
-              <DropdownMenuItem key={tenant.id} onSelect={() => switchTenant(tenant.id)}>
+              <DropdownMenuItem
+                key={tenant.id}
+                aria-current={tenant.id === activeTenant?.id ? 'true' : undefined}
+                onSelect={() => switchTenant(tenant.id)}
+              >
                 <span className="min-w-0 flex-1 truncate">{tenant.name}</span>
                 {tenant.id === activeTenant?.id && <Check className="size-4 text-orange-500" />}
               </DropdownMenuItem>
