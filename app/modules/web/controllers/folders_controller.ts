@@ -37,11 +37,15 @@ export default class InertiaFoldersController {
       return ctx.response.redirect().toPath(`/folders/${folder.id}`)
     } catch (error) {
       if (error instanceof ConflictException) {
-        return this.redirectWithError(ctx, 'code', error.message)
+        return this.redirectWithError(ctx, 'code', 'Já existe uma pasta ativa com este código.')
       }
       if (error instanceof NotFoundException) {
         const field = error.message.includes('Client') ? 'client_id' : 'responsible_lawyer_id'
-        return this.redirectWithError(ctx, field, error.message)
+        const message =
+          field === 'client_id'
+            ? 'O cliente selecionado não pertence ao escritório ativo.'
+            : 'O responsável selecionado não pertence ao escritório ativo.'
+        return this.redirectWithError(ctx, field, message)
       }
       throw error
     }

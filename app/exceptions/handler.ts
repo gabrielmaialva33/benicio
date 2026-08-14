@@ -2,6 +2,33 @@ import app from '@adonisjs/core/services/app'
 import { ExceptionHandler, type HttpContext } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 
+function toInputErrorsBag(messages: unknown): Record<string, string[]> {
+  if (!Array.isArray(messages)) {
+    return { general: ['Não foi possível validar os dados enviados.'] }
+  }
+
+  const errors: Record<string, string[]> = {}
+  for (const item of messages) {
+    if (
+      typeof item !== 'object' ||
+      item === null ||
+      !('field' in item) ||
+      typeof item.field !== 'string' ||
+      !('message' in item) ||
+      typeof item.message !== 'string'
+    ) {
+      continue
+    }
+
+    errors[item.field] ??= []
+    errors[item.field].push(item.message)
+  }
+
+  return Object.keys(errors).length > 0
+    ? errors
+    : { general: ['Não foi possível validar os dados enviados.'] }
+}
+
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
    * In debug mode, the exception handler will display verbose errors
@@ -39,14 +66,14 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       'code' in error &&
       error.code === 'E_VALIDATION_ERROR'
     ) {
-      const validationError = error as any
+      const validationError = error as { messages?: unknown }
       if (ctx.request.accepts(['html', 'json']) === 'json') {
         return ctx.response.status(422).json({
           errors: validationError.messages || [],
         })
       }
       ctx.session.flashAll()
-      ctx.session.flash('errors', validationError.messages || {})
+      ctx.session.flash('inputErrorsBag', toInputErrorsBag(validationError.messages))
       return ctx.response.redirect().back()
     }
 
