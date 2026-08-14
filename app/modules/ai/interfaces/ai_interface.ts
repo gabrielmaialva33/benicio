@@ -56,6 +56,9 @@ export interface ConversationDto {
   id: number
   title: string
   user_id: number
+  mode: AiConversationMode
+  status: AiConversationStatus
+  last_error: string | null
   created_at: string
   updated_at: string
   messages?: ChatMessageDto[]

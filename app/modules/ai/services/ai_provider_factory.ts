@@ -49,4 +49,16 @@ export default class AiProviderFactory {
       throw new ServiceUnavailableException('AI provider configuration is invalid')
     }
   }
+
+  isAvailable(): boolean {
+    try {
+      this.getOrFail()
+      return true
+    } catch (error) {
+      if (error instanceof ServiceUnavailableException) {
+        return false
+      }
+      throw error
+    }
+  }
 }
