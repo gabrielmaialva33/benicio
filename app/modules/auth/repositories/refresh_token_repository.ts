@@ -77,10 +77,14 @@ export default class RefreshTokenRepository {
       .update({ revoked_at: DateTime.now(), revoked_reason: reason })
   }
 
-  async revokeActiveForUser(userId: number, familyId?: string): Promise<void> {
+  async revokeActiveForUser(
+    userId: number,
+    familyId?: string,
+    revokedReason: string = 'logout'
+  ): Promise<void> {
     const query = this.query().where('user_id', userId).whereNull('revoked_at')
     if (familyId) query.where('family_id', familyId)
-    await query.update({ revoked_at: DateTime.now(), revoked_reason: 'logout' })
+    await query.update({ revoked_at: DateTime.now(), revoked_reason: revokedReason })
   }
 
   async isFamilyActive(familyId: string, userId: string | number | bigint): Promise<boolean> {
