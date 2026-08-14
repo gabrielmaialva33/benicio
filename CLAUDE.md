@@ -92,7 +92,8 @@ organized **by domain (modular)**, not by technical layer.
 - **Multi-tenancy**: N:N (users ↔ tenants via `user_tenants` pivot), JWT-carried active tenant
 - **Validation**: VineJS
 - **Testing**: Japa (backend) + Vitest (frontend)
-- **Queue**: Bull Queue (`@rlanz/bull-queue`) with Redis
+- **Queue**: Official `@adonisjs/queue` with Redis in production and sync in tests
+- **Realtime**: AdonisJS Transmit with Redis-backed distribution
 - **Cache**: `@adonisjs/cache` backed by Redis
 
 ### Project Structure

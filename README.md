@@ -69,7 +69,7 @@ graph TD
 
     subgraph "Data Layer"
         DB[(PostgreSQL)]
-        CACHE[(Redis — cache, sessions, queue)]
+        CACHE[(Redis — cache, sessions, queue, realtime)]
     end
 
     FE_UI --> BE_ROUTES
@@ -124,7 +124,7 @@ graph TD
 - **[Inertia.js v3](https://inertiajs.com/)**: The glue that connects the modern frontend with the backend.
 - **[TypeScript](https://www.typescriptlang.org/)**: For type safety across the entire stack.
 - **[PostgreSQL](https://www.postgresql.org/)**: A reliable and powerful relational database (SQLite available for tests).
-- **[Redis](https://redis.io/)**: Used for caching, sessions, and the Bull queue.
+- **[Redis](https://redis.io/)**: Used for caching, sessions, rate limiting, jobs, and realtime distribution.
 - **[Vite](https://vitejs.dev/)**: For a lightning-fast frontend development experience.
 - **[Tailwind CSS v4](https://tailwindcss.com/)**: A utility-first CSS framework powering the Metronic component library.
 
@@ -140,7 +140,7 @@ graph TD
 
 - **[Lucid ORM](https://lucid.adonisjs.com/)**: Models, migrations, and query building with a snake_case naming strategy.
 - **[VineJS](https://vinejs.dev/)**: Request validation at the edge.
-- **[Bull Queue](https://github.com/RomainLanz/adonis-bull-queue)**: Background jobs on top of Redis.
+- **[AdonisJS Queue](https://docs.adonisjs.com/guides/digging-deeper/queues)**: Official background jobs over Redis, pinned while its API is experimental.
 - **[AdonisJS Transmit](https://docs.adonisjs.com/guides/digging-deeper/server-sent-events)**: Authenticated Server-Sent Events with Redis-backed distribution.
 
 ### Testing
