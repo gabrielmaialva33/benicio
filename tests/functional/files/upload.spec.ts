@@ -3,7 +3,6 @@ import { join } from 'node:path'
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { randomUUID } from 'node:crypto'
-import db from '@adonisjs/lucid/services/db'
 import app from '@adonisjs/core/services/app'
 import limiter from '@adonisjs/limiter/services/main'
 
@@ -44,6 +43,16 @@ test.group('Files upload', (group) => {
     await role.related('permissions').sync(permissions.map((p) => p.id))
   }
 
+  async function attachTenant(user: User) {
+    const tenant = await Tenant.create({
+      name: `Files tenant ${user.id}`,
+      slug: `files-tenant-${user.id}`,
+      is_active: true,
+    })
+    await user.related('tenants').attach({ [tenant.id]: { role: 'member' } })
+    return tenant
+  }
+
   test('should upload a file with authentication', async ({ client, assert }) => {
     const userRole = await Role.firstOrCreate(
       { slug: IRole.Slugs.USER },
@@ -60,11 +69,7 @@ test.group('Files upload', (group) => {
       username: 'johndoe',
       password: 'password123',
     })
-
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
-    })
+    await attachTenant(user)
 
     // Assign create permission to user role
     await assignPermissions(userRole, [IPermission.Actions.CREATE])
@@ -82,7 +87,7 @@ test.group('Files upload', (group) => {
     response.assertStatus(201)
     response.assertBodyContains({
       clientName: 'test',
-      fileCategory: 'file',
+      fileCategory: 'document',
     })
 
     const uploadedFile = await File.findBy('owner_id', user.id)
@@ -110,11 +115,7 @@ test.group('Files upload', (group) => {
       username: 'johndoe',
       password: 'password123',
     })
-
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
-    })
+    await attachTenant(user)
 
     // Assign create permission to user role
     await assignPermissions(userRole, [IPermission.Actions.CREATE])
@@ -163,11 +164,7 @@ test.group('Files upload', (group) => {
       username: 'johndoe',
       password: 'password123',
     })
-
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
-    })
+    await attachTenant(user)
 
     // Assign create permission to user role
     await assignPermissions(userRole, [IPermission.Actions.CREATE])
@@ -201,11 +198,7 @@ test.group('Files upload', (group) => {
       username: 'johndoe',
       password: 'password123',
     })
-
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
-    })
+    await attachTenant(user)
 
     // Assign create permission to user role
     await assignPermissions(userRole, [IPermission.Actions.CREATE])
@@ -251,11 +244,7 @@ test.group('Files upload', (group) => {
       username: 'johndoe',
       password: 'password123',
     })
-
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
-    })
+    await attachTenant(user)
 
     // Assign create permission to user role
     await assignPermissions(userRole, [IPermission.Actions.CREATE])
@@ -300,11 +289,7 @@ test.group('Files upload', (group) => {
       username: 'johndoe',
       password: 'password123',
     })
-
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
-    })
+    await attachTenant(user)
 
     // Assign create permission to user role
     await assignPermissions(userRole, [IPermission.Actions.CREATE])
@@ -359,11 +344,7 @@ test.group('Files upload', (group) => {
       username: 'johndoe',
       password: 'password123',
     })
-
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
-    })
+    await attachTenant(user)
 
     // Assign create permission to user role
     await assignPermissions(userRole, [IPermission.Actions.CREATE])
@@ -450,11 +431,6 @@ test.group('Files upload', (group) => {
       password: 'password123',
     })
 
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
-    })
-
     await assignPermissions(userRole, [IPermission.Actions.CREATE])
 
     // Member of a tenant -> middleware fallback resolves it as the active tenant.
@@ -493,11 +469,6 @@ test.group('Files upload', (group) => {
       email: 'jane@example.com',
       username: 'janedoe',
       password: 'password123',
-    })
-
-    await db.table('user_roles').insert({
-      user_id: user.id,
-      role_id: userRole.id,
     })
 
     await assignPermissions(userRole, [IPermission.Actions.CREATE])

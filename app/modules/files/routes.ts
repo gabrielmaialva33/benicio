@@ -16,6 +16,16 @@ router
         uploadThrottle,
       ])
       .as('files.upload')
+    router
+      .get('/:id/download', [FilesController, 'download'])
+      .where('id', /^[0-9]+$/)
+      .use(
+        middleware.permission({
+          permissions: `${IPermission.Resources.FILES}.${IPermission.Actions.READ}`,
+          resourceIdParam: 'id',
+        })
+      )
+      .as('files.download')
   })
-  .use([middleware.auth(), middleware.tenant()])
+  .use([middleware.auth(), middleware.tenant({ required: true })])
   .prefix('/api/v1/files')

@@ -1,10 +1,13 @@
 import { type HttpContext } from '@adonisjs/core/http'
 
 import app from '@adonisjs/core/services/app'
+import { requireTenantId } from '#shared/http/tenant_context'
 import UploadFileService from '#modules/files/services/upload_file_service'
+import DownloadFileService from '#modules/files/services/download_file_service'
 
 export default class FilesController {
-  async upload({ request, response }: HttpContext) {
+  async upload(ctx: HttpContext) {
+    const { request, response } = ctx
     const file = request.file('file', {
       size: '10mb',
       extnames: [
@@ -74,8 +77,14 @@ export default class FilesController {
     }
 
     const service = await app.container.make(UploadFileService)
-    const data = await service.run(file)
+    const data = await service.run(requireTenantId(ctx), ctx.auth.getUserOrFail().id, file)
 
     return response.created(data)
+  }
+
+  async download(ctx: HttpContext) {
+    const service = await app.container.make(DownloadFileService)
+    const url = await service.signedUrl(requireTenantId(ctx), Number(ctx.params.id))
+    return ctx.response.redirect(url, true)
   }
 }

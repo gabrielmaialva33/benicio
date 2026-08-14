@@ -1,8 +1,15 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, SnakeCaseNamingStrategy } from '@adonisjs/lucid/orm'
+import {
+  BaseModel,
+  belongsTo,
+  column,
+  computed,
+  SnakeCaseNamingStrategy,
+} from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from '#modules/users/models/user'
 import Tenant from '#modules/tenants/models/tenant'
+import type { FileStorageDisk } from '#modules/files/interfaces/file_interface'
 
 export default class File extends BaseModel {
   static table = 'files'
@@ -20,7 +27,7 @@ export default class File extends BaseModel {
   declare owner_id: number
 
   @column()
-  declare tenant_id: number | null
+  declare tenant_id: number
 
   @column()
   declare client_name: string
@@ -38,7 +45,12 @@ export default class File extends BaseModel {
   declare file_category: string
 
   @column()
-  declare url: string
+  declare storage_disk: FileStorageDisk
+
+  @computed()
+  get url(): string {
+    return `/api/v1/files/${this.id}/download`
+  }
 
   @column.dateTime({ autoCreate: true })
   declare created_at: DateTime
