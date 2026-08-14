@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react'
-import { useMemo } from 'react'
-import { ShieldCheck, Users } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { ChevronDown, ShieldCheck, Users } from 'lucide-react'
 
 import { MainLayout } from '~/layouts'
 import {
@@ -13,6 +13,7 @@ import {
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { actionBadgeVariant } from '~/lib/permission_badges'
+import { cn } from '~/lib/utils'
 
 interface RolePermission {
   id: number
@@ -53,15 +54,24 @@ function groupByResource(permissions: RolePermission[]): [string, RolePermission
   return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b))
 }
 
+/**
+ * Roles with a broad grant list run to a hundred badges, which buries the
+ * smaller roles next to them and makes the page impossible to skim. Anything
+ * past this many permissions starts collapsed.
+ */
+const COLLAPSE_THRESHOLD = 12
+
 function RoleCard({ role }: { role: RoleRow }) {
   const grouped = useMemo(() => groupByResource(role.permissions), [role.permissions])
+  const [expanded, setExpanded] = useState(role.permissions.length <= COLLAPSE_THRESHOLD)
+  const collapsible = role.permissions.length > COLLAPSE_THRESHOLD
 
   return (
     <Card className="border-gray-100">
       <CardHeader>
         <CardHeading>
           <div className="flex items-center gap-2.5">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-[#00b8d9]">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-cyan-50 text-yol-cyan">
               <ShieldCheck className="size-4.5" />
             </div>
             <div className="min-w-0">
@@ -85,8 +95,24 @@ function RoleCard({ role }: { role: RoleRow }) {
         </CardToolbar>
       </CardHeader>
       <CardContent>
-        <div className="mb-3 flex items-center justify-between">
-          <p className="text-sm font-medium">Permissões</p>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          {collapsible ? (
+            <button
+              type="button"
+              onClick={() => setExpanded((value) => !value)}
+              aria-expanded={expanded}
+              aria-controls={`role-${role.id}-permissions`}
+              className="flex items-center gap-1.5 rounded-md text-sm font-medium transition hover:text-yol-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yol-cyan/40"
+            >
+              <ChevronDown
+                aria-hidden="true"
+                className={cn('size-4 transition-transform', !expanded && '-rotate-90')}
+              />
+              Permissões
+            </button>
+          ) : (
+            <p className="text-sm font-medium">Permissões</p>
+          )}
           <Badge variant="secondary" appearance="light" size="sm">
             {role.permissions.length}
           </Badge>
@@ -94,8 +120,16 @@ function RoleCard({ role }: { role: RoleRow }) {
 
         {role.permissions.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nenhuma permissão atribuída.</p>
+        ) : !expanded ? (
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="text-sm text-muted-foreground transition hover:text-yol-cyan"
+          >
+            {grouped.length} recursos · mostrar permissões
+          </button>
         ) : (
-          <div className="space-y-3">
+          <div id={`role-${role.id}-permissions`} className="space-y-3">
             {grouped.map(([resource, permissions]) => (
               <div key={resource}>
                 <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
