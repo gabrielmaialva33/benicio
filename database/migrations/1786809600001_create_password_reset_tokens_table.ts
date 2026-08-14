@@ -14,8 +14,8 @@ export default class extends BaseSchema {
         .inTable('users')
         .onDelete('CASCADE')
 
-      // Só o digest SHA-256 é persistido: o token cru existe apenas no link
-      // enviado por e-mail, seguindo o mesmo contrato de refresh_tokens.
+      // Only the SHA-256 digest is persisted: the raw token exists solely in
+      // the emailed link, matching the refresh_tokens contract.
       table.string('token_hash', 64).notNullable().unique()
       table.timestamp('expires_at', { useTz: true }).notNullable()
       table.timestamp('used_at', { useTz: true }).nullable()

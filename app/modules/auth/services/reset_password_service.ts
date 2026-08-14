@@ -16,40 +16,40 @@ export default class ResetPasswordService {
   ) {}
 
   /**
-   * Verifica se o token ainda pode ser usado, sem consumi-lo. Serve para a tela
-   * de nova senha decidir entre mostrar o formulário ou o aviso de link expirado.
+   * Checks whether the token is still usable without consuming it, so the
+   * new-password screen can choose between the form and the expired-link notice.
    */
-  async isTokenValid(tokenCru: string): Promise<boolean> {
-    return (await this.#findUsableToken(tokenCru)) !== null
+  async isTokenValid(rawToken: string): Promise<boolean> {
+    return (await this.#findUsableToken(rawToken)) !== null
   }
 
   /**
-   * Troca a senha e queima o token. As sessões antigas são revogadas: quem
-   * pediu a troca provavelmente perdeu o controle da conta.
+   * Swaps the password and burns the token. Existing sessions are revoked:
+   * whoever asked for the reset likely lost control of the account.
    */
-  async run(tokenCru: string, novaSenha: string): Promise<void> {
-    const registroDoToken = await this.#findUsableToken(tokenCru)
+  async run(rawToken: string, newPassword: string): Promise<void> {
+    const tokenRecord = await this.#findUsableToken(rawToken)
 
-    if (!registroDoToken) {
+    if (!tokenRecord) {
       throw new BadRequestException('Este link de redefinição expirou ou já foi utilizado.')
     }
 
-    const usuario = await this.usersRepository.findBy('id', registroDoToken.user_id)
+    const user = await this.usersRepository.findBy('id', tokenRecord.user_id)
 
-    if (!usuario) {
+    if (!user) {
       throw new BadRequestException('Este link de redefinição expirou ou já foi utilizado.')
     }
 
-    usuario.password = novaSenha
-    await this.usersRepository.persist(usuario)
+    user.password = newPassword
+    await this.usersRepository.persist(user)
 
-    await this.passwordResetTokenRepository.markUsed(registroDoToken.id)
-    await this.refreshTokenRepository.revokeActiveForUser(usuario.id, undefined, 'password_reset')
+    await this.passwordResetTokenRepository.markUsed(tokenRecord.id)
+    await this.refreshTokenRepository.revokeActiveForUser(user.id, undefined, 'password_reset')
   }
 
-  async #findUsableToken(tokenCru: string): Promise<PasswordResetToken | null> {
-    if (!tokenCru) return null
+  async #findUsableToken(rawToken: string): Promise<PasswordResetToken | null> {
+    if (!rawToken) return null
 
-    return this.passwordResetTokenRepository.findUsableByHash(hashPasswordResetToken(tokenCru))
+    return this.passwordResetTokenRepository.findUsableByHash(hashPasswordResetToken(rawToken))
   }
 }

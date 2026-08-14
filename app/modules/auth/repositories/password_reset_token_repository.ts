@@ -22,7 +22,7 @@ export default class PasswordResetTokenRepository {
     return client ? PasswordResetToken.create(data, { client }) : PasswordResetToken.create(data)
   }
 
-  /** Token ainda aberto: não consumido e dentro da janela de validade. */
+  /** Still-open token: unconsumed and inside the validity window. */
   findUsableByHash(tokenHash: string): Promise<PasswordResetToken | null> {
     return this.query()
       .where('token_hash', tokenHash)
@@ -31,7 +31,7 @@ export default class PasswordResetTokenRepository {
       .first()
   }
 
-  /** Fecha os pedidos anteriores do usuário — só o link mais recente vale. */
+  /** Closes the user's previous requests — only the newest link stays valid. */
   async invalidateOpenTokensForUser(userId: number): Promise<void> {
     await this.query()
       .where('user_id', userId)

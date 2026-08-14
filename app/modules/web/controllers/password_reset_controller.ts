@@ -10,10 +10,10 @@ import ResetPasswordService from '#modules/auth/services/reset_password_service'
 import { inertiaRedirectBack, inertiaRedirectTo } from '#shared/http/inertia_redirect'
 
 /**
- * Resposta única do "esqueci minha senha". Confirmar ou negar a existência do
- * e-mail transformaria a tela num verificador de cadastro.
+ * Single response for "forgot my password". Confirming or denying that the
+ * email exists would turn the screen into an account checker.
  */
-const AVISO_DE_ENVIO =
+const GENERIC_SENT_NOTICE =
   'Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha. Verifique também a caixa de spam.'
 
 @inject()
@@ -33,7 +33,7 @@ export default class InertiaPasswordResetController {
 
     await this.requestPasswordResetService.run(email, ctx)
 
-    session.flash('success', AVISO_DE_ENVIO)
+    session.flash('success', GENERIC_SENT_NOTICE)
     return inertiaRedirectBack(ctx)
   }
 

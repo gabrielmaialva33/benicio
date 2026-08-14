@@ -13,8 +13,8 @@ import PasswordResetTokenRepository from '#modules/auth/repositories/password_re
 import ResetPasswordNotification from '#modules/auth/services/reset_password_notification'
 import UsersRepository from '#modules/users/repositories/users_repository'
 
-/** Janela de validade do link enviado por e-mail. */
-const VALIDADE_EM_MINUTOS = 60
+/** Validity window of the emailed link. */
+const EXPIRATION_IN_MINUTES = 60
 
 @inject()
 export default class RequestPasswordResetService {
@@ -24,52 +24,52 @@ export default class RequestPasswordResetService {
   ) {}
 
   /**
-   * Emite um token de recuperação e dispara o e-mail com o link.
+   * Issues a recovery token and dispatches the email carrying the link.
    *
-   * Não sinaliza se o e-mail existe: a resposta ao usuário é sempre a mesma,
-   * para não transformar o formulário num verificador de cadastro.
+   * It never signals whether the email exists: the user-facing response is
+   * always the same, so the form cannot double as an account checker.
    */
   async run(email: string, ctx?: HttpContext): Promise<void> {
-    const emailNormalizado = email.trim().toLowerCase()
-    const usuario = await this.usersRepository.findBy('email', emailNormalizado)
+    const normalizedEmail = email.trim().toLowerCase()
+    const user = await this.usersRepository.findBy('email', normalizedEmail)
 
-    if (!usuario) {
-      logger.info({ email: emailNormalizado }, 'Password reset requested for unknown email')
+    if (!user) {
+      logger.info({ email: normalizedEmail }, 'Password reset requested for unknown email')
       return
     }
 
-    // Invalida os pedidos anteriores ainda abertos: só o link mais recente vale.
-    await this.passwordResetTokenRepository.invalidateOpenTokensForUser(usuario.id)
+    // Close previous open requests: only the newest link stays valid.
+    await this.passwordResetTokenRepository.invalidateOpenTokensForUser(user.id)
 
-    const tokenCru = `prt_${randomUUID()}.${randomBytes(48).toString('base64url')}`
+    const rawToken = `prt_${randomUUID()}.${randomBytes(48).toString('base64url')}`
 
     await this.passwordResetTokenRepository.create({
       id: randomUUID(),
-      user_id: usuario.id,
-      token_hash: hashPasswordResetToken(tokenCru),
-      expires_at: DateTime.now().plus({ minutes: VALIDADE_EM_MINUTOS }),
+      user_id: user.id,
+      token_hash: hashPasswordResetToken(rawToken),
+      expires_at: DateTime.now().plus({ minutes: EXPIRATION_IN_MINUTES }),
       used_at: null,
       requested_ip: ctx?.request.ip() ?? null,
       user_agent: ctx?.request.header('user-agent')?.slice(0, 512) ?? null,
     })
 
     try {
-      await mail.send(new ResetPasswordNotification(usuario, tokenCru, VALIDADE_EM_MINUTOS))
-    } catch (falhaDeEnvio) {
-      // Uma queda do SMTP não pode virar 500 na tela: além de quebrar a UX, o
-      // erro só aparece quando o e-mail existe, entregando quem é cadastrado.
-      logger.error({ err: falhaDeEnvio, userId: usuario.id }, 'Failed to send password reset email')
+      await mail.send(new ResetPasswordNotification(user, rawToken, EXPIRATION_IN_MINUTES))
+    } catch (deliveryFailure) {
+      // An SMTP outage must not surface as a 500: besides breaking the UX, the
+      // error only shows up when the email exists, leaking who is registered.
+      logger.error({ err: deliveryFailure, userId: user.id }, 'Failed to send password reset email')
 
       if (!app.inProduction) {
         logger.warn(
-          `[dev] Link de redefinição: ${env.get('APP_URL', 'http://localhost:3333')}/reset-password?token=${encodeURIComponent(tokenCru)}`
+          `[dev] Link de redefinição: ${env.get('APP_URL', 'http://localhost:3333')}/reset-password?token=${encodeURIComponent(rawToken)}`
         )
       }
     }
   }
 }
 
-/** Digest persistido no banco — o token cru só viaja no link do e-mail. */
-export function hashPasswordResetToken(tokenCru: string): string {
-  return createHash('sha256').update(tokenCru).digest('hex')
+/** Digest stored in the database — the raw token only travels in the email link. */
+export function hashPasswordResetToken(rawToken: string): string {
+  return createHash('sha256').update(rawToken).digest('hex')
 }

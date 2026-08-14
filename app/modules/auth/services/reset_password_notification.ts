@@ -9,7 +9,7 @@ export default class ResetPasswordNotification extends BaseMail {
   constructor(
     private user: User,
     private token: string,
-    private validadeEmMinutos: number
+    private expirationInMinutes: number
   ) {
     super()
   }
@@ -28,14 +28,14 @@ export default class ResetPasswordNotification extends BaseMail {
     )
     this.message.to(this.user.email, this.user.full_name)
 
-    // Igual ao fluxo de verificação de e-mail: em testes o Edge pode não estar
-    // disponível, então o corpo vai inline.
+    // Same as the email verification flow: Edge may be unavailable under test,
+    // so the body goes inline.
     if (env.get('NODE_ENV') === 'test') {
       this.message.html(`
         <h1>Olá, ${this.user.full_name}!</h1>
         <p>Recebemos um pedido para redefinir a sua senha.</p>
         <p><a href="${resetUrl}">Criar uma nova senha</a></p>
-        <p>O link expira em ${this.validadeEmMinutos} minutos.</p>
+        <p>O link expira em ${this.expirationInMinutes} minutos.</p>
       `)
       this.message.text(`
         Olá, ${this.user.full_name}!
@@ -44,7 +44,7 @@ export default class ResetPasswordNotification extends BaseMail {
         Acesse o endereço abaixo para criar uma nova senha:
         ${resetUrl}
 
-        O link expira em ${this.validadeEmMinutos} minutos.
+        O link expira em ${this.expirationInMinutes} minutos.
       `)
       return
     }
@@ -53,13 +53,13 @@ export default class ResetPasswordNotification extends BaseMail {
       user: this.user,
       resetUrl,
       appName,
-      expiresInMinutes: this.validadeEmMinutos,
+      expiresInMinutes: this.expirationInMinutes,
     })
     this.message.textView('emails/reset_password_text', {
       user: this.user,
       resetUrl,
       appName,
-      expiresInMinutes: this.validadeEmMinutos,
+      expiresInMinutes: this.expirationInMinutes,
     })
   }
 }

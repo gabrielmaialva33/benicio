@@ -10,30 +10,31 @@ import ResetPasswordService from '#modules/auth/services/reset_password_service'
 import User from '#modules/users/models/user'
 
 /**
- * Cria o usuário e devolve o token cru emitido pelo serviço. O token só existe
- * em memória (o banco guarda o digest), então precisa ser capturado aqui.
+ * Creates the user and returns the raw token issued by the service. The token
+ * only lives in memory (the database keeps the digest), so it must be captured
+ * right here.
  */
-async function emitirTokenDeRecuperacao(email: string) {
-  const usuario = await User.create({
-    full_name: 'Recuperação Teste',
+async function issueRecoveryToken(email: string) {
+  const user = await User.create({
+    full_name: 'Recovery Test',
     email,
     username: email.split('@')[0],
-    password: 'senha-antiga-123',
+    password: 'old-password-123',
   })
 
   const requestPasswordResetService = await app.container.make(RequestPasswordResetService)
 
-  // O token cru só existe no corpo do e-mail; capturamos pelo fake do mailer.
+  // The raw token only exists in the email body; grab it from the mailer fake.
   const { mails } = mail.fake()
   await requestPasswordResetService.run(email)
-  const emailEnviado = mails.sent()[0] as unknown as
+  const sentEmail = mails.sent()[0] as unknown as
     { message?: { toJSON?: () => unknown } } | undefined
   mail.restore()
 
-  const corpoSerializado = JSON.stringify(emailEnviado?.message?.toJSON?.() ?? emailEnviado ?? {})
-  const tokenNoCorpo = corpoSerializado.match(/token=([^"'&\s\\]+)/)?.[1]
+  const serializedBody = JSON.stringify(sentEmail?.message?.toJSON?.() ?? sentEmail ?? {})
+  const tokenInBody = serializedBody.match(/token=([^"'&\s\\]+)/)?.[1]
 
-  return { usuario, tokenCru: tokenNoCorpo ? decodeURIComponent(tokenNoCorpo) : null }
+  return { user, rawToken: tokenInBody ? decodeURIComponent(tokenInBody) : null }
 }
 
 test.group('Password reset', (group) => {
@@ -42,60 +43,60 @@ test.group('Password reset', (group) => {
     return () => limiter.clear()
   })
 
-  test('emite um token de uso único e troca a senha', async ({ assert, cleanup }) => {
+  test('issues a single-use token and swaps the password', async ({ assert, cleanup }) => {
     cleanup(() => mail.restore())
 
-    const email = 'reset.valido@example.com'
-    const { usuario, tokenCru } = await emitirTokenDeRecuperacao(email)
+    const email = 'reset.valid@example.com'
+    const { user, rawToken } = await issueRecoveryToken(email)
 
-    assert.isNotNull(tokenCru, 'o e-mail deve conter o token de recuperação')
+    assert.isNotNull(rawToken, 'the email must carry the recovery token')
 
     const resetPasswordService = await app.container.make(ResetPasswordService)
-    await resetPasswordService.run(tokenCru!, 'nova-senha-456')
+    await resetPasswordService.run(rawToken!, 'new-password-456')
 
-    // A nova senha vale e a antiga não.
-    await assert.doesNotReject(() => User.verifyCredentials(email, 'nova-senha-456'))
-    await assert.rejects(() => User.verifyCredentials(email, 'senha-antiga-123'))
+    // The new password works and the old one does not.
+    await assert.doesNotReject(() => User.verifyCredentials(email, 'new-password-456'))
+    await assert.rejects(() => User.verifyCredentials(email, 'old-password-123'))
 
-    // O mesmo link não pode ser usado duas vezes.
-    await assert.rejects(() => resetPasswordService.run(tokenCru!, 'outra-senha-789'))
+    // The same link cannot be used twice.
+    await assert.rejects(() => resetPasswordService.run(rawToken!, 'other-password-789'))
 
-    const tokens = await PasswordResetToken.query().where('user_id', usuario.id)
+    const tokens = await PasswordResetToken.query().where('user_id', user.id)
     assert.lengthOf(tokens, 1)
     assert.isNotNull(tokens[0].used_at)
   })
 
-  test('recusa token expirado', async ({ assert, cleanup }) => {
+  test('rejects an expired token', async ({ assert, cleanup }) => {
     cleanup(() => mail.restore())
 
-    const email = 'reset.expirado@example.com'
-    const { usuario, tokenCru } = await emitirTokenDeRecuperacao(email)
+    const email = 'reset.expired@example.com'
+    const { user, rawToken } = await issueRecoveryToken(email)
 
     await PasswordResetToken.query()
-      .where('user_id', usuario.id)
+      .where('user_id', user.id)
       .update({ expires_at: DateTime.now().minus({ minutes: 1 }).toSQL()! })
 
     const resetPasswordService = await app.container.make(ResetPasswordService)
 
-    assert.isFalse(await resetPasswordService.isTokenValid(tokenCru!))
-    await assert.rejects(() => resetPasswordService.run(tokenCru!, 'nova-senha-456'))
-    await assert.doesNotReject(() => User.verifyCredentials(email, 'senha-antiga-123'))
+    assert.isFalse(await resetPasswordService.isTokenValid(rawToken!))
+    await assert.rejects(() => resetPasswordService.run(rawToken!, 'new-password-456'))
+    await assert.doesNotReject(() => User.verifyCredentials(email, 'old-password-123'))
   })
 
-  test('responde igual para e-mail inexistente, sem criar token', async ({ assert, cleanup }) => {
+  test('answers the same for an unknown email, creating no token', async ({ assert, cleanup }) => {
     cleanup(() => mail.restore())
     mail.fake()
 
-    const tokensAntes = await PasswordResetToken.query().count('* as total')
+    const tokensBefore = await PasswordResetToken.query().count('* as total')
 
     const requestPasswordResetService = await app.container.make(RequestPasswordResetService)
-    await assert.doesNotReject(() => requestPasswordResetService.run('ninguem@example.com'))
+    await assert.doesNotReject(() => requestPasswordResetService.run('nobody@example.com'))
 
-    const tokensDepois = await PasswordResetToken.query().count('* as total')
-    assert.deepEqual(tokensDepois[0].$extras.total, tokensAntes[0].$extras.total)
+    const tokensAfter = await PasswordResetToken.query().count('* as total')
+    assert.deepEqual(tokensAfter[0].$extras.total, tokensBefore[0].$extras.total)
   })
 
-  test('a tela pública de recuperação responde sem autenticação', async ({ client }) => {
+  test('serves the public recovery screen without authentication', async ({ client }) => {
     const response = await client.get('/forgot-password')
     response.assertStatus(200)
   })
