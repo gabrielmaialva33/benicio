@@ -124,7 +124,12 @@ export default function CalendarPage({
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <SummaryCard label="Audiências no mês" value={summary.hearings} icon={Gavel} tone="cyan" />
+          <SummaryCard
+            label="Audiências no mês"
+            value={summary.hearings}
+            icon={Gavel}
+            tone="cyan"
+          />
           <SummaryCard
             label="Prazos no mês"
             value={summary.deadlines}
@@ -132,7 +137,12 @@ export default function CalendarPage({
             tone="amber"
           />
           <SummaryCard label="Em atraso" value={summary.overdue} icon={TriangleAlert} tone="red" />
-          <SummaryCard label="Prazos fatais" value={summary.fatal} icon={TriangleAlert} tone="red" />
+          <SummaryCard
+            label="Prazos fatais"
+            value={summary.fatal}
+            icon={TriangleAlert}
+            tone="red"
+          />
         </div>
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">

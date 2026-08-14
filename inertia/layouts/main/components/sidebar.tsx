@@ -108,9 +108,7 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
       .filter((item) => !item.permission || can(item.permission))
       .map((item) => ({
         ...item,
-        children: item.children?.filter(
-          (child) => !child.permission || can(child.permission)
-        ),
+        children: item.children?.filter((child) => !child.permission || can(child.permission)),
       }))
 
     return searchQuery

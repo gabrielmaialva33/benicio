@@ -9,7 +9,7 @@ import { QueryProvider } from '~/providers/query_provider'
  * Inertia's own page shape, pulled from `createInertiaApp` so we don't have to
  * depend on `@inertiajs/core` just for the type.
  */
-type InertiaPage =NonNullable<NonNullable<Parameters<typeof createInertiaApp>[0]>['page']>
+type InertiaPage = NonNullable<NonNullable<Parameters<typeof createInertiaApp>[0]>['page']>
 
 const render: RenderInertiaSsrApp = (page) => {
   return createInertiaApp({
