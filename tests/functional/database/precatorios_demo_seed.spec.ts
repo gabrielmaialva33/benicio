@@ -129,8 +129,8 @@ test.group('Precatórios demo database seed', (group) => {
       .select('process_id')
       .count('* as total')
     assert.lengthOf(documentsPerProcess, EXPECTED_SUMMARY.processes)
-    for (const group of documentsPerProcess) {
-      assert.equal(Number(group.total), precatoriosDocumentTemplates.length)
+    for (const documentGroup of documentsPerProcess) {
+      assert.equal(Number(documentGroup.total), precatoriosDocumentTemplates.length)
     }
 
     const documents = await client
@@ -225,7 +225,10 @@ test.group('Precatórios demo database seed', (group) => {
 
     const users = await client
       .from('users')
-      .whereIn('email', Object.values(precatoriosDemoUsers).map((user) => user.email))
+      .whereIn(
+        'email',
+        Object.values(precatoriosDemoUsers).map((user) => user.email)
+      )
       .select('id')
     assert.lengthOf(users, EXPECTED_SUMMARY.users)
 
