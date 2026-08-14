@@ -1,5 +1,5 @@
 import { Link, useForm } from '@inertiajs/react'
-import { AlertCircle, ArrowLeft, BriefcaseBusiness, Save } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Save } from 'lucide-react'
 
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
@@ -47,7 +47,7 @@ function SelectField({
         required={required}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
-        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 aria-invalid:border-destructive"
+        className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-[#00b8d9] focus:ring-2 focus:ring-[#00b8d9]/20 aria-invalid:border-red-500"
       >
         {children}
       </select>
@@ -88,7 +88,7 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
   return (
     <form onSubmit={submit} className="space-y-6" data-testid="folder-create-form">
       {!hasClients && (
-        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
+        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           <p>
             É preciso ter ao menos um cliente cadastrado neste escritório para abrir uma pasta.{' '}
@@ -99,19 +99,16 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
         </div>
       )}
 
-      <Card className="overflow-hidden rounded-2xl">
-        <CardHeader className="min-h-16 bg-slate-50/60 dark:bg-white/[0.025]">
+      <Card className="overflow-hidden rounded-2xl border-gray-100 shadow-sm">
+        <CardHeader className="min-h-0 border-0 bg-white px-8 pt-8">
           <div>
             <CardTitle>Identificação da pasta</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
               Dados usados para localizar e organizar o caso no escritório.
             </p>
           </div>
-          <span className="flex size-10 items-center justify-center rounded-xl bg-orange-50 text-[#f97316] dark:bg-orange-500/10">
-            <BriefcaseBusiness className="size-5" />
-          </span>
         </CardHeader>
-        <CardContent className="grid gap-5 pt-6 md:grid-cols-2 xl:grid-cols-3">
+        <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2 xl:grid-cols-3 [&_[data-slot=input]]:h-12 [&_[data-slot=input]]:rounded-lg [&_[data-slot=input]]:border-gray-300 [&_[data-slot=input]]:px-4 [&_[data-slot=input]]:focus-visible:border-[#00b8d9] [&_[data-slot=input]]:focus-visible:ring-[#00b8d9]/20">
           <Field
             label="Código da pasta"
             name="code"
@@ -175,8 +172,8 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden rounded-2xl">
-        <CardHeader className="min-h-16 bg-slate-50/60 dark:bg-white/[0.025]">
+      <Card className="overflow-hidden rounded-2xl border-gray-100 shadow-sm">
+        <CardHeader className="min-h-0 border-0 bg-white px-8 pt-8">
           <div>
             <CardTitle>Cliente e responsabilidade</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -184,7 +181,7 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
             </p>
           </div>
         </CardHeader>
-        <CardContent className="grid gap-5 pt-6 md:grid-cols-2">
+        <CardContent className="grid gap-6 px-8 pb-8 pt-6 md:grid-cols-2">
           <SelectField
             id="client_id"
             label="Cliente"
@@ -217,8 +214,8 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden rounded-2xl">
-        <CardHeader className="min-h-16 bg-slate-50/60 dark:bg-white/[0.025]">
+      <Card className="overflow-hidden rounded-2xl border-gray-100 shadow-sm">
+        <CardHeader className="min-h-0 border-0 bg-white px-8 pt-8">
           <div>
             <CardTitle>Contexto</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -226,7 +223,7 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
             </p>
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className="px-8 pb-8 pt-6">
           <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
             <Textarea
@@ -237,7 +234,7 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
               aria-invalid={!!form.errors.description}
               aria-describedby={form.errors.description ? 'description-error' : undefined}
               placeholder="Contexto, objetivo e observações gerais da pasta"
-              className="min-h-32 resize-y"
+              className="min-h-32 resize-y rounded-lg border-gray-300 focus-visible:border-[#00b8d9] focus-visible:ring-[#00b8d9]/20"
               maxLength={10000}
             />
             {form.errors.description && (
@@ -247,8 +244,13 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
             )}
           </div>
         </CardContent>
-        <CardFooter className="justify-between gap-3 bg-slate-50/40 py-4 dark:bg-white/[0.02]">
-          <Button variant="outline" type="button" asChild>
+        <CardFooter className="justify-end gap-4 border-0 bg-white px-8 pb-8">
+          <Button
+            variant="outline"
+            type="button"
+            asChild
+            className="h-12 rounded-lg px-6 font-semibold text-[#637381]"
+          >
             <Link href="/folders">
               <ArrowLeft className="size-4" />
               Cancelar
@@ -258,7 +260,7 @@ export function FolderForm({ clients, lawyers, areas, selected_client_id }: Fold
             variant="primary"
             type="submit"
             disabled={form.processing || !hasClients}
-            className="bg-[#f97316] text-white hover:bg-[#ea680c]"
+            className="h-12 rounded-lg bg-[#00b8d9] px-6 font-semibold text-white hover:bg-[#00a6c5]"
           >
             <Save className="size-4" />
             {form.processing ? 'Salvando...' : 'Salvar pasta'}

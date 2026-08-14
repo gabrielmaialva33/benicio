@@ -101,37 +101,23 @@ export default function FoldersPage({
       <Head title="Pastas" />
 
       <div className="space-y-6" data-testid="folders-index">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-black tracking-[-0.035em] text-slate-900 dark:text-white">
-              Pastas do escritório
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Consulte casos, responsáveis e situação operacional em um só lugar.
-            </p>
-          </div>
-          <Button variant="primary" asChild className="bg-[#f97316] text-white hover:bg-[#ea680c]">
-            <Link href="/folders/create">
-              <Plus className="size-4" />
-              Nova pasta
-            </Link>
-          </Button>
-        </div>
-
-        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-card">
-          <div className="overflow-x-auto border-b border-slate-100 px-4 pt-4 dark:border-white/10 sm:px-6">
+        <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div className="overflow-x-auto border-b border-gray-200 px-4 pt-6 sm:px-6 lg:px-8 lg:pt-8">
             <div className="flex min-w-max gap-1">
               <button
                 type="button"
                 onClick={() => applyStatus('')}
                 className={cn(
-                  'border-b-2 px-3 py-3 text-sm font-bold transition',
+                  'border-b-2 px-3 pb-4 text-sm font-medium transition',
                   !localFilters.status
-                    ? 'border-[#f97316] text-[#f97316]'
-                    : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                    ? 'border-[#00b8d9] text-[#00b8d9]'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                 )}
               >
-                Todas <span className="ms-1 text-xs opacity-60">{totalCount}</span>
+                Total
+                <span className="ms-2 rounded-full bg-[#00b8d9] px-2.5 py-1 text-xs font-semibold text-white">
+                  {totalCount.toString().padStart(2, '0')}
+                </span>
               </button>
               {statusCounts.map((item) => (
                 <button
@@ -139,14 +125,23 @@ export default function FoldersPage({
                   type="button"
                   onClick={() => applyStatus(item.status)}
                   className={cn(
-                    'border-b-2 px-3 py-3 text-sm font-bold transition',
+                    'border-b-2 px-3 pb-4 text-sm font-medium transition',
                     localFilters.status === item.status
-                      ? 'border-[#f97316] text-[#f97316]'
-                      : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                      ? 'border-[#00b8d9] text-[#00b8d9]'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   )}
                 >
                   {folderStatusLabel(item.status)}s{' '}
-                  <span className="ms-1 text-xs opacity-60">{item.count}</span>
+                  <span
+                    className={cn(
+                      'ms-2 rounded-full px-2.5 py-1 text-xs font-semibold',
+                      localFilters.status === item.status
+                        ? 'bg-[#00b8d9] text-white'
+                        : 'bg-gray-100 text-gray-600'
+                    )}
+                  >
+                    {item.count.toString().padStart(2, '0')}
+                  </span>
                 </button>
               ))}
             </div>
@@ -157,7 +152,7 @@ export default function FoldersPage({
               event.preventDefault()
               visit({ page: 1 })
             }}
-            className="grid gap-3 border-b border-slate-100 p-4 dark:border-white/10 sm:grid-cols-[minmax(240px,1fr)_220px_auto] sm:p-6"
+            className="grid gap-4 border-b border-gray-100 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-[minmax(240px,1fr)_220px_auto_auto] lg:gap-6"
           >
             <div className="relative">
               <Search className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
@@ -169,7 +164,7 @@ export default function FoldersPage({
                   setLocalFilters((current) => ({ ...current, search: event.target.value }))
                 }
                 placeholder="Código, título, descrição ou cliente"
-                className="h-10 ps-10"
+                className="h-12 rounded-lg border-gray-300 ps-10 focus-visible:border-[#00b8d9] focus-visible:ring-[#00b8d9]/20"
               />
             </div>
             <select
@@ -180,7 +175,7 @@ export default function FoldersPage({
                 setLocalFilters((current) => ({ ...current, area }))
                 visit({ area, page: 1 })
               }}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+              className="h-12 rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-900 outline-none focus:border-[#00b8d9] focus:ring-2 focus:ring-[#00b8d9]/20"
             >
               <option value="">Todas as áreas</option>
               {areas.map((area) => (
@@ -189,8 +184,12 @@ export default function FoldersPage({
                 </option>
               ))}
             </select>
-            <div className="flex gap-2">
-              <Button type="submit" variant="outline" className="flex-1 sm:flex-none">
+            <div className="flex items-center gap-2">
+              <Button
+                type="submit"
+                variant="outline"
+                className="h-10 flex-1 rounded-full border-[#00b8d9]/50 font-bold text-[#00b8d9] hover:bg-[#00b8d9]/5 hover:text-[#00b8d9] sm:flex-none"
+              >
                 <Search className="size-4" />
                 Buscar
               </Button>
@@ -206,6 +205,16 @@ export default function FoldersPage({
                 </Button>
               )}
             </div>
+            <Button
+              variant="outline"
+              asChild
+              className="h-10 rounded-full border-[#00b8d9]/50 font-bold text-[#00b8d9] hover:bg-[#00b8d9]/5 hover:text-[#00b8d9]"
+            >
+              <Link href="/folders/create">
+                <Plus className="size-4" />
+                Nova pasta
+              </Link>
+            </Button>
           </form>
 
           <FolderList
@@ -215,7 +224,7 @@ export default function FoldersPage({
             onSort={sort}
           />
 
-          <footer className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <footer className="flex flex-col gap-3 border-t border-gray-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div className="flex items-center gap-2 text-sm text-slate-500">
               <span>{folders.meta.total} resultado(s)</span>
               <span className="text-slate-300">·</span>

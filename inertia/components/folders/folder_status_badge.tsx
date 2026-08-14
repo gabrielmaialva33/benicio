@@ -10,16 +10,11 @@ const statusCopy: Record<FolderStatus, string> = {
 }
 
 const statusClasses: Record<FolderStatus, string> = {
-  active:
-    'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-500/20 dark:bg-cyan-500/10 dark:text-cyan-300',
-  completed:
-    'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300',
-  pending:
-    'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300',
-  cancelled:
-    'border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300',
-  archived:
-    'border-slate-200 bg-slate-50 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300',
+  active: 'border-blue-200 bg-blue-50 text-blue-700',
+  completed: 'border-green-200 bg-green-50 text-green-700',
+  pending: 'border-orange-200 bg-orange-50 text-orange-700',
+  cancelled: 'border-red-200 bg-red-50 text-red-700',
+  archived: 'border-gray-200 bg-gray-50 text-gray-700',
 }
 
 export function FolderStatusBadge({
@@ -32,7 +27,7 @@ export function FolderStatusBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-bold',
+        'inline-flex min-w-20 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium',
         statusClasses[status],
         className
       )}

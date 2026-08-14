@@ -1,7 +1,6 @@
 import { Link } from '@inertiajs/react'
-import { ArrowRight, ArrowUpDown, BriefcaseBusiness, UserRound } from 'lucide-react'
+import { ArrowUpDown, BriefcaseBusiness, UserRound } from 'lucide-react'
 
-import { Button } from '~/components/ui/button'
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
 import { cn } from '~/lib/utils'
 import type { FolderItem, FolderSortField } from '~/types/folder'
@@ -56,13 +55,13 @@ function SortButton({
       type="button"
       onClick={() => onSort(field)}
       className={cn(
-        'inline-flex items-center gap-1.5 font-semibold transition hover:text-slate-900 dark:hover:text-white',
-        active && 'text-slate-900 dark:text-white'
+        'inline-flex items-center gap-1.5 font-semibold transition hover:text-slate-900',
+        active && 'text-slate-900'
       )}
       aria-label={`Ordenar por ${label}${active ? `, ordem ${direction === 'asc' ? 'crescente' : 'decrescente'}` : ''}`}
     >
       {label}
-      <ArrowUpDown className={cn('size-3.5', active ? 'text-[#f97316]' : 'text-slate-300')} />
+      <ArrowUpDown className={cn('size-3.5', active ? 'text-[#00b8d9]' : 'text-slate-300')} />
     </button>
   )
 }
@@ -71,14 +70,14 @@ function FolderMobileCard({ folder }: { folder: FolderItem }) {
   return (
     <Link
       href={`/folders/${folder.id}`}
-      className="block w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md dark:border-white/10 dark:bg-card"
+      className="block w-full min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-cyan-200 hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#f97316]">
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#00b8d9]">
             {folder.code}
           </span>
-          <h3 className="mt-1 truncate font-bold text-slate-900 dark:text-white">{folder.title}</h3>
+          <h3 className="mt-1 truncate font-bold text-slate-900">{folder.title}</h3>
         </div>
         <FolderStatusBadge status={folder.status} className="shrink-0" />
       </div>
@@ -92,7 +91,7 @@ function FolderMobileCard({ folder }: { folder: FolderItem }) {
           {folder.responsible_lawyer?.full_name ?? 'Sem responsável'}
         </span>
       </div>
-      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-white/10">
+      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
         <span>{folder.area}</span>
         <span>{formatDate(folder.created_at)}</span>
       </div>
@@ -104,12 +103,10 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
   if (folders.length === 0) {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-orange-50 text-[#f97316] dark:bg-orange-500/10">
+        <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-[#00b8d9]">
           <BriefcaseBusiness className="size-7" />
         </span>
-        <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
-          Nenhuma pasta encontrada
-        </h3>
+        <h3 className="mt-4 text-base font-bold text-slate-900">Nenhuma pasta encontrada</h3>
         <p className="mt-1 max-w-sm text-sm text-slate-500">
           Ajuste os filtros ou cadastre a primeira pasta deste escritório.
         </p>
@@ -136,7 +133,7 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
             <col className="w-[9%]" />
             <col className="w-14" />
           </colgroup>
-          <thead className="border-y border-slate-200/80 bg-slate-50/80 text-xs text-slate-500 dark:border-white/10 dark:bg-white/[0.03]">
+          <thead className="border-y border-gray-200 bg-[#f7f8f9] text-xs uppercase tracking-wider text-gray-500">
             <tr>
               <th className="px-5 py-3.5">
                 <SortButton
@@ -173,18 +170,13 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-white/10">
+          <tbody className="divide-y divide-gray-200 bg-white">
             {folders.map((folder) => (
-              <tr
-                key={folder.id}
-                className="group transition hover:bg-orange-50/30 dark:hover:bg-white/[0.025]"
-              >
+              <tr key={folder.id} className="group transition hover:bg-cyan-50/30">
                 <td className="px-5 py-4">
                   <Link href={`/folders/${folder.id}`} className="block min-w-0">
-                    <span className="block text-xs font-bold uppercase tracking-[0.08em] text-[#f97316]">
-                      {folder.code}
-                    </span>
-                    <span className="mt-1 block max-w-[280px] truncate font-semibold text-slate-900 dark:text-white">
+                    <span className="block font-medium text-gray-900">#{folder.code}</span>
+                    <span className="mt-1 block max-w-[280px] truncate text-xs text-gray-500">
                       {folder.title}
                     </span>
                   </Link>
@@ -192,12 +184,12 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
                 <td className="px-5 py-4">
                   <div className="flex min-w-0 items-center gap-3">
                     <Avatar className="size-9">
-                      <AvatarFallback className="bg-emerald-50 text-xs font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                      <AvatarFallback className="bg-emerald-50 text-xs font-bold text-emerald-700">
                         {initialsOf(folder.client.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
-                      <span className="block max-w-48 truncate font-medium text-slate-800 dark:text-slate-100">
+                      <span className="block max-w-48 truncate font-medium text-slate-800">
                         {folder.client.name}
                       </span>
                       <span className="block text-xs text-slate-500">{folder.client.document}</span>
@@ -207,7 +199,7 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
                 <td className="px-5 py-4">
                   {folder.responsible_lawyer ? (
                     <div className="min-w-0">
-                      <span className="block max-w-44 truncate font-medium text-slate-700 dark:text-slate-200">
+                      <span className="block max-w-44 truncate font-medium text-slate-700">
                         {folder.responsible_lawyer.full_name}
                       </span>
                       <span className="block max-w-44 truncate text-xs text-slate-500">
@@ -218,7 +210,7 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
                     <span className="text-slate-400">Sem responsável</span>
                   )}
                 </td>
-                <td className="px-5 py-4 text-slate-600 dark:text-slate-300">
+                <td className="px-5 py-4 text-slate-600">
                   <span className="block max-w-40 truncate">{folder.area}</span>
                   {folder.subarea && (
                     <span className="mt-0.5 block max-w-40 truncate text-xs text-slate-400">
@@ -233,16 +225,19 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
                   <FolderStatusBadge status={folder.status} />
                 </td>
                 <td className="px-5 py-4 text-right">
-                  <Button
-                    variant="ghost"
-                    mode="icon"
-                    asChild
+                  <Link
+                    href={`/folders/${folder.id}`}
                     aria-label={`Abrir pasta ${folder.code}`}
+                    className="inline-flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200"
                   >
-                    <Link href={`/folders/${folder.id}`}>
-                      <ArrowRight className="size-4 transition group-hover:translate-x-0.5 group-hover:text-[#f97316]" />
-                    </Link>
-                  </Button>
+                    <img
+                      src="/yol/icons/arrow-right.svg"
+                      alt=""
+                      width={24}
+                      height={24}
+                      className="size-6"
+                    />
+                  </Link>
                 </td>
               </tr>
             ))}

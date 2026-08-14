@@ -9,15 +9,7 @@ export default function CreateFolderPage(props: FolderFormOptions) {
     <MainLayout>
       <Head title="Nova pasta" />
 
-      <div className="mx-auto max-w-5xl space-y-6">
-        <div>
-          <h2 className="text-2xl font-black tracking-[-0.035em] text-slate-900 dark:text-white">
-            Nova pasta
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Abra a pasta primeiro; processos judiciais serão vinculados dentro dela.
-          </p>
-        </div>
+      <div className="space-y-8">
         <FolderForm {...props} />
       </div>
     </MainLayout>
