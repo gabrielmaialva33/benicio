@@ -10,8 +10,11 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 import IPermission from '#modules/permissions/interfaces/permission_interface'
+import { authThrottle } from '#start/limiter'
 
 const InertiaAuthController = () => import('#modules/web/controllers/auth_controller')
+const InertiaPasswordResetController = () =>
+  import('#modules/web/controllers/password_reset_controller')
 const InertiaDashboardController = () => import('#modules/web/controllers/dashboard_controller')
 const InertiaFoldersController = () => import('#modules/web/controllers/folders_controller')
 const InertiaProcessesController = () => import('#modules/web/controllers/processes_controller')
@@ -37,6 +40,24 @@ router
   .get('/register', [InertiaAuthController, 'showRegister'])
   .as('register')
   .use(middleware.guest({ guards: ['jwt'] }))
+
+// Password recovery — throttled because both endpoints accept anonymous input
+router
+  .get('/forgot-password', [InertiaPasswordResetController, 'showForgot'])
+  .as('password.forgot')
+  .use(middleware.guest({ guards: ['jwt'] }))
+router
+  .post('/forgot-password', [InertiaPasswordResetController, 'sendResetLink'])
+  .as('password.forgot.post')
+  .use([middleware.guest({ guards: ['jwt'] }), authThrottle])
+router
+  .get('/reset-password', [InertiaPasswordResetController, 'showReset'])
+  .as('password.reset')
+  .use(middleware.guest({ guards: ['jwt'] }))
+router
+  .post('/reset-password', [InertiaPasswordResetController, 'resetPassword'])
+  .as('password.reset.post')
+  .use([middleware.guest({ guards: ['jwt'] }), authThrottle])
 router
   .post('/register', [InertiaAuthController, 'register'])
   .as('register.post')

@@ -1,4 +1,4 @@
-import { Link, useForm } from '@inertiajs/react'
+import { Link, useForm, usePage } from '@inertiajs/react'
 import type { FormEvent } from 'react'
 
 export function LoginForm() {
@@ -6,6 +6,7 @@ export function LoginForm() {
     uid: '',
     password: '',
   })
+  const { flash } = usePage().props as { flash?: { success?: string | null } }
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -14,6 +15,15 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5" noValidate>
+      {flash?.success && (
+        <p
+          role="status"
+          className="rounded-md bg-emerald-50 px-3 py-3 text-sm leading-5 text-emerald-800"
+        >
+          {flash.success}
+        </p>
+      )}
+
       <div>
         <label htmlFor="uid" className="sr-only">
           E-mail

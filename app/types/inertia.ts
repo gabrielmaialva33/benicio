@@ -41,6 +41,8 @@ declare module '@adonisjs/inertia/types' {
     // Auth
     'auth/login': Record<string, never>
     'auth/register': Record<string, never>
+    'auth/forgot_password': Record<string, never>
+    'auth/reset_password': { token: string; tokenIsValid: boolean }
 
     // Root / misc
     'home': Record<string, never>
