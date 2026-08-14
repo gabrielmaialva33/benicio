@@ -2965,7 +2965,8 @@ paths:
                 properties:
                   data: { $ref: '#/components/schemas/Task' }
         '403': { $ref: '#/components/responses/ForbiddenError' }
-        '404': { description: 'Referenced folder, process, or assignee was not found in the tenant' }
+        '404':
+          { description: 'Referenced folder, process, or assignee was not found in the tenant' }
         '422': { $ref: '#/components/responses/ValidationError' }
 
   /api/v1/tasks/{id}:
@@ -3071,6 +3072,8 @@ paths:
                   - type: object
                     properties:
                       data: { type: array, items: { $ref: '#/components/schemas/Hearing' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
     post:
       operationId: createHearing
       summary: Create a hearing
@@ -3198,6 +3201,8 @@ paths:
                   - type: object
                     properties:
                       data: { type: array, items: { $ref: '#/components/schemas/Deadline' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
     post:
       operationId: createDeadline
       summary: Create a deadline
@@ -3305,6 +3310,8 @@ paths:
                   - type: object
                     properties:
                       data: { type: array, items: { $ref: '#/components/schemas/Movement' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/movements/{id}:
     parameters:
@@ -3467,6 +3474,8 @@ paths:
                   - type: object
                     properties:
                       data: { type: array, items: { $ref: '#/components/schemas/LegalDocument' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
     post:
       operationId: createLegalDocument
       summary: Link legal metadata to an existing canonical file
@@ -3589,6 +3598,8 @@ paths:
                 type: object
                 properties:
                   data: { type: array, items: { $ref: '#/components/schemas/Folder' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/folders/{folderId}/favorite:
     parameters:
@@ -3674,6 +3685,8 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/DashboardSummary' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/dashboard/urgent-tasks:
     get:
@@ -3686,6 +3699,8 @@ paths:
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200': { description: Urgent task widget rows }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/dashboard/upcoming-hearings:
     get:
@@ -3698,6 +3713,8 @@ paths:
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200': { description: Upcoming hearing widget rows }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/dashboard/upcoming-deadlines:
     get:
@@ -3710,6 +3727,8 @@ paths:
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200': { description: Upcoming deadline widget rows }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/dashboard/favorite-folders:
     get:
@@ -3722,6 +3741,8 @@ paths:
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200': { description: Favorite folder widget rows }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/dashboard/recent-activity:
     get:
@@ -3734,6 +3755,8 @@ paths:
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200': { description: Recent activity widget rows }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/notifications:
     get:
@@ -3764,6 +3787,8 @@ paths:
                   - type: object
                     properties:
                       data: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
     post:
       operationId: createNotification
       summary: Create and deliver a notification to a tenant member
@@ -3793,6 +3818,8 @@ paths:
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200': { description: Recent notifications }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/notifications/unread-count:
     get:
@@ -3804,6 +3831,8 @@ paths:
         - $ref: '#/components/parameters/tenantIdHeader'
       responses:
         '200': { description: Envelope containing `data.count` }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/notifications/read-all:
     put:
@@ -3815,6 +3844,8 @@ paths:
         - $ref: '#/components/parameters/tenantIdHeader'
       responses:
         '200': { description: Envelope containing `data.updated` }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/notifications/{id}:
     parameters:
@@ -3881,6 +3912,8 @@ paths:
                   - type: object
                     properties:
                       data: { type: array, items: { $ref: '#/components/schemas/InternalMessage' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
     post:
       operationId: createInternalMessage
       summary: Send a persisted internal message to a tenant member
@@ -3909,6 +3942,8 @@ paths:
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200': { description: Recent inbox messages }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/messages/unread-count:
     get:
@@ -3920,6 +3955,8 @@ paths:
         - $ref: '#/components/parameters/tenantIdHeader'
       responses:
         '200': { description: Envelope containing `data.count` }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/messages/read-all:
     put:
@@ -3931,6 +3968,8 @@ paths:
         - $ref: '#/components/parameters/tenantIdHeader'
       responses:
         '200': { description: Envelope containing `data.updated` }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/messages/{id}:
     parameters:
@@ -4044,6 +4083,8 @@ paths:
                       data:
                         type: array
                         items: { $ref: '#/components/schemas/AiConversation' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
 
   /api/v1/ai/conversations/{id}:
     parameters:
