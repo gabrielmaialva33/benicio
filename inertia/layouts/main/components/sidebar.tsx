@@ -1,13 +1,8 @@
 import { Link, usePage } from '@inertiajs/react'
 import {
-  Bot,
-  FileText,
+  ChevronDown,
   ContactRound,
-  FolderOpen,
-  Home,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Search,
+  FileText,
   Settings,
   ShieldCheck,
   Upload,
@@ -17,45 +12,41 @@ import {
 import { useMemo, useState } from 'react'
 
 import { BrandLogo } from '~/components/brand_logo'
+import { useFavoriteFolders } from '~/hooks/use_shell_data'
 import { cn } from '~/lib/utils'
 
 interface MenuItem {
   title: string
   href: string
-  icon: LucideIcon
+  icon?: LucideIcon
+  iconPath?: string
+  children?: Array<{ title: string; href: string }>
 }
 
-interface MenuSection {
-  title: string
-  items: MenuItem[]
-}
-
-const menuSections: MenuSection[] = [
+const pageItems: MenuItem[] = [
+  { title: 'Visão Geral', href: '/dashboard', iconPath: '/yol/icons/overview.svg' },
   {
-    title: 'Páginas',
-    items: [
-      { title: 'Visão geral', href: '/dashboard', icon: Home },
-      { title: 'Pastas', href: '/folders', icon: FolderOpen },
-      { title: 'Assistente IA', href: '/chat', icon: Bot },
+    title: 'Pastas',
+    href: '/folders',
+    iconPath: '/yol/icons/folders.svg',
+    children: [
+      { title: 'Cadastrar', href: '/folders/create' },
+      { title: 'Consulta', href: '/folders' },
     ],
   },
-  {
-    title: 'Gestão',
-    items: [
-      { title: 'Clientes', href: '/clients', icon: ContactRound },
-      { title: 'Usuários', href: '/users', icon: Users },
-      { title: 'Arquivos', href: '/files', icon: Upload },
-    ],
-  },
-  {
-    title: 'Acesso',
-    items: [
-      { title: 'Papéis', href: '/roles', icon: ShieldCheck },
-      { title: 'Permissões', href: '/permissions', icon: FileText },
-      { title: 'Configurações', href: '/settings', icon: Settings },
-    ],
-  },
+  { title: 'Chat IA', href: '/chat', iconPath: '/yol/icons/sparkles.svg' },
 ]
+
+const managementItems: MenuItem[] = [
+  { title: 'Clientes', href: '/clients', icon: ContactRound },
+  { title: 'Usuários', href: '/users', icon: Users },
+  { title: 'Arquivos', href: '/files', icon: Upload },
+  { title: 'Papéis', href: '/roles', icon: ShieldCheck },
+  { title: 'Permissões', href: '/permissions', icon: FileText },
+  { title: 'Configurações', href: '/settings', icon: Settings },
+]
+
+const favoriteColors = ['#008980', '#2fac68', '#f6c000', '#5a5dff', '#ff5a5d', '#ff8a00']
 
 function currentPath(url: string) {
   return url.split('?', 1)[0] ?? '/'
@@ -66,6 +57,23 @@ function isActive(url: string, href: string) {
   return path === href || (href !== '/dashboard' && path.startsWith(`${href}/`))
 }
 
+function NavigationIcon({ item, active }: { item: MenuItem; active: boolean }) {
+  if (item.iconPath) {
+    return (
+      <img
+        src={item.iconPath}
+        alt=""
+        width={24}
+        height={24}
+        className={cn('size-6 shrink-0', active && 'brightness-0 invert')}
+      />
+    )
+  }
+
+  const Icon = item.icon
+  return Icon ? <Icon className="size-6 shrink-0 text-gray-300" strokeWidth={2} /> : null
+}
+
 interface SidebarNavProps {
   collapsed?: boolean
   onNavigate?: () => void
@@ -74,84 +82,202 @@ interface SidebarNavProps {
 export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const { url } = usePage()
   const [search, setSearch] = useState('')
+  const [showAllFavorites, setShowAllFavorites] = useState(false)
+  const [foldersOpen, setFoldersOpen] = useState(currentPath(url).startsWith('/folders'))
+  const favoriteFolders = useFavoriteFolders()
+  const searchQuery = search.trim().toLocaleLowerCase('pt-BR')
 
-  const visibleSections = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase('pt-BR')
-    if (!query) return menuSections
+  const filterItems = (items: MenuItem[]) =>
+    searchQuery
+      ? items.filter((item) => item.title.toLocaleLowerCase('pt-BR').includes(searchQuery))
+      : items
 
-    return menuSections
-      .map((section) => ({
-        ...section,
-        items: section.items.filter((item) =>
-          item.title.toLocaleLowerCase('pt-BR').includes(query)
-        ),
-      }))
-      .filter((section) => section.items.length > 0)
-  }, [search])
+  const visiblePages = filterItems(pageItems)
+  const visibleManagement = filterItems(managementItems)
+  const visibleFavorites = useMemo(() => {
+    const favorites = favoriteFolders.data ?? []
+    if (!searchQuery) return favorites
+
+    return favorites.filter((folder) =>
+      `${folder.code} ${folder.title} ${folder.area}`
+        .toLocaleLowerCase('pt-BR')
+        .includes(searchQuery)
+    )
+  }, [favoriteFolders.data, searchQuery])
+  const displayedFavorites =
+    showAllFavorites || searchQuery ? visibleFavorites : visibleFavorites.slice(0, 3)
+
+  const renderMenuItem = (item: MenuItem) => {
+    const hasChildren = Boolean(item.children?.length)
+    const active = !hasChildren && isActive(url, item.href)
+    const open = hasChildren && (foldersOpen || currentPath(url).startsWith(item.href))
+    const content = (
+      <>
+        <NavigationIcon item={item} active={active} />
+        {!collapsed && <span className="truncate">{item.title}</span>}
+        {!collapsed && hasChildren && (
+          <ChevronDown
+            className={cn('ml-auto size-5 transition-transform', open && 'rotate-180')}
+          />
+        )}
+      </>
+    )
+
+    return (
+      <div key={item.href}>
+        {hasChildren ? (
+          <button
+            type="button"
+            onClick={() => setFoldersOpen((value) => !value)}
+            className={cn(
+              'group flex w-full items-center gap-3 rounded-[10px] px-3 py-[14px] font-semibold text-base text-white transition-colors hover:bg-gray-700',
+              collapsed && 'justify-center'
+            )}
+          >
+            {content}
+          </button>
+        ) : (
+          <Link
+            href={item.href}
+            onClick={onNavigate}
+            title={collapsed ? item.title : undefined}
+            aria-current={active ? 'page' : undefined}
+            className={cn(
+              'group flex w-full items-center gap-3 rounded-[10px] px-3 py-[14px] font-semibold text-base text-white transition-colors hover:bg-gray-700',
+              collapsed && 'justify-center',
+              active && !collapsed && 'bg-orange-500 hover:bg-orange-500',
+              active && collapsed && '[&_img]:brightness-100 [&_img]:invert-0'
+            )}
+          >
+            {content}
+          </Link>
+        )}
+
+        {open && !collapsed && (
+          <ul className="mt-2 space-y-2 pl-8">
+            {item.children?.map((child) => {
+              const childActive = currentPath(url) === child.href
+              return (
+                <li key={child.href}>
+                  <Link
+                    href={child.href}
+                    onClick={onNavigate}
+                    className={cn(
+                      'flex items-center rounded-md p-2 font-medium text-sm text-gray-400 transition-colors hover:bg-gray-700 hover:text-white',
+                      childActive && 'bg-orange-500 text-white hover:bg-orange-500'
+                    )}
+                  >
+                    <span className="mr-3 size-1.5 rounded-full bg-white" />
+                    {child.title}
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </div>
+    )
+  }
 
   return (
-    <nav className="yol-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-6">
+    <nav
+      className={cn(
+        'yol-scrollbar flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto',
+        collapsed ? 'mt-10 items-center px-4' : 'mt-[25px] gap-[25px]'
+      )}
+    >
       {!collapsed && (
-        <label className="relative mb-6 block">
+        <label className="relative block px-10 pr-[60px]">
           <span className="sr-only">Filtrar navegação</span>
-          <Search className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-white/55" />
+          <img
+            src="/yol/icons/magnifier.svg"
+            alt=""
+            width={16}
+            height={16}
+            className="pointer-events-none absolute left-[52px] top-1/2 size-4 -translate-y-1/2"
+          />
           <input
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Pesquisar"
-            className="h-11 w-full rounded-xl border border-white/5 bg-white/10 ps-10 pe-3 text-sm text-white outline-none transition placeholder:text-white/50 focus:border-[#f97316]/70 focus:bg-white/[0.14] focus:ring-2 focus:ring-[#f97316]/20"
+            className="h-[46px] w-full rounded-md border-0 bg-[#86878b] pl-11 pr-3 text-sm text-white outline-none placeholder:text-white focus:ring-2 focus:ring-orange-500/50"
           />
         </label>
       )}
 
-      <div className="space-y-6">
-        {visibleSections.map((section) => (
-          <section key={section.title}>
-            {!collapsed && (
-              <h2 className="mb-2 px-3 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white/35">
-                {section.title}
-              </h2>
-            )}
+      <section
+        className={cn(
+          'w-full',
+          collapsed
+            ? 'flex flex-col items-center'
+            : 'border-b border-[#babbc1] px-10 pb-[25px] pr-[60px]'
+        )}
+      >
+        {!collapsed && (
+          <h2 className="mb-2 mt-4 font-semibold text-sm uppercase text-[#a1a5b7]">Páginas</h2>
+        )}
+        <div className={cn(collapsed && 'w-full space-y-1')}>
+          {visiblePages.map(renderMenuItem)}
+        </div>
+      </section>
 
-            <div className="space-y-1.5">
-              {section.items.map((item) => {
-                const active = isActive(url, item.href)
-                const Icon = item.icon
+      {!collapsed && visibleManagement.length > 0 && (
+        <section className="w-full border-b border-[#babbc1] px-10 pb-[25px] pr-[60px]">
+          <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Gestão</h2>
+          <div>{visibleManagement.map(renderMenuItem)}</div>
+        </section>
+      )}
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onNavigate}
-                    title={collapsed ? item.title : undefined}
-                    aria-current={active ? 'page' : undefined}
-                    className={cn(
-                      'group flex h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors',
-                      collapsed && 'justify-center px-0',
-                      active
-                        ? 'bg-[#f97316] text-white shadow-[0_8px_24px_rgba(249,115,22,0.22)]'
-                        : 'text-white/72 hover:bg-white/10 hover:text-white'
-                    )}
-                  >
-                    <Icon
-                      className={cn(
-                        'size-5 shrink-0 transition-colors',
-                        active ? 'text-white' : 'text-white/55 group-hover:text-white'
-                      )}
-                      strokeWidth={2}
-                    />
-                    {!collapsed && <span className="truncate">{item.title}</span>}
-                  </Link>
-                )
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
+      {!collapsed && (favoriteFolders.isPending || favoriteFolders.isError) && (
+        <section className="px-10 pr-[60px]">
+          <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Favoritos</h2>
+          <p className="text-xs text-white/55">
+            {favoriteFolders.isPending ? 'Carregando favoritos...' : 'Não foi possível carregar.'}
+          </p>
+        </section>
+      )}
 
-      {!collapsed && visibleSections.length === 0 && (
-        <p className="px-3 py-8 text-center text-sm text-white/45">Nenhuma página encontrada.</p>
+      {!collapsed && visibleFavorites.length > 0 && (
+        <section className="px-10 pr-[60px]">
+          <h2 className="mb-2 font-semibold text-sm uppercase text-[#a1a5b7]">Favoritos</h2>
+          <div>
+            {displayedFavorites.map((folder, index) => (
+              <Link
+                key={folder.id}
+                href={`/folders/${folder.id}`}
+                onClick={onNavigate}
+                className="flex min-h-[50px] items-center gap-3 rounded-[10px] px-3 py-2 font-semibold text-base text-white transition-colors hover:bg-gray-700"
+              >
+                <span
+                  className="size-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: favoriteColors[index % favoriteColors.length] }}
+                />
+                <span className="flex min-w-0 truncate">
+                  <span>{folder.code}</span>
+                  <span aria-hidden="true">&nbsp;-&nbsp;</span>
+                  <span className="truncate">{folder.title}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+          {!searchQuery && visibleFavorites.length > 3 && (
+            <button
+              type="button"
+              onClick={() => setShowAllFavorites((value) => !value)}
+              className="mt-2 flex items-center gap-2 px-3 font-semibold text-sm text-[#a1a5b7] hover:text-white"
+            >
+              <img
+                src="/yol/icons/down.svg"
+                alt=""
+                width={16}
+                height={16}
+                className={cn('size-4 transition-transform', showAllFavorites && 'rotate-180')}
+              />
+              {showAllFavorites ? 'Mostrar menos' : 'Mostrar mais'}
+            </button>
+          )}
+        </section>
       )}
     </nav>
   )
@@ -166,42 +292,32 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden bg-[#373737] text-white transition-[width] duration-300 lg:flex',
-        isCollapsed ? 'w-[88px]' : 'w-[300px]'
+        'sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden bg-[#373737] py-10 text-white transition-[width] duration-300 ease-in-out lg:flex',
+        isCollapsed ? 'w-24' : 'w-[340px]'
       )}
     >
       <div
         className={cn(
-          'flex h-[104px] shrink-0 items-center border-b border-white/10',
-          isCollapsed ? 'justify-center px-3' : 'justify-between px-6'
+          'flex shrink-0 items-center',
+          isCollapsed
+            ? 'flex-col justify-center gap-6'
+            : 'justify-between gap-[78px] px-10 pr-[17px]'
         )}
       >
         <Link href="/dashboard" aria-label="Ir para a visão geral">
           <BrandLogo collapsed={isCollapsed} inverse />
         </Link>
 
-        {!isCollapsed && (
-          <button
-            type="button"
-            onClick={onToggle}
-            aria-label="Recolher navegação"
-            className="flex size-9 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white"
-          >
-            <PanelLeftClose className="size-5" />
-          </button>
-        )}
-      </div>
-
-      {isCollapsed && (
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-label="Expandir navegação"
-          className="mx-auto my-5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/65 transition hover:bg-white/15 hover:text-white"
-        >
-          <PanelLeftOpen className="size-5" />
+        <button type="button" onClick={onToggle} aria-label="Alternar barra lateral">
+          <img
+            src="/yol/icons/left-square.svg"
+            alt=""
+            width={24}
+            height={24}
+            className={cn('size-6 transition-transform', isCollapsed && 'rotate-180')}
+          />
         </button>
-      )}
+      </div>
 
       <SidebarNav collapsed={isCollapsed} />
     </aside>

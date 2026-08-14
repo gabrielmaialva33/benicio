@@ -4,6 +4,7 @@ export * from './folder'
 export * from './process'
 export * from './ai'
 export * from './client'
+export * from './shell'
 
 /**
  * The authenticated user as shared with every Inertia page by the
