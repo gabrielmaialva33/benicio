@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import { createHash } from 'node:crypto'
 
 import ConflictException from '#exceptions/conflict_exception'
 import NotFoundException from '#exceptions/not_found_exception'
@@ -46,6 +47,13 @@ export default class InertiaFoldersController {
     try {
       const folder = await this.folderService.create(requireTenantId(ctx), input)
       ctx.session.flash('success', `Pasta ${folder.code} criada com sucesso.`)
+      ctx.logger.info(
+        {
+          session_hash: createHash('sha256').update(ctx.session.sessionId).digest('hex'),
+          response_flash: ctx.session.responseFlashMessages.all(),
+        },
+        'folder store session diagnostic'
+      )
       return inertiaRedirectTo(ctx, `/folders/${folder.id}`)
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -64,6 +72,14 @@ export default class InertiaFoldersController {
   }
 
   async show(ctx: HttpContext) {
+    ctx.logger.info(
+      {
+        session_hash: createHash('sha256').update(ctx.session.sessionId).digest('hex'),
+        flash: ctx.session.flashMessages.all(),
+        session_keys: Object.keys(ctx.session.all()),
+      },
+      'folder show session diagnostic'
+    )
     const page = await this.folderPageService.detail(requireTenantId(ctx), Number(ctx.params.id))
 
     return ctx.inertia.render('folders/show', page)
