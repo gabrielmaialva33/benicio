@@ -2,10 +2,6 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
   async up() {
-    this.schema.alterTable('files', (table) => {
-      table.unique(['tenant_id', 'id'], 'files_tenant_id_id_unique')
-    })
-
     this.schema.createTable('legal_documents', (table) => {
       table.increments('id')
       table
@@ -97,8 +93,5 @@ export default class extends BaseSchema {
   async down() {
     this.schema.dropTable('folder_favorites')
     this.schema.dropTable('legal_documents')
-    this.schema.alterTable('files', (table) => {
-      table.dropUnique(['tenant_id', 'id'], 'files_tenant_id_id_unique')
-    })
   }
 }
