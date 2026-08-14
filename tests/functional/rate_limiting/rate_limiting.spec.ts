@@ -65,13 +65,12 @@ test.group('Rate Limiting', (group) => {
   }) => {
     const { user } = await createLegalAdmin()
 
-    // Test basic guest access (no rate limiting check due to configuration issues)
-    const guestResponse = await client.get('/')
-    assert.equal(guestResponse.status(), 200)
+    // Root is an entrypoint redirect; neither guest nor authenticated access is throttled.
+    const guestResponse = await client.get('/').redirects(0)
+    assert.equal(guestResponse.status(), 302)
 
-    // Test authenticated access (should use different rate limiter)
-    const authResponse = await client.get('/').loginAs(user)
-    assert.equal(authResponse.status(), 200)
+    const authResponse = await client.get('/').loginAs(user).redirects(0)
+    assert.equal(authResponse.status(), 302)
 
     // Verify that both authenticated and guest users can access the endpoint
     // The actual rate limiting behavior is tested in other more specific tests

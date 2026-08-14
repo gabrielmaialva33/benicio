@@ -44,12 +44,12 @@ router
 
 // Root route redirects to dashboard if authenticated, otherwise to log in
 router
-  .get('/', async ({ auth, response, inertia }) => {
+  .get('/', async ({ auth, response }) => {
     try {
       await auth.use('jwt').authenticate()
       return response.redirect('/dashboard')
     } catch {
-      return inertia.render('home', {})
+      return response.redirect('/login')
     }
   })
   .as('home')
