@@ -101,6 +101,11 @@ export default await Env.create(new URL('../', import.meta.url), {
   AI_GROQ_BASE_URL: Env.schema.string.optional(),
   AI_GROQ_FAST_MODEL: Env.schema.string.optional(),
   AI_GROQ_DEEP_MODEL: Env.schema.string.optional(),
+  AI_GEMINI_API_KEY: Env.schema.string.optional(),
+  AI_GEMINI_BASE_URL: Env.schema.string.optional(),
+  AI_GEMINI_FAST_MODEL: Env.schema.string.optional(),
+  AI_GEMINI_DEEP_MODEL: Env.schema.string.optional(),
+
   AI_NVIDIA_API_KEY: Env.schema.string.optional(),
   AI_NVIDIA_BASE_URL: Env.schema.string.optional(),
   AI_NVIDIA_FAST_MODEL: Env.schema.string.optional(),

@@ -9,7 +9,7 @@ export interface AiTimeoutsConfig {
 }
 
 export interface AiCandidateConfig {
-  provider: 'groq' | 'nvidia_nim'
+  provider: 'gemini' | 'nvidia_nim'
   baseUrl: string
   apiKey?: string
   model: string
@@ -225,21 +225,30 @@ const aiConfig = {
     timeoutMs: integerInRange('AI_TIMEOUT_MS', env.get('AI_TIMEOUT_MS'), 60_000, 1_000, 300_000),
   },
   profiles: {
+    /*
+    |----------------------------------------------------------
+    | Groq is intentionally absent: the account is delinquent, so every request
+    | comes back 400 and the candidate only costs a round trip. Each profile
+    | pairs NVIDIA with Gemini so one account going bad cannot take chat down —
+    | which is exactly how Groq broke it. Gemini's pro tier is over quota on the
+    | current key, so only the flash models are listed.
+    |----------------------------------------------------------
+    */
     fast: {
       candidates: [
-        {
-          provider: 'groq',
-          baseUrl: env.get('AI_GROQ_BASE_URL') ?? 'https://api.groq.com/openai/v1',
-          apiKey: env.get('AI_GROQ_API_KEY'),
-          model: env.get('AI_GROQ_FAST_MODEL') ?? 'llama-3.3-70b-versatile',
-          maxTokens: fastMaxTokens,
-          timeouts: fastTimeouts,
-        },
         {
           provider: 'nvidia_nim',
           baseUrl: env.get('AI_NVIDIA_BASE_URL') ?? 'https://integrate.api.nvidia.com/v1',
           apiKey: env.get('AI_NVIDIA_API_KEY'),
           model: env.get('AI_NVIDIA_FAST_MODEL') ?? 'deepseek-ai/deepseek-v4-flash-0731',
+          maxTokens: fastMaxTokens,
+          timeouts: fastTimeouts,
+        },
+        {
+          provider: 'gemini',
+          baseUrl: env.get('AI_GEMINI_BASE_URL') ?? 'https://generativelanguage.googleapis.com/v1beta/openai',
+          apiKey: env.get('AI_GEMINI_API_KEY'),
+          model: env.get('AI_GEMINI_FAST_MODEL') ?? 'gemini-flash-lite-latest',
           maxTokens: fastMaxTokens,
           timeouts: fastTimeouts,
         },
@@ -256,10 +265,10 @@ const aiConfig = {
           timeouts: deepTimeouts,
         },
         {
-          provider: 'groq',
-          baseUrl: env.get('AI_GROQ_BASE_URL') ?? 'https://api.groq.com/openai/v1',
-          apiKey: env.get('AI_GROQ_API_KEY'),
-          model: env.get('AI_GROQ_DEEP_MODEL') ?? 'openai/gpt-oss-120b',
+          provider: 'gemini',
+          baseUrl: env.get('AI_GEMINI_BASE_URL') ?? 'https://generativelanguage.googleapis.com/v1beta/openai',
+          apiKey: env.get('AI_GEMINI_API_KEY'),
+          model: env.get('AI_GEMINI_DEEP_MODEL') ?? 'gemini-3-flash-preview',
           maxTokens: deepMaxTokens,
           timeouts: deepTimeouts,
         },
