@@ -3,7 +3,6 @@ import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
-import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
 import type { AiChatMessage } from '~/types/ai'
 
@@ -30,33 +29,41 @@ export function ChatMessage({ message }: { message: AiChatMessage }) {
   return (
     <article
       data-testid={`chat-message-${message.role}`}
-      className={cn('flex gap-3 px-4 py-5 sm:px-6', !assistant && 'flex-row-reverse')}
+      className={cn(
+        'group flex gap-3 p-4 transition-colors',
+        assistant ? 'bg-gray-50 hover:bg-gray-100/50' : 'bg-blue-50 hover:bg-blue-100/50'
+      )}
     >
       <span
         className={cn(
-          'flex size-9 shrink-0 items-center justify-center rounded-xl shadow-sm',
+          'flex size-8 shrink-0 items-center justify-center rounded-full text-white',
           assistant
-            ? 'bg-[#373737] text-white dark:bg-white dark:text-slate-900'
-            : 'bg-[#f97316] text-white'
+            ? 'bg-gradient-to-br from-cyan-500 to-cyan-600'
+            : 'bg-gradient-to-br from-orange-500 to-orange-600'
         )}
       >
-        {assistant ? <Bot className="size-4.5" /> : <UserRound className="size-4.5" />}
+        {assistant ? <Bot className="size-5" /> : <UserRound className="size-5" />}
       </span>
-      <div className={cn('min-w-0 max-w-[88%] sm:max-w-[80%]', !assistant && 'text-right')}>
-        <div className={cn('mb-1.5 flex items-center gap-2', !assistant && 'justify-end')}>
-          <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
-            {assistant ? 'Benício IA' : 'Você'}
+
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-semibold text-sm text-gray-900">
+            {assistant ? 'Assistente IA' : 'Você'}
           </span>
-          <time className="text-[0.68rem] text-slate-400">{formatTime(message.created_at)}</time>
-        </div>
-        <div
-          className={cn(
-            'relative rounded-2xl px-4 py-3 text-left text-sm leading-6 shadow-sm',
-            assistant
-              ? 'border border-slate-200/80 bg-white text-slate-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200'
-              : 'bg-[#f97316] text-white'
+          {assistant && (
+            <button
+              type="button"
+              onClick={copy}
+              className="flex items-center gap-1 rounded p-1 text-xs text-gray-400 opacity-0 transition hover:bg-white hover:text-gray-600 group-hover:opacity-100 focus:opacity-100"
+              aria-label="Copiar resposta"
+            >
+              {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+              {copied ? 'Copiado' : 'Copiar'}
+            </button>
           )}
-        >
+        </div>
+
+        <div className="text-left text-sm leading-6 text-gray-800">
           {assistant ? (
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
@@ -66,7 +73,7 @@ export function ChatMessage({ message }: { message: AiChatMessage }) {
                     {...props}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="font-semibold text-cyan-700 underline underline-offset-2 dark:text-cyan-300"
+                    className="font-semibold text-cyan-700 underline underline-offset-2"
                   >
                     {children}
                   </a>
@@ -77,12 +84,12 @@ export function ChatMessage({ message }: { message: AiChatMessage }) {
                   <ol className="my-3 list-decimal space-y-1 ps-5">{children}</ol>
                 ),
                 blockquote: ({ children }) => (
-                  <blockquote className="my-3 border-s-2 border-cyan-400 ps-3 text-slate-500 dark:text-slate-400">
+                  <blockquote className="my-3 border-s-2 border-cyan-400 ps-3 text-gray-500">
                     {children}
                   </blockquote>
                 ),
                 pre: ({ children }) => (
-                  <pre className="my-3 overflow-x-auto rounded-xl bg-slate-950 p-4 text-xs leading-5 text-slate-100">
+                  <pre className="my-3 overflow-x-auto rounded-lg bg-slate-950 p-4 text-xs leading-5 text-slate-100">
                     {children}
                   </pre>
                 ),
@@ -90,8 +97,7 @@ export function ChatMessage({ message }: { message: AiChatMessage }) {
                   <code
                     className={cn(
                       className,
-                      !className &&
-                        'rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs dark:bg-white/10'
+                      !className && 'rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs'
                     )}
                   >
                     {children}
@@ -103,13 +109,9 @@ export function ChatMessage({ message }: { message: AiChatMessage }) {
                   </div>
                 ),
                 th: ({ children }) => (
-                  <th className="border border-slate-200 p-2 text-left dark:border-white/10">
-                    {children}
-                  </th>
+                  <th className="border border-gray-200 p-2 text-left">{children}</th>
                 ),
-                td: ({ children }) => (
-                  <td className="border border-slate-200 p-2 dark:border-white/10">{children}</td>
-                ),
+                td: ({ children }) => <td className="border border-gray-200 p-2">{children}</td>,
               }}
             >
               {message.content}
@@ -118,19 +120,7 @@ export function ChatMessage({ message }: { message: AiChatMessage }) {
             <p className="whitespace-pre-wrap">{message.content}</p>
           )}
         </div>
-        {assistant && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={copy}
-            className="mt-1.5 h-7 px-2 text-[0.68rem] text-slate-400"
-            aria-label="Copiar resposta"
-          >
-            {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-            {copied ? 'Copiado' : 'Copiar'}
-          </Button>
-        )}
+        <time className="block text-xs text-gray-500">{formatTime(message.created_at)}</time>
       </div>
     </article>
   )
@@ -138,29 +128,25 @@ export function ChatMessage({ message }: { message: AiChatMessage }) {
 
 export function StreamingChatMessage({ content }: { content: string }) {
   return (
-    <article className="flex gap-3 px-4 py-5 sm:px-6" aria-live="polite" data-testid="chat-stream">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#373737] text-white shadow-sm dark:bg-white dark:text-slate-900">
-        <Bot className="size-4.5" />
+    <article className="flex gap-3 bg-gray-50 p-4" aria-live="polite" data-testid="chat-stream">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 text-white">
+        <Bot className="size-5" />
       </span>
-      <div className="min-w-0 max-w-[88%] sm:max-w-[80%]">
-        <span className="mb-1.5 block text-xs font-bold text-slate-600 dark:text-slate-300">
-          Benício IA
-        </span>
-        <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200">
-          {content ? (
-            <p className="whitespace-pre-wrap">
-              {content}
-              <span className="ms-0.5 inline-block h-4 w-0.5 animate-pulse bg-cyan-500 align-middle" />
-            </p>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 text-slate-400">
-              <span className="size-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.2s]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.1s]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-current" />
-              Pensando
-            </span>
-          )}
-        </div>
+      <div className="min-w-0 flex-1 space-y-2">
+        <span className="block font-semibold text-sm text-gray-900">Assistente IA</span>
+        {content ? (
+          <p className="whitespace-pre-wrap text-sm leading-6 text-gray-800">
+            {content}
+            <span className="ms-0.5 inline-block h-4 w-0.5 animate-pulse bg-cyan-500 align-middle" />
+          </p>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 text-sm text-gray-400">
+            <span className="size-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.2s]" />
+            <span className="size-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.1s]" />
+            <span className="size-1.5 animate-bounce rounded-full bg-current" />
+            Pensando
+          </span>
+        )}
       </div>
     </article>
   )

@@ -34,7 +34,7 @@ function DeleteConversationButton({ conversation }: { conversation: AiConversati
           type="button"
           disabled={generating}
           aria-label={`Excluir conversa ${conversation.title}`}
-          className="flex size-8 shrink-0 items-center justify-center rounded-lg text-slate-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed group-hover:opacity-100 group-focus-within:opacity-100 dark:hover:bg-red-500/10"
+          className="flex size-8 shrink-0 items-center justify-center rounded p-1 text-gray-400 opacity-0 transition hover:bg-red-100 hover:text-red-600 disabled:cursor-not-allowed group-hover:opacity-100 group-focus-within:opacity-100"
         >
           <Trash2 className="size-3.5" />
         </button>
@@ -70,11 +70,11 @@ export function ConversationSidebar({
   disabled: boolean
 }) {
   return (
-    <aside className="flex h-64 w-full shrink-0 flex-col border-b border-slate-200/80 bg-slate-50/80 dark:border-white/10 dark:bg-white/[0.02] lg:h-full lg:w-80 lg:border-b-0 lg:border-e">
-      <div className="border-b border-slate-200/80 p-4 dark:border-white/10">
+    <aside className="flex h-64 w-full shrink-0 flex-col border-b border-[#e1e3ea] bg-white lg:h-full lg:w-64 lg:border-b-0 lg:border-e">
+      <div className="border-b border-[#e1e3ea] p-4">
         <Button
           asChild
-          className="w-full justify-center bg-[#f97316] text-white hover:bg-[#ea680c]"
+          className="w-full justify-center rounded-lg bg-orange-500 px-4 py-2 font-semibold text-white hover:bg-orange-600"
           aria-disabled={disabled}
         >
           <Link href="/chat" className={cn(disabled && 'pointer-events-none opacity-60')}>
@@ -88,9 +88,7 @@ export function ConversationSidebar({
         {conversations.length === 0 ? (
           <div className="flex h-full min-h-36 flex-col items-center justify-center px-5 text-center">
             <MessageSquareText className="size-8 text-slate-300" />
-            <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
-              Nenhuma conversa ainda
-            </p>
+            <p className="mt-3 text-sm font-semibold text-slate-600">Nenhuma conversa ainda</p>
             <p className="mt-1 text-xs text-slate-400">Seu histórico aparece aqui.</p>
           </div>
         ) : (
@@ -101,10 +99,8 @@ export function ConversationSidebar({
                 <div
                   key={conversation.id}
                   className={cn(
-                    'group flex items-center gap-1 rounded-xl border px-2 py-2 transition',
-                    active
-                      ? 'border-orange-200 bg-orange-50 dark:border-orange-500/20 dark:bg-orange-500/10'
-                      : 'border-transparent hover:bg-white dark:hover:bg-white/[0.04]'
+                    'group flex items-center gap-1 rounded-lg p-1 transition-colors',
+                    active ? 'bg-orange-50 text-orange-500' : 'hover:bg-gray-100'
                   )}
                 >
                   <Link
@@ -123,9 +119,7 @@ export function ConversationSidebar({
                           )}
                         />
                       )}
-                      <span className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        {conversation.title}
-                      </span>
+                      <span className="truncate text-sm text-slate-700">{conversation.title}</span>
                     </span>
                     <span className="mt-1 flex items-center justify-between gap-2 ps-5.5 text-[0.68rem] text-slate-400">
                       <span className="truncate">
@@ -143,7 +137,7 @@ export function ConversationSidebar({
         )}
       </div>
 
-      <footer className="hidden border-t border-slate-200/80 px-4 py-3 text-xs text-slate-400 dark:border-white/10 lg:block">
+      <footer className="hidden border-t border-[#e1e3ea] px-3 py-3 text-xs text-gray-500 lg:block">
         {conversations.length} conversa(s) neste escritório
       </footer>
     </aside>
