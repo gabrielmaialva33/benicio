@@ -4300,7 +4300,10 @@ paths:
           schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
         - name: type
           in: query
-          schema: { type: string, maxLength: 80 }
+          schema:
+            type: string
+            enum:
+              [summary, entities, sentiment, legal_review, generation, classification, precatorio]
         - name: status
           in: query
           schema: { type: string, enum: [processing, completed, failed] }

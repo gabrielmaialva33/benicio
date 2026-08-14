@@ -1,4 +1,5 @@
 import env from '#start/env'
+import aiConfig from '#config/ai'
 
 const timeoutMs = env.get('QDRANT_TIMEOUT_MS') ?? 10_000
 if (!Number.isInteger(timeoutMs) || timeoutMs < 1_000 || timeoutMs > 120_000) {
@@ -15,7 +16,7 @@ const qdrantConfig = {
   apiKey: env.get('QDRANT_API_KEY')?.trim() || undefined,
   collection,
   timeoutMs,
-  vectorSize: 2048,
+  vectorSize: aiConfig.retrieval.dimensions,
 } as const
 
 export default qdrantConfig

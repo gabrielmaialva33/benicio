@@ -80,7 +80,6 @@ export default class NvidiaRetrievalProvider {
 
   async rerank(query: string, passages: string[]): Promise<RerankResult[]> {
     if (!passages.length) return []
-    if (passages.length === 1) return [{ index: 0, score: 0 }]
     this.requireApiKey()
 
     const payload = await this.requestJson(this.options.rerankUrl, {
@@ -216,7 +215,7 @@ export default class NvidiaRetrievalProvider {
         'invalid_response'
       )
     }
-    return rankings
+    return rankings.sort((left, right) => right.score - left.score)
   }
 
   private normalizeError(error: unknown, aborted: boolean): AiRetrievalRequestError {

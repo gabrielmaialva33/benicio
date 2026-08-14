@@ -53,8 +53,21 @@ export default class AiVectorRepository {
     })
   }
 
+  async deleteDocument(
+    tenantId: number,
+    documentId: number,
+    embeddingModel: string
+  ): Promise<void> {
+    await this.ensureCollection()
+    await this.client.delete(qdrantConfig.collection, {
+      wait: true,
+      filter: this.documentFilter(tenantId, documentId, embeddingModel),
+    })
+  }
+
   async search(
     tenantId: number,
+    embeddingModel: string,
     vector: number[],
     input: SemanticSearchInput,
     limit: number
@@ -64,6 +77,7 @@ export default class AiVectorRepository {
 
     const must: Array<Record<string, unknown>> = [
       { key: 'tenant_id', match: { value: String(tenantId) } },
+      { key: 'embedding_model', match: { value: embeddingModel } },
     ]
     if (input.folder_id) must.push({ key: 'folder_id', match: { value: input.folder_id } })
     if (input.document_ids?.length) {
@@ -78,9 +92,11 @@ export default class AiVectorRepository {
       with_vector: false,
     })
 
-    return result.points.flatMap((point) => {
-      if (typeof point.id !== 'string') return []
-      return [{ pointId: point.id, score: point.score }]
+    return result.points.map((point) => {
+      if (typeof point.id !== 'string') {
+        throw new Error('Qdrant returned a non-UUID point identifier')
+      }
+      return { pointId: point.id, score: point.score }
     })
   }
 
@@ -92,9 +108,6 @@ export default class AiVectorRepository {
       await this.client.createCollection(qdrantConfig.collection, {
         vectors: { size: qdrantConfig.vectorSize, distance: 'Cosine' },
         on_disk_payload: true,
-        metadata: {
-          schema_version: 1,
-        },
       })
     }
 

@@ -106,6 +106,10 @@ test.group('Legal AI services', (group) => {
 
     const history = await service.history(tenants[0].id, user.id, {})
     assert.lengthOf(history.data, 3)
+    assert.includeMembers(
+      history.data.map((analysis) => analysis.analysis_type),
+      ['generation', 'entities', 'classification']
+    )
     assert.equal(history.data[0].tenant_id, tenants[0].id)
     assert.equal(history.data[0].provider, provider.name)
     assert.equal(history.data[0].model, provider.model)

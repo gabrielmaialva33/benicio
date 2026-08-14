@@ -6,14 +6,14 @@ import Folder from '#modules/folders/models/folder'
 import LegalDocument from '#modules/documents/models/legal_document'
 import type {
   AiAnalysisHistoryInput,
-  AiAnalysisStatus,
+  AiAnalysisType,
   AiProfile,
 } from '#modules/ai/interfaces/ai_interface'
 
 export interface BeginAnalysisData {
   tenantId: number
   userId: number
-  analysisType: string
+  analysisType: AiAnalysisType
   profile: AiProfile
   documentId?: number
   folderId?: number
@@ -121,6 +121,7 @@ export default class AiAnalysisRepository {
       .where('tenant_id', tenantId)
       .where('user_id', userId)
       .orderBy('created_at', 'desc')
+      .orderBy('id', 'desc')
 
     if (input.type) query.where('analysis_type', input.type)
     if (input.status) query.where('status', input.status)
@@ -137,7 +138,6 @@ export default class AiAnalysisRepository {
       .where('tenant_id', tenantId)
       .where('user_id', userId)
       .where('created_at', '>=', since.toSQL()!)
-      .where('status', 'completed' satisfies AiAnalysisStatus)
       .select('analysis_type')
       .count('* as count')
       .sum('tokens_used as total_tokens')

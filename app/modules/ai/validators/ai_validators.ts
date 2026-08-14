@@ -2,6 +2,7 @@ import vine from '@vinejs/vine'
 
 import {
   AI_ANALYSIS_STATUSES,
+  AI_ANALYSIS_TYPES,
   AI_CONVERSATION_MODES,
   AI_DOCUMENT_ANALYSIS_TYPES,
   AI_DOCUMENT_TEMPLATE_TYPES,
@@ -89,7 +90,7 @@ export const aiAnalysisHistoryValidator = vine.compile(
   vine.object({
     page: vine.number().min(1).optional(),
     limit: vine.number().min(1).max(100).optional(),
-    type: vine.string().trim().minLength(1).maxLength(80).optional(),
+    type: vine.enum(AI_ANALYSIS_TYPES).optional(),
     status: vine.enum(AI_ANALYSIS_STATUSES).optional(),
   })
 )

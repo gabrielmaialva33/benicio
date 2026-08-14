@@ -80,6 +80,28 @@ test.group('NVIDIA retrieval provider', () => {
     )
   })
 
+  test('uses provider scores for a single passage and sorts rankings by relevance', async ({
+    assert,
+  }) => {
+    const singleFetcher: typeof fetch = async () =>
+      Response.json({ rankings: [{ index: 0, logit: 1.25 }] })
+    const single = new NvidiaRetrievalProvider(options(), singleFetcher)
+    assert.deepEqual(await single.rerank('consulta', ['único']), [{ index: 0, score: 1.25 }])
+
+    const unsortedFetcher: typeof fetch = async () =>
+      Response.json({
+        rankings: [
+          { index: 0, logit: 0.2 },
+          { index: 1, logit: 2.4 },
+        ],
+      })
+    const unsorted = new NvidiaRetrievalProvider(options(), unsortedFetcher)
+    assert.deepEqual(await unsorted.rerank('consulta', ['menos', 'mais']), [
+      { index: 1, score: 2.4 },
+      { index: 0, score: 0.2 },
+    ])
+  })
+
   test('fails closed when the API key is missing', async ({ assert }) => {
     const provider = new NvidiaRetrievalProvider({ ...options(), apiKey: undefined })
     await assert.rejects(

@@ -6,9 +6,11 @@ import Tenant from '#modules/tenants/models/tenant'
 import User from '#modules/users/models/user'
 import Folder from '#modules/folders/models/folder'
 import LegalDocument from '#modules/documents/models/legal_document'
-import type { AiProfile } from '#modules/ai/interfaces/ai_interface'
-
-export type AiAnalysisStatus = 'processing' | 'completed' | 'failed'
+import type {
+  AiAnalysisStatus,
+  AiAnalysisType,
+  AiProfile,
+} from '#modules/ai/interfaces/ai_interface'
 
 export default class AiAnalysis extends BaseModel {
   static table = 'ai_analyses'
@@ -35,7 +37,7 @@ export default class AiAnalysis extends BaseModel {
   declare user_id: number
 
   @column()
-  declare analysis_type: string
+  declare analysis_type: AiAnalysisType
 
   @column()
   declare profile: AiProfile

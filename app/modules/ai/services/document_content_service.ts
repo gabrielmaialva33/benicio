@@ -1,4 +1,5 @@
 import drive from '@adonisjs/drive/services/main'
+import logger from '@adonisjs/core/services/logger'
 import mammoth from 'mammoth'
 import { extractText } from 'unpdf'
 
@@ -25,7 +26,15 @@ export default class DocumentContentService {
         const bytes = await drive.use(source.storage_disk).getBytes(source.file_name)
         text = await this.extractBytes(bytes, source.file_name, source.file_type)
         if (!text.trim()) warnings.push('file_has_no_extractable_text')
-      } catch {
+      } catch (error) {
+        logger.warn(
+          {
+            documentId: source.id,
+            storageDisk: source.storage_disk,
+            errorName: error instanceof Error ? error.name : 'unknown',
+          },
+          'Legal document content could not be read from storage'
+        )
         warnings.push('file_content_unavailable')
       }
     }

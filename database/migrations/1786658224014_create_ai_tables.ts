@@ -221,6 +221,9 @@ export default class extends BaseSchema {
         `ALTER TABLE ai_analyses ADD CONSTRAINT ai_analyses_status_check CHECK (status IN ('processing', 'completed', 'failed'))`
       )
       await db.rawQuery(
+        `ALTER TABLE ai_analyses ADD CONSTRAINT ai_analyses_type_check CHECK (analysis_type IN ('summary', 'entities', 'sentiment', 'legal_review', 'generation', 'classification', 'precatorio'))`
+      )
+      await db.rawQuery(
         `ALTER TABLE ai_document_chunks ADD CONSTRAINT ai_document_chunks_content_check CHECK (LENGTH(BTRIM(content)) > 0)`
       )
       await db.rawQuery(

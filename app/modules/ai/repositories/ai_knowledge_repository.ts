@@ -4,6 +4,7 @@ import LegalDocument from '#modules/documents/models/legal_document'
 import type {
   AiDocumentChunkInput,
   AiDocumentSource,
+  AiKnowledgeScope,
   AiVectorCandidate,
   SemanticSearchInput,
 } from '#modules/ai/interfaces/ai_interface'
@@ -30,13 +31,12 @@ export interface StoredChunkSearchResult {
 export default class AiKnowledgeRepository {
   async findSource(tenantId: number, documentId: number): Promise<AiDocumentSource | null> {
     const sources = await this.listSources(tenantId, {
-      query: 'document lookup',
       document_ids: [documentId],
     })
     return sources[0] ?? null
   }
 
-  async listSources(tenantId: number, input: SemanticSearchInput): Promise<AiDocumentSource[]> {
+  async listSources(tenantId: number, input: AiKnowledgeScope): Promise<AiDocumentSource[]> {
     const query = LegalDocument.query()
       .withScopes((scopes) => scopes.withTenant(tenantId))
       .select('id', 'folder_id', 'file_id', 'title', 'description', 'metadata', 'updated_at')
@@ -63,6 +63,11 @@ export default class AiKnowledgeRepository {
       storage_disk: document.file.storage_disk,
       file_updated_at: document.file.updated_at.toUTC().toISO()!,
     }))
+  }
+
+  async listActiveTenantIds(): Promise<number[]> {
+    const rows = await db.from('tenants').where('is_active', true).orderBy('id').select('id')
+    return rows.map((row) => Number(row.id))
   }
 
   async sourceHashes(
@@ -94,6 +99,13 @@ export default class AiKnowledgeRepository {
     chunks: AiDocumentChunkInput[]
   ): Promise<void> {
     await db.transaction(async (trx) => {
+      await trx
+        .from('legal_documents')
+        .where({ tenant_id: tenantId, id: source.id })
+        .whereNull('deleted_at')
+        .forUpdate()
+        .firstOrFail()
+
       await trx
         .from('ai_document_chunks')
         .where({
@@ -131,8 +143,8 @@ export default class AiKnowledgeRepository {
     documentId: number,
     embeddingModel: string,
     sourceHash: string
-  ): Promise<void> {
-    await db
+  ): Promise<number> {
+    const updated = await db
       .from('ai_document_chunks')
       .where({
         tenant_id: tenantId,
@@ -146,6 +158,7 @@ export default class AiKnowledgeRepository {
         index_error: null,
         updated_at: new Date(),
       })
+    return Number(updated)
   }
 
   async markDocumentIndexFailed(
@@ -169,6 +182,21 @@ export default class AiKnowledgeRepository {
         indexed_at: null,
         updated_at: new Date(),
       })
+  }
+
+  async deleteDocumentChunks(
+    tenantId: number,
+    documentId: number,
+    embeddingModel: string
+  ): Promise<void> {
+    await db
+      .from('ai_document_chunks')
+      .where({
+        tenant_id: tenantId,
+        document_id: documentId,
+        embedding_model: embeddingModel,
+      })
+      .delete()
   }
 
   async hydrateCandidates(

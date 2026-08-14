@@ -15,6 +15,8 @@ import { AiProviderRequestError } from '#modules/ai/providers/openai_compatible_
 import type AiAnalysis from '#modules/ai/models/ai_analysis'
 import type {
   AiAnalysisHistoryInput,
+  AiAnalysisType,
+  AiDocumentSource,
   AiLegalOptions,
   AiProfile,
   AiProviderMessage,
@@ -28,7 +30,7 @@ import type {
 interface TrackedGenerationInput {
   tenantId: number
   userId: number
-  analysisType: string
+  analysisType: AiAnalysisType
   profile: AiProfile
   messages: AiProviderMessage[]
   options?: AiLegalOptions
@@ -105,7 +107,7 @@ export default class AiLegalService {
     const { analysis, result } = await this.trackedGeneration({
       tenantId,
       userId,
-      analysisType: 'legal_review',
+      analysisType: 'generation',
       profile,
       options: input.options,
       metadata: { operation: 'document_generation', template_type: input.template_type, language },
@@ -324,7 +326,7 @@ export default class AiLegalService {
     }
   }
 
-  private async sourceText(source: Awaited<ReturnType<AiKnowledgeRepository['findSource']>> & {}) {
+  private async sourceText(source: AiDocumentSource) {
     const extracted = await this.contentService.extract(source)
     const fullContent = [
       `Título: ${source.title}`,

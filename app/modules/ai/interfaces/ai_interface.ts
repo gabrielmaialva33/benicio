@@ -18,6 +18,12 @@ export const AI_DOCUMENT_TEMPLATE_TYPES = [
   'motion',
 ] as const
 export const AI_ANALYSIS_STATUSES = ['processing', 'completed', 'failed'] as const
+export const AI_ANALYSIS_TYPES = [
+  ...AI_DOCUMENT_ANALYSIS_TYPES,
+  'generation',
+  'classification',
+  'precatorio',
+] as const
 
 export type AiConversationMode = (typeof AI_CONVERSATION_MODES)[number]
 export type AiConversationStatus = (typeof AI_CONVERSATION_STATUSES)[number]
@@ -29,6 +35,7 @@ export type AiMessageStatus = (typeof AI_MESSAGE_STATUSES)[number]
 export type AiDocumentAnalysisType = (typeof AI_DOCUMENT_ANALYSIS_TYPES)[number]
 export type AiDocumentTemplateType = (typeof AI_DOCUMENT_TEMPLATE_TYPES)[number]
 export type AiAnalysisStatus = (typeof AI_ANALYSIS_STATUSES)[number]
+export type AiAnalysisType = (typeof AI_ANALYSIS_TYPES)[number]
 
 export interface AiGenerationOptions {
   maxTokens?: number
@@ -60,6 +67,18 @@ export interface SemanticSearchInput {
   limit?: number
 }
 
+export interface AiKnowledgeScope {
+  folder_id?: number
+  document_ids?: number[]
+}
+
+export interface AiDocumentIndexSummary {
+  scanned: number
+  indexed: number
+  unchanged: number
+  failed: number
+}
+
 export interface TextOrDocumentInput {
   text?: string
   document_id?: number
@@ -73,7 +92,7 @@ export interface AnalyzePrecatorioInput {
 export interface AiAnalysisHistoryInput {
   page?: number
   limit?: number
-  type?: string
+  type?: AiAnalysisType
   status?: AiAnalysisStatus
 }
 
