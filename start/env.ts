@@ -105,6 +105,27 @@ export default await Env.create(new URL('../', import.meta.url), {
   AI_NVIDIA_BASE_URL: Env.schema.string.optional(),
   AI_NVIDIA_FAST_MODEL: Env.schema.string.optional(),
   AI_NVIDIA_DEEP_MODEL: Env.schema.string.optional(),
+  AI_NVIDIA_EMBEDDING_MODEL: Env.schema.string.optional(),
+  AI_NVIDIA_EMBEDDING_URL: Env.schema.string.optional(),
+  AI_NVIDIA_RERANK_MODEL: Env.schema.string.optional(),
+  AI_NVIDIA_RERANK_URL: Env.schema.string.optional(),
+  AI_RETRIEVAL_TIMEOUT_MS: Env.schema.number.optional(),
+  AI_RETRIEVAL_BATCH_SIZE: Env.schema.number.optional(),
+  AI_RETRIEVAL_MAX_FILE_BYTES: Env.schema.number.optional(),
+  AI_RETRIEVAL_MAX_SOURCE_CHARS: Env.schema.number.optional(),
+  AI_RETRIEVAL_CHUNK_CHARS: Env.schema.number.optional(),
+  AI_RETRIEVAL_CHUNK_OVERLAP_CHARS: Env.schema.number.optional(),
+  AI_RETRIEVAL_CANDIDATE_MULTIPLIER: Env.schema.number.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for the derived Qdrant retrieval index
+  |----------------------------------------------------------
+  */
+  QDRANT_URL: Env.schema.string.optional(),
+  QDRANT_API_KEY: Env.schema.string.optional(),
+  QDRANT_COLLECTION: Env.schema.string.optional(),
+  QDRANT_TIMEOUT_MS: Env.schema.number.optional(),
 
   /*
   |----------------------------------------------------------

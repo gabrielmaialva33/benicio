@@ -87,6 +87,23 @@ const deepMaxTokens = integerInRange(
   128,
   65_536
 )
+const retrievalChunkChars = integerInRange(
+  'AI_RETRIEVAL_CHUNK_CHARS',
+  env.get('AI_RETRIEVAL_CHUNK_CHARS'),
+  3_500,
+  1_000,
+  12_000
+)
+const retrievalChunkOverlapChars = integerInRange(
+  'AI_RETRIEVAL_CHUNK_OVERLAP_CHARS',
+  env.get('AI_RETRIEVAL_CHUNK_OVERLAP_CHARS'),
+  350,
+  0,
+  4_000
+)
+if (retrievalChunkOverlapChars >= retrievalChunkChars) {
+  throw new Error('AI_RETRIEVAL_CHUNK_OVERLAP_CHARS must be smaller than AI_RETRIEVAL_CHUNK_CHARS')
+}
 
 const aiConfig = {
   provider: env.get('AI_PROVIDER') ?? 'disabled',
@@ -151,6 +168,54 @@ const aiConfig = {
       30_000,
       1_000,
       300_000
+    ),
+  },
+  retrieval: {
+    apiKey: env.get('AI_NVIDIA_API_KEY'),
+    embeddingModel: env.get('AI_NVIDIA_EMBEDDING_MODEL') ?? 'nvidia/llama-nemotron-embed-1b-v2',
+    embeddingUrl:
+      env.get('AI_NVIDIA_EMBEDDING_URL') ?? 'https://integrate.api.nvidia.com/v1/embeddings',
+    rerankModel: env.get('AI_NVIDIA_RERANK_MODEL') ?? 'nvidia/llama-nemotron-rerank-1b-v2',
+    rerankUrl:
+      env.get('AI_NVIDIA_RERANK_URL') ??
+      'https://ai.api.nvidia.com/v1/retrieval/nvidia/llama-nemotron-rerank-1b-v2/reranking',
+    dimensions: 2_048,
+    timeoutMs: integerInRange(
+      'AI_RETRIEVAL_TIMEOUT_MS',
+      env.get('AI_RETRIEVAL_TIMEOUT_MS'),
+      60_000,
+      1_000,
+      300_000
+    ),
+    batchSize: integerInRange(
+      'AI_RETRIEVAL_BATCH_SIZE',
+      env.get('AI_RETRIEVAL_BATCH_SIZE'),
+      32,
+      1,
+      128
+    ),
+    maxFileBytes: integerInRange(
+      'AI_RETRIEVAL_MAX_FILE_BYTES',
+      env.get('AI_RETRIEVAL_MAX_FILE_BYTES'),
+      25 * 1024 * 1024,
+      1 * 1024 * 1024,
+      100 * 1024 * 1024
+    ),
+    maxSourceChars: integerInRange(
+      'AI_RETRIEVAL_MAX_SOURCE_CHARS',
+      env.get('AI_RETRIEVAL_MAX_SOURCE_CHARS'),
+      2_000_000,
+      10_000,
+      10_000_000
+    ),
+    chunkChars: retrievalChunkChars,
+    chunkOverlapChars: retrievalChunkOverlapChars,
+    candidateMultiplier: integerInRange(
+      'AI_RETRIEVAL_CANDIDATE_MULTIPLIER',
+      env.get('AI_RETRIEVAL_CANDIDATE_MULTIPLIER'),
+      5,
+      2,
+      20
     ),
   },
   legacy: {
