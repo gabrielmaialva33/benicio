@@ -33,10 +33,10 @@ export const legalDemoTenant = {
   is_active: true,
 } as const
 
-type DemoTenantRole = 'owner' | 'admin' | 'member'
-type DemoSystemRole = 'root' | 'admin' | 'user'
+export type DemoTenantRole = 'owner' | 'admin' | 'member'
+export type DemoSystemRole = 'root' | 'admin' | 'user' | 'guest' | 'editor'
 
-interface DemoUserFixture {
+export interface DemoUserFixture {
   full_name: string
   email: string
   username: string
@@ -57,28 +57,28 @@ export const legalDemoUsers = {
     email: 'benedicto.benicio@benicio.com.br',
     username: 'benedicto.benicio',
     tenantRole: 'admin',
-    systemRoles: ['admin', 'user'],
+    systemRoles: ['admin', 'editor', 'user'],
   },
   andre: {
     full_name: 'Dr. André Câmara',
     email: 'andre.camara@benicio.com.br',
     username: 'andre.camara',
     tenantRole: 'member',
-    systemRoles: ['user'],
+    systemRoles: ['editor', 'user'],
   },
   marcos: {
     full_name: 'Dr. Marcos Lemos',
     email: 'marcos.lemos@benicio.com.br',
     username: 'marcos.lemos',
     tenantRole: 'member',
-    systemRoles: ['user'],
+    systemRoles: ['editor', 'user'],
   },
   patricia: {
     full_name: 'Dra. Patrícia Silva',
     email: 'patricia.silva@benicio.com.br',
     username: 'patricia.silva',
     tenantRole: 'member',
-    systemRoles: ['user'],
+    systemRoles: ['editor', 'user'],
   },
   mariana: {
     full_name: 'Mariana Costa',
@@ -94,19 +94,26 @@ export const legalDemoUsers = {
     tenantRole: 'member',
     systemRoles: ['user'],
   },
+  test: {
+    full_name: 'Usuário Operacional de Teste',
+    email: 'teste@benicio.com.br',
+    username: 'teste',
+    tenantRole: 'member',
+    systemRoles: ['user'],
+  },
   pedro: {
     full_name: 'Pedro Henrique Oliveira',
     email: 'pedro.henrique@benicio.com.br',
     username: 'pedro.henrique',
     tenantRole: 'member',
-    systemRoles: ['user'],
+    systemRoles: ['guest'],
   },
   julia: {
     full_name: 'Julia Martins',
     email: 'julia.martins@benicio.com.br',
     username: 'julia.martins',
     tenantRole: 'member',
-    systemRoles: ['user'],
+    systemRoles: ['guest'],
   },
 } as const satisfies Record<string, DemoUserFixture>
 

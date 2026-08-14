@@ -6,6 +6,7 @@ import {
   LEGAL_DEMO_REFERENCE_DATE,
   legalDemoTenant,
   legalDemoUsers,
+  type DemoUserFixture,
   type LegalDemoUserKey,
 } from '#database/fixtures/legal_demo'
 import { withinSeedTransaction } from '#database/seed_support/transaction'
@@ -18,26 +19,30 @@ export interface LegalDemoAccessContext {
   userIds: Record<LegalDemoUserKey, number>
 }
 
-/**
- * Creates the stable access boundary required by every tenant-scoped demo row.
- * It can safely run alone, before the domain seed, or inside a test transaction.
- */
-export function seedLegalDemoAccess(client: QueryClientContract): Promise<LegalDemoAccessContext> {
+export interface DemoAccessContext<UserKey extends string> {
+  tenantId: number
+  userIds: Record<UserKey, number>
+}
+
+/** Seeds any deterministic user group into the shared development tenant. */
+export function seedDemoAccess<UserKey extends string>(
+  client: QueryClientContract,
+  users: Record<UserKey, DemoUserFixture>
+): Promise<DemoAccessContext<UserKey>> {
   return withinSeedTransaction(client, async (trx) => {
     const tenant = await Tenant.updateOrCreate({ slug: legalDemoTenant.slug }, legalDemoTenant, {
       client: trx,
     })
-    const userIds = {} as Record<LegalDemoUserKey, number>
+    const userIds = {} as Record<UserKey, number>
     const roleIds = new Map<string, number>()
 
-    for (const slug of new Set(Object.values(legalDemoUsers).flatMap((user) => user.systemRoles))) {
+    const fixtures = Object.values(users) as DemoUserFixture[]
+    for (const slug of new Set(fixtures.flatMap((user) => user.systemRoles))) {
       const role = await Role.findByOrFail('slug', slug, { client: trx })
       roleIds.set(slug, role.id)
     }
 
-    for (const [key, fixture] of Object.entries(legalDemoUsers) as Array<
-      [LegalDemoUserKey, (typeof legalDemoUsers)[LegalDemoUserKey]]
-    >) {
+    for (const [key, fixture] of Object.entries(users) as Array<[UserKey, DemoUserFixture]>) {
       const metadata = {
         email_verified: true,
         email_verification_token: null,
@@ -88,18 +93,14 @@ export function seedLegalDemoAccess(client: QueryClientContract): Promise<LegalD
         .onConflict(['user_id', 'tenant_id'])
         .merge({ role: fixture.tenantRole })
 
+      const desiredRoleIds = fixture.systemRoles.map((slug) => roleIds.get(slug)!)
       const existingRoles = await trx
         .from('user_roles')
         .where('user_id', user.id)
-        .whereIn(
-          'role_id',
-          fixture.systemRoles.map((slug) => roleIds.get(slug)!)
-        )
+        .whereIn('role_id', desiredRoleIds)
         .select('role_id')
       const existingRoleIds = new Set(existingRoles.map((row) => Number(row.role_id)))
-
-      const missingRoles = fixture.systemRoles
-        .map((slug) => roleIds.get(slug)!)
+      const missingRoles = desiredRoleIds
         .filter((roleId) => !existingRoleIds.has(roleId))
         .map((roleId) => ({ user_id: user.id, role_id: roleId }))
 
@@ -110,4 +111,12 @@ export function seedLegalDemoAccess(client: QueryClientContract): Promise<LegalD
 
     return { tenantId: tenant.id, userIds }
   })
+}
+
+/**
+ * Creates the stable access boundary required by every tenant-scoped demo row.
+ * It can safely run alone, before the domain seed, or inside a test transaction.
+ */
+export function seedLegalDemoAccess(client: QueryClientContract): Promise<LegalDemoAccessContext> {
+  return seedDemoAccess(client, legalDemoUsers)
 }
