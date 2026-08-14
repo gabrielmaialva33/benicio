@@ -18,8 +18,10 @@ const shieldConfig = defineConfig({
   csrf: {
     enabled: true,
     exceptRoutes: (ctx) => {
-      // Disable CSRF for all API routes
-      return ctx.request.url().startsWith('/api/')
+      // API and Transmit subscription routes authenticate with JWT. Browser
+      // form routes keep CSRF protection enabled.
+      const url = ctx.request.url()
+      return url.startsWith('/api/') || url.startsWith('/__transmit/')
     },
     enableXsrfCookie: true,
     methods: ['POST', 'PUT', 'PATCH', 'DELETE'],
