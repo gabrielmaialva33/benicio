@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+/* O tema é controlado por next-themes com attribute="class" (ver inertia/app/app.tsx),
+   então `dark:` tem que seguir a classe `.dark` no <html>. Sem isto, o padrão do
+   Tailwind v4 é @media (prefers-color-scheme: dark): as utilities `dark:` disparam
+   pelo tema do SO enquanto as CSS vars de `:root` continuam claras, e o resultado é
+   texto claro sobre fundo claro para quem usa o SO no escuro. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Configure Tailwind v4 theme */
 @theme {
   /* Define custom colors that reference CSS variables */
