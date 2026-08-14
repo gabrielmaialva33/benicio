@@ -10,7 +10,7 @@ import { QueryProvider } from '~/providers/query_provider'
 const appName = import.meta.env.VITE_APP_NAME || 'Benício'
 
 createInertiaApp({
-  progress: { color: '#5468FF' },
+  progress: { color: '#f97316' },
 
   title: (title) => `${title} - ${appName}`,
 
@@ -30,7 +30,12 @@ createInertiaApp({
   setup({ el, App, props }) {
     hydrateRoot(
       el,
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ThemeProvider
+        attribute="class"
+        forcedTheme="light"
+        enableSystem={false}
+        disableTransitionOnChange
+      >
         <QueryProvider>
           <App {...props} />
         </QueryProvider>
