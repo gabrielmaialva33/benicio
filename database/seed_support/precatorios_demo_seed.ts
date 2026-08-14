@@ -1,6 +1,3 @@
-import { stat } from 'node:fs/promises'
-
-import app from '@adonisjs/core/services/app'
 import { DateTime } from 'luxon'
 import type { QueryClientContract } from '@adonisjs/lucid/types/database'
 
@@ -15,6 +12,7 @@ import {
   type PrecatoriosPublicEntityKey,
 } from '#database/fixtures/precatorios_demo'
 import { type DemoAccessContext, seedDemoAccess } from '#database/seed_support/demo_access'
+import { storeDemoAsset } from '#database/seed_support/demo_storage'
 import { withinSeedTransaction } from '#database/seed_support/transaction'
 import Activity from '#modules/activities/models/activity'
 import Client from '#modules/clients/models/client'
@@ -27,8 +25,6 @@ import ProcessMovement from '#modules/movements/models/process_movement'
 import LegalProcess from '#modules/processes/models/process'
 import ProcessParty from '#modules/processes/models/process_party'
 import Task from '#modules/tasks/models/task'
-
-const DOCUMENT_URL_PREFIX = '/yol/demo-documents'
 
 export interface PrecatoriosDemoSeedSummary {
   tenantId: number
@@ -231,15 +227,14 @@ async function seedDocuments(
   folderIds: Record<string, number>,
   processIds: Record<string, number>
 ): Promise<number> {
-  const assets = new Map<string, number>()
-  for (const template of precatoriosDocumentTemplates) {
-    const asset = await stat(app.publicPath(`yol/demo-documents/${template.file_name}`))
-    assets.set(template.file_name, asset.size)
-  }
-
   for (const fixture of precatoriosDemoCases) {
     for (const template of precatoriosDocumentTemplates) {
       const storedName = `demo/precatorios/${fixture.code}/${template.file_name}`
+      const asset = await storeDemoAsset(
+        `yol/demo-documents/${template.file_name}`,
+        storedName,
+        'text/markdown'
+      )
       const file = await File.updateOrCreate(
         { tenant_id: access.tenantId, file_name: storedName },
         {
@@ -248,10 +243,10 @@ async function seedDocuments(
             template.key === 'calculation' ? access.userIds.manager : access.userIds.assistant,
           client_name: `${fixture.code} - ${template.title}`,
           file_name: storedName,
-          file_size: assets.get(template.file_name)!,
+          file_size: asset.size,
           file_type: 'text/markdown',
           file_category: 'document',
-          url: `${DOCUMENT_URL_PREFIX}/${template.file_name}`,
+          storage_disk: asset.storageDisk,
         },
         { client }
       )

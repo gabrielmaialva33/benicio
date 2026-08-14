@@ -1,6 +1,3 @@
-import { stat } from 'node:fs/promises'
-
-import app from '@adonisjs/core/services/app'
 import { DateTime } from 'luxon'
 import type { QueryClientContract } from '@adonisjs/lucid/types/database'
 
@@ -27,6 +24,7 @@ import {
   seedLegalDemoAccess,
 } from '#database/seed_support/demo_access'
 import { seedLegalDemoInfrastructure } from '#database/seed_support/legal_demo_infrastructure_seed'
+import { storeDemoAsset } from '#database/seed_support/demo_storage'
 import { withinSeedTransaction } from '#database/seed_support/transaction'
 import Activity from '#modules/activities/models/activity'
 import Client from '#modules/clients/models/client'
@@ -43,8 +41,6 @@ import { isValidCnj } from '#modules/processes/domain/cnj'
 import LegalProcess from '#modules/processes/models/process'
 import ProcessParty from '#modules/processes/models/process_party'
 import Task from '#modules/tasks/models/task'
-
-const DEMO_DOCUMENT_URL_PREFIX = '/yol/demo-documents'
 
 export interface LegalDemoSeedSummary {
   tenantId: number
@@ -484,12 +480,12 @@ async function seedDocuments(
   processIds: Record<LegalDemoProcessKey, number>
 ) {
   for (const fixture of legalDemoDocuments) {
-    const assetPath = app.publicPath(`yol/demo-documents/${fixture.file_name}`)
-    const asset = await stat(assetPath).catch((error: unknown) => {
-      const message = error instanceof Error ? error.message : String(error)
-      throw new Error(`Missing legal demo document asset ${assetPath}: ${message}`)
-    })
     const storedFileName = `demo/${fixture.file_name}`
+    const asset = await storeDemoAsset(
+      `yol/demo-documents/${fixture.file_name}`,
+      storedFileName,
+      'text/markdown'
+    )
     const file = await File.updateOrCreate(
       { tenant_id: access.tenantId, file_name: storedFileName },
       {
@@ -500,7 +496,7 @@ async function seedDocuments(
         file_size: asset.size,
         file_type: 'text/markdown',
         file_category: 'document',
-        url: `${DEMO_DOCUMENT_URL_PREFIX}/${fixture.file_name}`,
+        storage_disk: asset.storageDisk,
       },
       { client }
     )

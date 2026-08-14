@@ -1,7 +1,4 @@
 import { createHash } from 'node:crypto'
-import { stat } from 'node:fs/promises'
-
-import app from '@adonisjs/core/services/app'
 import { DateTime } from 'luxon'
 import type { QueryClientContract } from '@adonisjs/lucid/types/database'
 
@@ -22,12 +19,11 @@ import {
   legalDemoTokenUsers,
 } from '#database/fixtures/legal_demo_infrastructure'
 import type { LegalDemoAccessContext } from '#database/seed_support/demo_access'
+import { storeDemoAsset } from '#database/seed_support/demo_storage'
 import AuditLog from '#modules/audits/models/audit_log'
 import File from '#modules/files/models/file'
 import Permission from '#modules/permissions/models/permission'
 import Role from '#modules/roles/models/role'
-
-const DEMO_FILE_URL = '/yol/demo-documents/arquivo-geral-demonstrativo.md'
 
 export interface LegalDemoInfrastructureSummary {
   specialPermissions: number
@@ -198,10 +194,13 @@ async function seedStandaloneFiles(
   access: LegalDemoAccessContext,
   clientIds: Record<LegalDemoClientKey, number>
 ): Promise<number> {
-  const asset = await stat(app.publicPath('yol/demo-documents/arquivo-geral-demonstrativo.md'))
-
   for (const fixture of legalDemoStandaloneFiles) {
     const storedName = `demo/files/${fixture.file_name}`
+    const asset = await storeDemoAsset(
+      'yol/demo-documents/arquivo-geral-demonstrativo.md',
+      storedName,
+      'text/markdown'
+    )
     await File.updateOrCreate(
       { tenant_id: access.tenantId, file_name: storedName },
       {
@@ -212,7 +211,7 @@ async function seedStandaloneFiles(
         file_size: asset.size,
         file_type: 'text/markdown',
         file_category: fixture.category,
-        url: DEMO_FILE_URL,
+        storage_disk: asset.storageDisk,
       },
       { client }
     )
