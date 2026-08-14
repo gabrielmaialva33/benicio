@@ -35,16 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '~/components/ui/alert-dialog'
+import { DeleteDialog } from '~/components/shared/delete_dialog'
 import { APP_TIME_ZONE } from '~/lib/date'
 import type { PaginatedResponse } from '~/types'
 
@@ -260,38 +251,24 @@ export default function UsersPage({ users, search, sortBy, direction }: UsersPag
     getRowId: (row) => String(row.id),
   })
 
-  const confirmDelete = () => {
-    if (!userToDelete) return
-    router.delete(`/users/${userToDelete.id}`, {
-      preserveScroll: true,
-      onFinish: () => setUserToDelete(null),
-    })
-  }
-
   return (
     <MainLayout>
       <Head title="Usuários" />
 
-      <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir usuário?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Isso exclui <strong>{userToDelete?.full_name}</strong> permanentemente. A ação não
-              pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/*
+        Kept outside the row dropdown on purpose: Radix unmounts a dialog along
+        with the menu that owns it, which closed the confirmation instantly.
+      */}
+      <DeleteDialog
+        open={!!userToDelete}
+        onOpenChange={(open) => !open && setUserToDelete(null)}
+        url={`/users/${userToDelete?.id}`}
+        title="Excluir usuário?"
+        description={`Isso exclui ${userToDelete?.full_name ?? 'o usuário'} permanentemente. A ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onSuccess={() => setUserToDelete(null)}
+      />
+
 
       <div className="space-y-6">
         <div className="flex justify-end">
