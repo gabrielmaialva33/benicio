@@ -8,5 +8,5 @@
       "~/*": ["./*"]
     }
   },
-  "include": ["./**/*.ts", "./**/*.tsx"]
+  "include": ["./**/*.ts", "./**/*.tsx", "./types/globals.d.ts"]
 }

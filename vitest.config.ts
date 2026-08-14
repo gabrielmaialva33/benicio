@@ -15,4 +15,8 @@ export default defineConfig({
       '~/': `${import.meta.dirname}/inertia/`,
     },
   },
+
+  define: {
+    __APP_VERSION__: JSON.stringify('test'),
+  },
 })
