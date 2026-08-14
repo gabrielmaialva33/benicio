@@ -1,12 +1,15 @@
 import { inject } from '@adonisjs/core'
-import db from '@adonisjs/lucid/services/db'
 
 import type {
   ClientAddress,
   ClientListInput,
 } from '#modules/clients/interfaces/client_interface'
 import type Client from '#modules/clients/models/client'
+import ClientReadRepository from '#modules/clients/repositories/client_read_repository'
 import ClientService from '#modules/clients/services/client_service'
+import FolderReadRepository, {
+  type ClientFolderCountRow,
+} from '#modules/folders/repositories/folder_read_repository'
 import type {
   WebClient,
   WebClientAddress,
@@ -14,24 +17,13 @@ import type {
   WebClientIndexData,
 } from '#modules/web/interfaces/client_page_interface'
 
-type ClientFolderCount = {
-  client_id: number
-  folders_total: number
-  active_folders: number
-}
-
-type ClientAggregate = {
-  total: number
-  individuals: number
-  companies: number
-  with_active_folders: number
-}
-
-type RawRows<Row> = { rows: Row[] }
-
 @inject()
 export default class ClientPageService {
-  constructor(private clientService: ClientService) {}
+  constructor(
+    private clientService: ClientService,
+    private clientReadRepository: ClientReadRepository,
+    private folderReadRepository: FolderReadRepository
+  ) {}
 
   async index(tenantId: number, input: ClientListInput): Promise<WebClientIndexData> {
     const filters = {
@@ -48,28 +40,14 @@ export default class ClientPageService {
       per_page: filters.per_page,
     })
     const clients = paginator.all()
-    const counts = await this.folderCounts(
-      tenantId,
-      clients.map((client) => client.id)
-    )
-    const aggregate = await db.rawQuery<RawRows<ClientAggregate>>(
-      `SELECT
-         COUNT(*)::int AS total,
-         COUNT(*) FILTER (WHERE person_type = 'individual')::int AS individuals,
-         COUNT(*) FILTER (WHERE person_type = 'company')::int AS companies,
-         COUNT(*) FILTER (
-           WHERE EXISTS (
-             SELECT 1 FROM folders
-             WHERE folders.tenant_id = clients.tenant_id
-               AND folders.client_id = clients.id
-               AND folders.deleted_at IS NULL
-               AND folders.status = 'active'
-           )
-         )::int AS with_active_folders
-       FROM clients
-       WHERE tenant_id = ? AND deleted_at IS NULL`,
-      [tenantId]
-    )
+    const [countRows, stats] = await Promise.all([
+      this.folderReadRepository.countsByClient(
+        tenantId,
+        clients.map((client) => client.id)
+      ),
+      this.clientReadRepository.summary(tenantId),
+    ])
+    const counts = new Map(countRows.map((row) => [Number(row.client_id), row]))
 
     return {
       clients: {
@@ -82,31 +60,20 @@ export default class ClientPageService {
         },
       },
       filters,
-      stats: aggregate.rows[0] ?? {
-        total: 0,
-        individuals: 0,
-        companies: 0,
-        with_active_folders: 0,
-      },
+      stats,
     }
   }
 
   async detail(tenantId: number, clientId: number): Promise<WebClientDetailData> {
     const client = await this.clientService.get(tenantId, clientId)
     const [counts, folders] = await Promise.all([
-      this.folderCounts(tenantId, [clientId]),
-      db
-        .from('folders')
-        .select('id', 'code', 'title', 'status', 'area', 'subarea', 'created_at')
-        .where('tenant_id', tenantId)
-        .where('client_id', clientId)
-        .whereNull('deleted_at')
-        .orderBy('updated_at', 'desc')
-        .limit(50),
+      this.folderReadRepository.countsByClient(tenantId, [clientId]),
+      this.folderReadRepository.listForClient(tenantId, clientId),
     ])
+    const count = counts[0]
 
     return {
-      client: this.client(client, counts.get(clientId)),
+      client: this.client(client, count),
       folders: folders.map((folder) => ({
         id: Number(folder.id),
         code: String(folder.code),
@@ -119,47 +86,7 @@ export default class ClientPageService {
     }
   }
 
-  private async folderCounts(tenantId: number, clientIds: number[]) {
-    const result = new Map<number, ClientFolderCount>()
-    if (clientIds.length === 0) return result
-
-    const rows = await db
-      .from('folders')
-      .select('client_id')
-      .count('* as folders_total')
-      .count('* as active_folders')
-      .where('tenant_id', tenantId)
-      .whereIn('client_id', clientIds)
-      .whereNull('deleted_at')
-      .groupBy('client_id')
-
-    // Knex cannot express a filtered aggregate through `.count` portably, so
-    // replace the provisional active count with the exact status count.
-    const activeRows = await db
-      .from('folders')
-      .select('client_id')
-      .count('* as active_folders')
-      .where('tenant_id', tenantId)
-      .whereIn('client_id', clientIds)
-      .where('status', 'active')
-      .whereNull('deleted_at')
-      .groupBy('client_id')
-    const activeByClient = new Map(
-      activeRows.map((row) => [Number(row.client_id), Number(row.active_folders)])
-    )
-
-    for (const row of rows) {
-      const clientId = Number(row.client_id)
-      result.set(clientId, {
-        client_id: clientId,
-        folders_total: Number(row.folders_total),
-        active_folders: activeByClient.get(clientId) ?? 0,
-      })
-    }
-    return result
-  }
-
-  private client(client: Client, counts?: ClientFolderCount): WebClient {
+  private client(client: Client, counts?: ClientFolderCountRow): WebClient {
     return {
       id: client.id,
       name: client.name,

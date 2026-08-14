@@ -1,12 +1,16 @@
 import { inject } from '@adonisjs/core'
-import db from '@adonisjs/lucid/services/db'
 
 import ActivityService from '#modules/activities/services/activity_service'
+import ClientReadRepository from '#modules/clients/repositories/client_read_repository'
+import type Deadline from '#modules/deadlines/models/deadline'
+import DeadlineRepository from '#modules/deadlines/repositories/deadline_repository'
 import { FOLDER_STATUSES } from '#modules/folders/interfaces/folder_interface'
 import type { FolderListInput, FolderStatus } from '#modules/folders/interfaces/folder_interface'
 import type Folder from '#modules/folders/models/folder'
+import FolderReadRepository from '#modules/folders/repositories/folder_read_repository'
 import FolderService from '#modules/folders/services/folder_service'
 import ProcessService from '#modules/processes/services/process_service'
+import UsersRepository from '#modules/users/repositories/users_repository'
 import type {
   WebFolder,
   WebFolderActivity,
@@ -17,34 +21,16 @@ import type {
   WebFolderProcess,
 } from '#modules/web/interfaces/folder_page_interface'
 
-type CountRow = {
-  processes_total: number
-  tasks_open: number
-  deadlines_open: number
-  documents_total: number
-}
-
-type RawRows<Row> = {
-  rows: Row[]
-}
-
-type DeadlineRow = {
-  id: number
-  title: string
-  kind: string
-  status: string
-  priority: string
-  is_fatal: boolean
-  due_at: Date | string
-  assignee_name: string | null
-}
-
 @inject()
 export default class FolderPageService {
   constructor(
     private folderService: FolderService,
     private processService: ProcessService,
-    private activityService: ActivityService
+    private activityService: ActivityService,
+    private folderReadRepository: FolderReadRepository,
+    private clientReadRepository: ClientReadRepository,
+    private deadlineRepository: DeadlineRepository,
+    private usersRepository: UsersRepository
   ) {}
 
   async index(tenantId: number, input: FolderListInput): Promise<WebFolderIndexData> {
@@ -63,20 +49,9 @@ export default class FolderPageService {
       per_page: filters.per_page,
     })
 
-    const [statusRows, areaRows] = await Promise.all([
-      db
-        .from('folders')
-        .select('status')
-        .count('* as count')
-        .where('tenant_id', tenantId)
-        .whereNull('deleted_at')
-        .groupBy('status'),
-      db
-        .from('folders')
-        .distinct('area')
-        .where('tenant_id', tenantId)
-        .whereNull('deleted_at')
-        .orderBy('area', 'asc'),
+    const [statusRows, areas] = await Promise.all([
+      this.folderReadRepository.statusCounts(tenantId),
+      this.folderReadRepository.areas(tenantId),
     ])
 
     const countByStatus = new Map(
@@ -98,7 +73,7 @@ export default class FolderPageService {
         },
       },
       filters,
-      areas: areaRows.map((row) => String(row.area)),
+      areas,
       status_counts: statusCounts,
       total_count: statusCounts.reduce((total, item) => total + item.count, 0),
     }
@@ -106,25 +81,9 @@ export default class FolderPageService {
 
   async formOptions(tenantId: number): Promise<WebFolderFormOptions> {
     const [clients, lawyers, areas] = await Promise.all([
-      db
-        .from('clients')
-        .select('id', 'name', 'document', 'person_type', 'email')
-        .where('tenant_id', tenantId)
-        .whereNull('deleted_at')
-        .orderBy('name', 'asc'),
-      db
-        .from('users')
-        .innerJoin('user_tenants', 'user_tenants.user_id', 'users.id')
-        .distinct('users.id', 'users.full_name', 'users.email')
-        .where('user_tenants.tenant_id', tenantId)
-        .where('users.is_deleted', false)
-        .orderBy('users.full_name', 'asc'),
-      db
-        .from('folders')
-        .distinct('area')
-        .where('tenant_id', tenantId)
-        .whereNull('deleted_at')
-        .orderBy('area', 'asc'),
+      this.clientReadRepository.listOptions(tenantId),
+      this.usersRepository.listActiveForTenant(tenantId),
+      this.folderReadRepository.areas(tenantId),
     ])
 
     return {
@@ -140,28 +99,15 @@ export default class FolderPageService {
         full_name: String(lawyer.full_name),
         email: String(lawyer.email),
       })),
-      areas: areas.map((row) => String(row.area)),
+      areas,
     }
   }
 
   async detail(tenantId: number, folderId: number): Promise<WebFolderDetailData> {
     const folder = await this.folderService.get(tenantId, folderId)
 
-    const [countResult, processes, activityResult, deadlineRows] = await Promise.all([
-      db.rawQuery<RawRows<CountRow>>(
-        `SELECT
-           (SELECT COUNT(*)::int FROM processes
-             WHERE tenant_id = ? AND folder_id = ? AND deleted_at IS NULL) AS processes_total,
-           (SELECT COUNT(*)::int FROM tasks
-             WHERE tenant_id = ? AND folder_id = ? AND deleted_at IS NULL
-               AND status NOT IN ('completed', 'cancelled')) AS tasks_open,
-           (SELECT COUNT(*)::int FROM deadlines
-             WHERE tenant_id = ? AND folder_id = ? AND deleted_at IS NULL
-               AND status NOT IN ('completed', 'cancelled')) AS deadlines_open,
-           (SELECT COUNT(*)::int FROM legal_documents
-             WHERE tenant_id = ? AND folder_id = ? AND deleted_at IS NULL) AS documents_total`,
-        [tenantId, folderId, tenantId, folderId, tenantId, folderId, tenantId, folderId]
-      ),
+    const [stats, processes, activityResult, deadlines] = await Promise.all([
+      this.folderReadRepository.detailSummary(tenantId, folderId),
       this.processService.listForFolder(tenantId, folderId, {
         page: 1,
         per_page: 6,
@@ -169,32 +115,14 @@ export default class FolderPageService {
         order: 'desc',
       }),
       this.activityService.listForFolder(tenantId, folderId, { limit: 8 }),
-      db
-        .from('deadlines as deadlines')
-        .leftJoin('users as assignee', 'assignee.id', 'deadlines.assignee_id')
-        .where('deadlines.tenant_id', tenantId)
-        .where('deadlines.folder_id', folderId)
-        .whereNull('deadlines.deleted_at')
-        .whereNotIn('deadlines.status', ['completed', 'cancelled'])
-        .select(
-          'deadlines.id',
-          'deadlines.title',
-          'deadlines.kind',
-          'deadlines.status',
-          'deadlines.priority',
-          'deadlines.is_fatal',
-          'deadlines.due_at',
-          'assignee.full_name as assignee_name'
-        )
-        .orderBy('deadlines.due_at', 'asc')
-        .limit(5),
+      this.deadlineRepository.listOpenForFolder(tenantId, folderId, 5),
     ])
 
     return {
       folder: this.folder(folder),
-      stats: countResult.rows[0],
+      stats,
       processes: processes.all().map((process) => this.process(process)),
-      deadlines: deadlineRows.map((deadline) => this.deadline(deadline as DeadlineRow)),
+      deadlines: deadlines.map((deadline) => this.deadline(deadline)),
       activities: activityResult.data.map((activity) => ({
         id: activity.id,
         event_type: activity.event_type,
@@ -263,7 +191,7 @@ export default class FolderPageService {
     }
   }
 
-  private deadline(deadline: DeadlineRow): WebFolderDeadline {
+  private deadline(deadline: Deadline): WebFolderDeadline {
     return {
       id: Number(deadline.id),
       title: deadline.title,
@@ -271,12 +199,8 @@ export default class FolderPageService {
       status: deadline.status,
       priority: deadline.priority,
       is_fatal: deadline.is_fatal,
-      due_at: this.dateToIso(deadline.due_at),
-      assignee_name: deadline.assignee_name,
+      due_at: deadline.due_at.toISO()!,
+      assignee_name: deadline.assignee?.full_name ?? null,
     }
-  }
-
-  private dateToIso(value: Date | string): string {
-    return value instanceof Date ? value.toISOString() : new Date(value).toISOString()
   }
 }
