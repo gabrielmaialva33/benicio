@@ -55,6 +55,11 @@ export default class InertiaFoldersController {
         'folder store session diagnostic'
       )
       ctx.session.put('_folder_debug', 'store-reached')
+      const commit = ctx.session.commit.bind(ctx.session)
+      ctx.session.commit = async () => {
+        ctx.session.put('_folder_commit_flash', ctx.session.responseFlashMessages.all())
+        await commit()
+      }
       return inertiaRedirectTo(ctx, `/folders/${folder.id}`)
     } catch (error) {
       if (error instanceof ConflictException) {
