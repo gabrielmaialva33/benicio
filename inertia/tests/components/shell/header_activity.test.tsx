@@ -86,5 +86,14 @@ describe('HeaderActivity', () => {
 
     await user.click(screen.getByText('Peça revisada'))
     expect(markMessage).toHaveBeenCalledWith(4)
+
+    await user.click(screen.getByRole('button', { name: 'Abrir agenda' }))
+    expect(router.visit).toHaveBeenCalledWith(
+      '/dashboard',
+      expect.objectContaining({
+        preserveScroll: false,
+        onSuccess: expect.any(Function),
+      })
+    )
   })
 })

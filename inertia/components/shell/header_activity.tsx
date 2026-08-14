@@ -84,7 +84,7 @@ function ActivityTrigger({
     >
       {children}
       {unreadCount > 0 && (
-        <span className="absolute right-1 top-1 size-2 rounded-full bg-red-600 ring-2 ring-[#f1f1f2]" />
+        <span className="absolute right-1 top-1 size-2 rounded-full bg-red-600 ring-2 ring-yol-page" />
       )}
     </button>
   )
@@ -353,12 +353,24 @@ function MessagesPopover() {
 }
 
 export function HeaderActivity() {
+  const openAgenda = () => {
+    router.visit('/dashboard', {
+      preserveScroll: false,
+      onSuccess: () => {
+        requestAnimationFrame(() => {
+          document.getElementById('agenda')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        })
+      },
+    })
+  }
+
   return (
     <>
       <NotificationsPopover />
       <button
         type="button"
-        aria-label="Calendário"
+        aria-label="Abrir agenda"
+        onClick={openAgenda}
         className="flex size-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-white/60 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
       >
         <img src="/yol/icons/calendar.svg" alt="" width={22} height={22} className="size-[22px]" />

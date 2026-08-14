@@ -586,7 +586,10 @@ export function DashboardContent({ dashboard }: { dashboard: DashboardOverview }
         <DeadlinesCard dashboard={dashboard} />
       </div>
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
+      <div
+        id="agenda"
+        className="grid scroll-mt-6 items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]"
+      >
         <HearingsCard dashboard={dashboard} />
         <div className="space-y-6">
           <ClientsCard dashboard={dashboard} />
