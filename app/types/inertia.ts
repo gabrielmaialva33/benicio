@@ -27,6 +27,7 @@ import type {
 import type { WebProcess, WebProcessFolder } from '#modules/web/interfaces/process_page_interface'
 import type { WebAiChatPageData } from '#modules/web/interfaces/ai_chat_page_interface'
 import type { WebCalendarData } from '#modules/web/interfaces/calendar_page_interface'
+import type { WebNotificationsData } from '#modules/web/interfaces/notifications_page_interface'
 import type { WebRole } from '#modules/web/services/list_roles_with_permissions_service'
 import type { WebPermission } from '#modules/web/services/list_all_permissions_service'
 
@@ -53,6 +54,7 @@ declare module '@adonisjs/inertia/types' {
 
     // Agenda
     'calendar/index': WebCalendarData
+    'notifications/index': WebNotificationsData
 
     // Folders
     'folders/index': {

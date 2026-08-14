@@ -18,6 +18,8 @@ const InertiaPasswordResetController = () =>
   import('#modules/web/controllers/password_reset_controller')
 const InertiaDashboardController = () => import('#modules/web/controllers/dashboard_controller')
 const InertiaCalendarController = () => import('#modules/web/controllers/calendar_controller')
+const InertiaNotificationsController = () =>
+  import('#modules/web/controllers/notifications_controller')
 const InertiaFoldersController = () => import('#modules/web/controllers/folders_controller')
 const InertiaProcessesController = () => import('#modules/web/controllers/processes_controller')
 const InertiaClientsController = () => import('#modules/web/controllers/clients_controller')
@@ -102,6 +104,26 @@ router
             `${IPermission.Resources.HEARINGS}.${IPermission.Actions.LIST}`,
             `${IPermission.Resources.DEADLINES}.${IPermission.Actions.LIST}`,
           ],
+        }),
+      ])
+
+    // Notifications — the full inbox behind the header popover
+    router
+      .group(() => {
+        router.get('/', [InertiaNotificationsController, 'index']).as('notifications')
+        router
+          .post('/:id/read', [InertiaNotificationsController, 'markRead'])
+          .where('id', /^[0-9]+$/)
+          .as('notifications.read')
+        router
+          .post('/read-all', [InertiaNotificationsController, 'markAllRead'])
+          .as('notifications.readAll')
+      })
+      .prefix('/notifications')
+      .use([
+        middleware.tenant({ required: true }),
+        middleware.permission({
+          permissions: `${IPermission.Resources.NOTIFICATIONS}.${IPermission.Actions.LIST}`,
         }),
       ])
 

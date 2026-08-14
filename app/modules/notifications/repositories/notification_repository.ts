@@ -102,6 +102,15 @@ export default class NotificationRepository {
     return notification.softDelete()
   }
 
+  /**
+   * Types this recipient has actually received, so the inbox filter offers the
+   * nine possible values only when they mean something for this user.
+   */
+  async distinctTypes(tenantId: number, recipientId: number): Promise<string[]> {
+    const rows = await this.recipientQuery(tenantId, recipientId).distinct('type').select('type')
+    return rows.map((row) => row.type)
+  }
+
   private recipientQuery(tenantId: number, recipientId: number) {
     return Notification.query()
       .withScopes((scopes) => scopes.withTenant(tenantId))
