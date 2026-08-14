@@ -64,6 +64,7 @@ export type WebFolderFormOptions = {
   clients: WebFolderClient[]
   lawyers: WebFolderLawyer[]
   areas: string[]
+  selected_client_id?: number | null
 }
 
 export type WebFolderDetailStats = {

@@ -24,6 +24,8 @@ import type {
   WebClientFolder,
   WebClientStats,
 } from '#modules/web/interfaces/client_page_interface'
+import type { WebProcess, WebProcessFolder } from '#modules/web/interfaces/process_page_interface'
+import type { WebAiChatPageData } from '#modules/web/interfaces/ai_chat_page_interface'
 import type { WebRole } from '#modules/web/services/list_roles_with_permissions_service'
 import type { WebPermission } from '#modules/web/services/list_all_permissions_service'
 
@@ -72,6 +74,14 @@ declare module '@adonisjs/inertia/types' {
     'clients/create': Record<string, never>
     'clients/show': { client: WebClient; folders: WebClientFolder[] }
     'clients/edit': { client: WebClient }
+
+    // Processes (nested under folders)
+    'processes/create': { folder: WebProcessFolder }
+    'processes/show': { folder: WebProcessFolder; process: WebProcess }
+    'processes/edit': { folder: WebProcessFolder; process: WebProcess }
+
+    // AI chat
+    'chat/index': WebAiChatPageData
 
     // Files
     'files/index': Record<string, never>

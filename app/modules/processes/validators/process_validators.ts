@@ -20,14 +20,14 @@ const cnjSchema = vine
   .trim()
   .maxLength(32)
   .regex(/^[0-9.\-\s]+$/)
-  .transform(normalizeCnj)
+  .transform((value) => (value === null ? value : normalizeCnj(value)))
 
 const documentSchema = vine
   .string()
   .trim()
   .maxLength(32)
   .regex(/^[A-Za-z0-9./\-\s]+$/)
-  .transform((value) => value.toUpperCase().replace(/[^A-Z0-9]/g, ''))
+  .transform((value) => (value === null ? value : value.toUpperCase().replace(/[^A-Z0-9]/g, '')))
 
 const moneySchema = vine.unionOfTypes([
   vine
@@ -43,7 +43,7 @@ const moneySchema = vine.unionOfTypes([
 
 const dateSchema = vine
   .date({ formats: ['YYYY-MM-DD'] })
-  .transform((value) => DateTime.fromJSDate(value).toISODate()!)
+  .transform((value) => (value === null ? value : DateTime.fromJSDate(value).toISODate()!))
 
 const partySchema = vine.object({
   side: vine.enum(PROCESS_PARTY_SIDES),

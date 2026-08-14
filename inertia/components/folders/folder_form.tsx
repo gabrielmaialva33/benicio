@@ -60,7 +60,7 @@ function SelectField({
   )
 }
 
-export function FolderForm({ clients, lawyers, areas }: FolderFormOptions) {
+export function FolderForm({ clients, lawyers, areas, selected_client_id }: FolderFormOptions) {
   const form = useForm<FolderFormData>({
     code: '',
     title: '',
@@ -68,7 +68,7 @@ export function FolderForm({ clients, lawyers, areas }: FolderFormOptions) {
     status: 'active',
     area: '',
     subarea: '',
-    client_id: '',
+    client_id: selected_client_id ? String(selected_client_id) : '',
     responsible_lawyer_id: '',
   })
   const hasClients = clients.length > 0
@@ -90,7 +90,12 @@ export function FolderForm({ clients, lawyers, areas }: FolderFormOptions) {
       {!hasClients && (
         <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
-          <p>É preciso ter ao menos um cliente cadastrado neste escritório para abrir uma pasta.</p>
+          <p>
+            É preciso ter ao menos um cliente cadastrado neste escritório para abrir uma pasta.{' '}
+            <Link href="/clients/create" className="font-bold underline underline-offset-2">
+              Cadastrar cliente
+            </Link>
+          </p>
         </div>
       )}
 

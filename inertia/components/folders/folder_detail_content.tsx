@@ -8,6 +8,7 @@ import {
   FileText,
   FolderOpen,
   ListTodo,
+  Plus,
   Scale,
   UserRound,
 } from 'lucide-react'
@@ -85,10 +86,12 @@ function DetailCard({
   title,
   children,
   className,
+  action,
 }: {
   title: string
   children: ReactNode
   className?: string
+  action?: ReactNode
 }) {
   return (
     <section
@@ -97,8 +100,9 @@ function DetailCard({
         className
       )}
     >
-      <header className="border-b border-slate-100 px-5 py-4 dark:border-white/10">
+      <header className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 dark:border-white/10">
         <h2 className="font-bold text-slate-900 dark:text-white">{title}</h2>
+        {action}
       </header>
       <div className="p-5">{children}</div>
     </section>
@@ -142,7 +146,7 @@ function Definition({ label, children }: { label: string; children: ReactNode })
   )
 }
 
-function ProcessCard({ process }: { process: FolderProcess }) {
+function ProcessCard({ folderId, process }: { folderId: number; process: FolderProcess }) {
   const number =
     formatCnj(process.cnj_number) ??
     process.legacy_number ??
@@ -151,7 +155,10 @@ function ProcessCard({ process }: { process: FolderProcess }) {
   const primaryParties = process.parties.filter((party) => party.is_primary)
 
   return (
-    <article className="rounded-xl border border-slate-100 p-4 dark:border-white/10">
+    <Link
+      href={`/folders/${folderId}/processes/${process.id}`}
+      className="block rounded-xl border border-slate-100 p-4 transition hover:border-orange-200 hover:bg-orange-50/30 dark:border-white/10 dark:hover:border-orange-500/20 dark:hover:bg-white/[0.025]"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -190,7 +197,7 @@ function ProcessCard({ process }: { process: FolderProcess }) {
           {primaryParties.map((party) => party.name).join(' × ') || '—'}
         </Definition>
       </dl>
-    </article>
+    </Link>
   )
 }
 
@@ -361,7 +368,17 @@ export function FolderDetailContent({
             </div>
           </DetailCard>
 
-          <DetailCard title={`Processos vinculados (${stats.processes_total})`}>
+          <DetailCard
+            title={`Processos vinculados (${stats.processes_total})`}
+            action={
+              <Button asChild size="sm" className="bg-[#f97316] text-white hover:bg-[#ea680c]">
+                <Link href={`/folders/${folder.id}/processes/create`}>
+                  <Plus className="size-4" />
+                  Novo processo
+                </Link>
+              </Button>
+            }
+          >
             {processes.length === 0 ? (
               <div className="py-10 text-center">
                 <Scale className="mx-auto size-8 text-slate-300" />
@@ -372,7 +389,7 @@ export function FolderDetailContent({
             ) : (
               <div className="space-y-3">
                 {processes.map((process) => (
-                  <ProcessCard key={process.id} process={process} />
+                  <ProcessCard key={process.id} folderId={folder.id} process={process} />
                 ))}
               </div>
             )}

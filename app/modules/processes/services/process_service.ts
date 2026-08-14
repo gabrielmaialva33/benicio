@@ -43,6 +43,10 @@ export default class ProcessService {
     return this.findOrFail(tenantId, processId)
   }
 
+  async getForFolder(tenantId: number, folderId: number, processId: number): Promise<LegalProcess> {
+    return this.findForFolderOrFail(tenantId, folderId, processId)
+  }
+
   async create(
     tenantId: number,
     folderId: number,
@@ -111,6 +115,16 @@ export default class ProcessService {
     }
   }
 
+  async updateForFolder(
+    tenantId: number,
+    folderId: number,
+    processId: number,
+    input: UpdateProcessData
+  ): Promise<LegalProcess> {
+    await this.findForFolderOrFail(tenantId, folderId, processId)
+    return this.update(tenantId, processId, input)
+  }
+
   async markPrimary(tenantId: number, processId: number): Promise<LegalProcess> {
     const current = await this.findOrFail(tenantId, processId)
 
@@ -135,6 +149,15 @@ export default class ProcessService {
     }
   }
 
+  async markPrimaryForFolder(
+    tenantId: number,
+    folderId: number,
+    processId: number
+  ): Promise<LegalProcess> {
+    await this.findForFolderOrFail(tenantId, folderId, processId)
+    return this.markPrimary(tenantId, processId)
+  }
+
   async delete(tenantId: number, processId: number): Promise<void> {
     await this.unitOfWork.run(async (trx) => {
       const process = await this.processRepository.find(tenantId, processId, trx)
@@ -143,6 +166,11 @@ export default class ProcessService {
       }
       await this.processRepository.softDelete(process, trx)
     })
+  }
+
+  async deleteForFolder(tenantId: number, folderId: number, processId: number): Promise<void> {
+    await this.findForFolderOrFail(tenantId, folderId, processId)
+    await this.delete(tenantId, processId)
   }
 
   private listOptions(input: ProcessListInput) {
@@ -173,6 +201,18 @@ export default class ProcessService {
     const process = await this.processRepository.find(tenantId, processId)
     if (!process) {
       throw new NotFoundException('Process not found')
+    }
+    return process
+  }
+
+  private async findForFolderOrFail(
+    tenantId: number,
+    folderId: number,
+    processId: number
+  ): Promise<LegalProcess> {
+    const process = await this.processRepository.findForFolder(tenantId, folderId, processId)
+    if (!process) {
+      throw new NotFoundException('Process not found in folder')
     }
     return process
   }

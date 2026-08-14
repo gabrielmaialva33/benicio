@@ -56,6 +56,7 @@ export interface FolderFormOptions {
   clients: FolderClient[]
   lawyers: FolderLawyer[]
   areas: string[]
+  selected_client_id?: number | null
 }
 
 export interface FolderDetailStats {

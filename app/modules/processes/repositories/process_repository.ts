@@ -131,6 +131,32 @@ export default class ProcessRepository {
       .first()
   }
 
+  async findForFolder(
+    tenantId: number,
+    folderId: number,
+    processId: number,
+    trx?: TransactionClientContract
+  ): Promise<LegalProcess | null> {
+    const query = trx ? LegalProcess.query({ client: trx }) : LegalProcess.query()
+
+    return query
+      .withScopes((scopes) => scopes.withTenant(tenantId))
+      .where('id', processId)
+      .where('folder_id', folderId)
+      .whereIn(
+        'folder_id',
+        (trx ?? db)
+          .from('folders')
+          .select('id')
+          .where('tenant_id', tenantId)
+          .whereNull('deleted_at')
+      )
+      .preload('parties', (partyQuery) => {
+        partyQuery.orderBy('side', 'asc').orderBy('is_primary', 'desc').orderBy('id', 'asc')
+      })
+      .first()
+  }
+
   async findByCnj(
     tenantId: number,
     cnjNumber: string,

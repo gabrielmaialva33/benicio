@@ -34,10 +34,7 @@ type RawRows<Row> = { rows: Row[] }
 
 /** Read-only, tenant-scoped projections for folder-centric screens. */
 export default class FolderReadRepository {
-  async countsByClient(
-    tenantId: number,
-    clientIds: number[]
-  ): Promise<ClientFolderCountRow[]> {
+  async countsByClient(tenantId: number, clientIds: number[]): Promise<ClientFolderCountRow[]> {
     if (clientIds.length === 0) return []
 
     return db
