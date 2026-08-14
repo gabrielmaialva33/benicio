@@ -54,6 +54,7 @@ export default class InertiaFoldersController {
         },
         'folder store session diagnostic'
       )
+      ctx.session.put('_folder_debug', 'store-reached')
       return inertiaRedirectTo(ctx, `/folders/${folder.id}`)
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -79,6 +80,13 @@ export default class InertiaFoldersController {
         session_keys: Object.keys(ctx.session.all()),
       },
       'folder show session diagnostic'
+    )
+    throw new Error(
+      JSON.stringify({
+        session_hash: createHash('sha256').update(ctx.session.sessionId).digest('hex'),
+        flash: ctx.session.flashMessages.all(),
+        session: ctx.session.all(),
+      })
     )
     const page = await this.folderPageService.detail(requireTenantId(ctx), Number(ctx.params.id))
 
