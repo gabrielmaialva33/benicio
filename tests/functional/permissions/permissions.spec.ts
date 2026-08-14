@@ -15,9 +15,8 @@ test.group('Permissions', (group) => {
     assert,
   }) => {
     const userRole = await Role.findByOrFail('slug', IRole.Slugs.USER)
-    const permissionNames = (await userRole.related('permissions').query()).map(
-      (permission) => permission.name
-    )
+    const permissions = await userRole.related('permissions').query()
+    const permissionNames = permissions.map((permission) => permission.name)
 
     assert.includeMembers(permissionNames, [
       'notifications.read',

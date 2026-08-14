@@ -85,18 +85,12 @@ test.group('Movements and activities API', (group) => {
       .loginAs(user)
     replay.assertStatus(201)
     assert.equal(replay.body().data.id, movementId)
-    assert.equal(
-      Number(
-        (
-          await db
-            .from('process_movements')
-            .where({ tenant_id: tenant.id })
-            .count('*')
-            .firstOrFail()
-        ).count
-      ),
-      1
-    )
+    const movementCount = await db
+      .from('process_movements')
+      .where({ tenant_id: tenant.id })
+      .count('*')
+      .firstOrFail()
+    assert.equal(Number(movementCount.count), 1)
 
     const updated = await client
       .put(`/api/v1/movements/${movementId}`)
@@ -132,15 +126,14 @@ test.group('Movements and activities API', (group) => {
       .header('x-tenant-id', String(tenant.id))
       .loginAs(user)
     removed.assertStatus(204)
-    assert.isNotNull(
-      (await db.from('process_movements').where('id', movementId).firstOrFail()).deleted_at
-    )
-    assert.equal(
-      Number(
-        (await db.from('activities').where({ tenant_id: tenant.id }).count('*').firstOrFail()).count
-      ),
-      3
-    )
+    const deletedMovement = await db.from('process_movements').where('id', movementId).firstOrFail()
+    const activityCount = await db
+      .from('activities')
+      .where({ tenant_id: tenant.id })
+      .count('*')
+      .firstOrFail()
+    assert.isNotNull(deletedMovement.deleted_at)
+    assert.equal(Number(activityCount.count), 3)
   })
 
   test('rejects invalid cursors and isolates movement references by tenant', async ({ client }) => {

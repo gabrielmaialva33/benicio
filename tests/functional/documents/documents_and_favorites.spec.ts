@@ -137,15 +137,14 @@ test.group('Documents and folder favorites API', (group) => {
       .header('x-tenant-id', String(tenant.id))
       .loginAs(user)
     removed.assertStatus(204)
-    assert.isNotNull(
-      (await db.from('legal_documents').where('id', documentId).firstOrFail()).deleted_at
-    )
-    assert.equal(
-      Number(
-        (await db.from('activities').where({ tenant_id: tenant.id }).count('*').firstOrFail()).count
-      ),
-      3
-    )
+    const deletedDocument = await db.from('legal_documents').where('id', documentId).firstOrFail()
+    const activityCount = await db
+      .from('activities')
+      .where({ tenant_id: tenant.id })
+      .count('*')
+      .firstOrFail()
+    assert.isNotNull(deletedDocument.deleted_at)
+    assert.equal(Number(activityCount.count), 3)
   })
 
   test('rejects foreign files and mismatched process links', async ({ client }) => {
@@ -201,8 +200,10 @@ test.group('Documents and folder favorites API', (group) => {
         .put(`/api/v1/folders/${matterA.folder.id}/favorite`)
         .header('x-tenant-id', String(tenantA.id))
         .loginAs(user)
-    ;(await favorite()).assertStatus(200)
-    ;(await favorite()).assertStatus(200)
+    const firstFavorite = await favorite()
+    const repeatedFavorite = await favorite()
+    firstFavorite.assertStatus(200)
+    repeatedFavorite.assertStatus(200)
 
     const listed = await client
       .get('/api/v1/me/favorites/folders')
@@ -213,18 +214,12 @@ test.group('Documents and folder favorites API', (group) => {
       listed.body().data.map((folder: { id: number }) => folder.id),
       [matterA.folder.id]
     )
-    assert.equal(
-      Number(
-        (
-          await db
-            .from('folder_favorites')
-            .where({ tenant_id: tenantA.id, folder_id: matterA.folder.id })
-            .count('*')
-            .firstOrFail()
-        ).count
-      ),
-      2
-    )
+    const favoriteCount = await db
+      .from('folder_favorites')
+      .where({ tenant_id: tenantA.id, folder_id: matterA.folder.id })
+      .count('*')
+      .firstOrFail()
+    assert.equal(Number(favoriteCount.count), 2)
 
     const foreignFolder = await client
       .put(`/api/v1/folders/${matterB.folder.id}/favorite`)

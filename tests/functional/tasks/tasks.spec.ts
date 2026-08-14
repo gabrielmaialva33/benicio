@@ -111,7 +111,8 @@ test.group('Tasks API', (group) => {
       .header('x-tenant-id', String(tenant.id))
       .loginAs(user)
     removed.assertStatus(204)
-    assert.isNotNull((await db.from('tasks').where('id', taskId).firstOrFail()).deleted_at)
+    const deletedTask = await db.from('tasks').where('id', taskId).firstOrFail()
+    assert.isNotNull(deletedTask.deleted_at)
   })
 
   test('hides tasks and rejects references across tenants', async ({ client }) => {

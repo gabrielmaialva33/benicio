@@ -111,7 +111,8 @@ test.group('Deadlines API', (group) => {
       .header('x-tenant-id', String(tenant.id))
       .loginAs(user)
     removed.assertStatus(204)
-    assert.isNotNull((await db.from('deadlines').where('id', deadlineId).firstOrFail()).deleted_at)
+    const deletedDeadline = await db.from('deadlines').where('id', deadlineId).firstOrFail()
+    assert.isNotNull(deletedDeadline.deleted_at)
   })
 
   test('rejects mismatched references and hides deadlines across tenants', async ({ client }) => {

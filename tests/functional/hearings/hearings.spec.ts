@@ -112,7 +112,8 @@ test.group('Hearings API', (group) => {
       .header('x-tenant-id', String(tenant.id))
       .loginAs(user)
     removed.assertStatus(204)
-    assert.isNotNull((await db.from('hearings').where('id', hearingId).firstOrFail()).deleted_at)
+    const deletedHearing = await db.from('hearings').where('id', hearingId).firstOrFail()
+    assert.isNotNull(deletedHearing.deleted_at)
   })
 
   test('rejects invalid ranges and hides hearings across tenants', async ({ client }) => {
