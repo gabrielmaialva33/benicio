@@ -292,7 +292,7 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden bg-[#373737] py-10 text-white transition-[width] duration-300 ease-in-out lg:flex',
+        "sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden bg-yol-sidebar py-10 font-['Work_Sans'] text-white transition-[width] duration-300 ease-in-out lg:flex",
         isCollapsed ? 'w-24' : 'w-[340px]'
       )}
     >

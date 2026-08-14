@@ -16,14 +16,18 @@ export function MainLayout({ children }: MainLayoutProps) {
   const isChatPage = (url.split('?', 1)[0] ?? '').startsWith('/chat')
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f1f1f2]">
+    <div className="flex h-screen overflow-hidden bg-yol-page">
       <Sidebar isCollapsed={collapsed} onToggle={() => setCollapsed((value) => !value)} />
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Header />
 
         <main className="min-w-0 flex-1 overflow-y-auto">
-          <div className={isChatPage ? 'h-full w-full' : 'w-full p-4 sm:p-6'}>{children}</div>
+          <div
+            className={isChatPage ? 'h-full w-full' : 'mx-auto w-full max-w-[1440px] p-4 sm:p-6'}
+          >
+            {children}
+          </div>
         </main>
       </div>
 

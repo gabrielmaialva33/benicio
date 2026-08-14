@@ -34,7 +34,7 @@ function pageCopy(url: string) {
     return { title: 'Visão Geral', description: 'Suas tarefas principais estão nessa seção.' }
   }
   if (path === '/folders/create') {
-    return { title: 'Cadastro de Pasta', description: 'Preencha os dados do novo processo' }
+    return { title: 'Cadastro de Pasta', description: 'Preencha os dados da nova pasta.' }
   }
   if (/^\/folders\/\d+\/processes\/create$/.test(path)) {
     return { title: 'Novo Processo', description: 'Cadastre o processo dentro da pasta.' }
@@ -55,7 +55,7 @@ function pageCopy(url: string) {
     }
   }
   if (path.startsWith('/folders')) {
-    return { title: 'Consulta de pastas', description: '' }
+    return { title: 'Consulta de pastas', description: 'Pastas › Consulta' }
   }
   if (path === '/clients/create') {
     return { title: 'Novo Cliente', description: 'Cadastre uma pessoa física ou jurídica.' }
@@ -110,7 +110,7 @@ function UserMenu() {
           className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
         >
           <Avatar className="size-9 rounded-lg">
-            <AvatarFallback className="rounded-lg bg-[#1cd6f4] text-xs font-semibold text-white">
+            <AvatarFallback className="rounded-lg bg-yol-cyan text-xs font-semibold text-white">
               {initialsOf(user.full_name)}
             </AvatarFallback>
           </Avatar>
@@ -167,7 +167,7 @@ export function Header() {
   const copy = pageCopy(url)
 
   return (
-    <header className="shrink-0 border-b border-gray-200 bg-[#f1f1f2] px-[30px] py-4">
+    <header className="shrink-0 bg-yol-page px-4 py-4 font-['Work_Sans'] sm:px-6 lg:px-[30px]">
       <div className="flex min-h-[61px] items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-4">
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -182,7 +182,7 @@ export function Header() {
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="flex w-[340px] flex-col border-0 bg-[#373737] px-0 py-10 text-white"
+              className="flex w-[340px] flex-col border-0 bg-yol-sidebar px-0 py-10 text-white"
             >
               <SheetTitle className="sr-only">Navegação principal</SheetTitle>
               <div className="px-10">
@@ -193,9 +193,11 @@ export function Header() {
           </Sheet>
 
           <div className="min-w-0">
-            <h1 className="truncate font-semibold text-2xl text-[#161c24]">{copy.title}</h1>
+            <h1 className="truncate font-semibold text-2xl text-yol-ink">{copy.title}</h1>
             {copy.description && (
-              <p className="mt-1 truncate text-base text-gray-500">{copy.description}</p>
+              <p className="mt-1 hidden truncate text-sm text-gray-500 sm:block">
+                {copy.description}
+              </p>
             )}
           </div>
         </div>
