@@ -12,12 +12,17 @@ export function jwtGuard<UserProvider extends JwtUserProviderContract<unknown>>(
 }): GuardConfigProvider<(ctx: HttpContext) => JwtGuard<UserProvider>> {
   return {
     async resolver(_, app) {
+      const { default: RefreshTokenRepository } =
+        await import('#modules/auth/repositories/refresh_token_repository')
+      const refreshTokenRepository = await app.container.make(RefreshTokenRepository)
       const appKey = (app.config.get('app.appKey') as Secret<string>).release()
       const options = {
         secret: appKey,
         expiresIn: config.tokenExpiresIn,
         useCookies: config.useCookies,
         content: config.content,
+        isSessionActive: (familyId: string, userId: string | number | bigint) =>
+          refreshTokenRepository.isFamilyActive(familyId, userId),
       }
       return (ctx) => new JwtGuard(ctx, config.provider, options)
     },

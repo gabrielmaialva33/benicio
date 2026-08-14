@@ -159,14 +159,7 @@ export class JwtGuard<
     // valid preserves Japa's loginAs tokens and tokens minted before this
     // migration; all newly-issued access tokens are revoked with their family.
     if ('sid' in payload && typeof payload.sid === 'string') {
-      const { default: db } = await import('@adonisjs/lucid/services/db')
-      const activeSession = await db
-        .from('refresh_tokens')
-        .where('family_id', payload.sid)
-        .where('user_id', payload.userId)
-        .whereNull('revoked_at')
-        .where('expires_at', '>', new Date())
-        .first()
+      const activeSession = await this.#options.isSessionActive(payload.sid, payload.userId)
 
       if (!activeSession) {
         const message = this.#ctx.i18n?.t('errors.unauthorized_access') || 'Unauthorized access'

@@ -40,7 +40,7 @@ export default class VerifyEmailService {
     user.metadata.email_verified_at = DateTime.now().toISO()
     user.metadata.email_verification_token = null
     user.metadata.email_verification_sent_at = null
-    await user.save()
+    await this.usersRepository.persist(user)
 
     return user
   }

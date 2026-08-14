@@ -6,6 +6,7 @@ import RolesRepository from '#modules/roles/repositories/roles_repository'
 
 import JwtAuthTokensService from '#modules/auth/services/jwt_auth_tokens_service'
 import AuthEventService from '#modules/auth/services/auth_event_service'
+import TenantMembershipService from '#modules/tenants/services/tenant_membership_service'
 
 import NotFoundException from '#exceptions/not_found_exception'
 
@@ -19,6 +20,7 @@ export default class AdminSignInService {
   constructor(
     private usersRepository: UsersRepository,
     private rolesRepository: RolesRepository,
+    private tenantMembershipService: TenantMembershipService,
     private jwtAuthTokensService: JwtAuthTokensService
   ) {}
 
@@ -30,9 +32,7 @@ export default class AdminSignInService {
     AuthEventService.emitLoginAttempted(uid, ctx)
 
     try {
-      const user = await this.usersRepository.verifyCredentials(uid, password)
-
-      await user.load('roles')
+      const user = await this.usersRepository.verifyCredentialsWithRoles(uid, password)
 
       const isAdmin = this.rolesRepository.isAdmin(user.roles)
 
@@ -43,7 +43,7 @@ export default class AdminSignInService {
       }
 
       // Active tenant = the user's first tenant (N:N via user_tenants).
-      const tenant = await user.related('tenants').query().first()
+      const tenant = await this.tenantMembershipService.firstActive(user.id)
 
       const auth = await this.jwtAuthTokensService.run(
         { userId: user.id, tenantId: tenant?.id },

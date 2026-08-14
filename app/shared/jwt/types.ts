@@ -61,4 +61,5 @@ export type JwtGuardOptions<RealUser extends any = unknown> = {
   expiresIn?: SignOptions['expiresIn']
   useCookies?: boolean
   content?: (user: JwtGuardUser<RealUser>) => Record<string, any>
+  isSessionActive: (familyId: string, userId: string | number | bigint) => Promise<boolean>
 }

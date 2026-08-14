@@ -37,6 +37,9 @@ test.group('Sessions sign in', (group) => {
 
     assert.isDefined(response.body().auth?.access_token)
     assert.isDefined(response.body().auth?.refresh_token)
+    assert.notProperty(response.body(), 'password')
+    assert.notProperty(response.body(), 'metadata')
+    assert.notInclude(JSON.stringify(response.body()), 'email_verification_token')
   })
 
   test('should fail with invalid email', async ({ client }) => {

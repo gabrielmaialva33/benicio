@@ -1,10 +1,15 @@
 import { DateTime } from 'luxon'
+import { inject } from '@adonisjs/core'
 import string from '@adonisjs/core/helpers/string'
 import mail from '@adonisjs/mail/services/main'
 import type User from '#modules/users/models/user'
 import VerifyEmailNotification from '#modules/auth/services/verify_email_notification'
+import UsersRepository from '#modules/users/repositories/users_repository'
 
+@inject()
 export default class SendVerificationEmailService {
+  constructor(private usersRepository: UsersRepository) {}
+
   async handle(user: User): Promise<void> {
     // Generate verification token
     const token = string.generateRandom(32)
@@ -22,7 +27,7 @@ export default class SendVerificationEmailService {
     // Save token and timestamp
     user.metadata.email_verification_token = token
     user.metadata.email_verification_sent_at = DateTime.now().toISO()
-    await user.save()
+    await this.usersRepository.persist(user)
 
     // Send verification email
     await mail.send(new VerifyEmailNotification(user, token))
