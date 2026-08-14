@@ -56,6 +56,7 @@ export default [
     ignores: [
       'tmp/**',
       'build/**',
+      'public/assets/**',
       'node_modules/**',
       '.DS_Store',
       'coverage/**',
