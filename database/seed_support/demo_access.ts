@@ -2,12 +2,12 @@ import hash from '@adonisjs/core/services/hash'
 import type { QueryClientContract } from '@adonisjs/lucid/types/database'
 
 import {
+  type DemoUserFixture,
   LEGAL_DEMO_PASSWORD,
   LEGAL_DEMO_REFERENCE_DATE,
   legalDemoTenant,
-  legalDemoUsers,
-  type DemoUserFixture,
   type LegalDemoUserKey,
+  legalDemoUsers,
 } from '#database/fixtures/legal_demo'
 import { withinSeedTransaction } from '#database/seed_support/transaction'
 import Role from '#modules/roles/models/role'

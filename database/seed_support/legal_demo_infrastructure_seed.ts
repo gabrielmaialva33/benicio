@@ -8,8 +8,8 @@ import type { QueryClientContract } from '@adonisjs/lucid/types/database'
 import {
   LEGAL_DEMO_REFERENCE_DATE,
   LEGAL_DEMO_SEED_KEY,
-  legalDemoClients,
   type LegalDemoClientKey,
+  legalDemoClients,
   type LegalDemoFolderKey,
   type LegalDemoUserKey,
 } from '#database/fixtures/legal_demo'

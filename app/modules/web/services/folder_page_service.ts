@@ -4,8 +4,8 @@ import ActivityService from '#modules/activities/services/activity_service'
 import ClientReadRepository from '#modules/clients/repositories/client_read_repository'
 import type Deadline from '#modules/deadlines/models/deadline'
 import DeadlineRepository from '#modules/deadlines/repositories/deadline_repository'
-import { FOLDER_STATUSES } from '#modules/folders/interfaces/folder_interface'
 import type { FolderListInput, FolderStatus } from '#modules/folders/interfaces/folder_interface'
+import { FOLDER_STATUSES } from '#modules/folders/interfaces/folder_interface'
 import type Folder from '#modules/folders/models/folder'
 import FolderReadRepository from '#modules/folders/repositories/folder_read_repository'
 import FolderService from '#modules/folders/services/folder_service'
@@ -13,7 +13,6 @@ import ProcessService from '#modules/processes/services/process_service'
 import UsersRepository from '#modules/users/repositories/users_repository'
 import type {
   WebFolder,
-  WebFolderActivity,
   WebFolderDeadline,
   WebFolderDetailData,
   WebFolderFormOptions,

@@ -79,6 +79,34 @@ export default class AiChatService {
     }
   }
 
+  async list(tenantId: number, userId: number, input: AiConversationListInput) {
+    const conversations = await this.conversationRepository.paginate(tenantId, userId, input)
+    return {
+      data: conversations.all().map((conversation) => {
+        const lastMessage = conversation.messages[0]
+        return this.conversationDto(
+          conversation,
+          undefined,
+          lastMessage ? this.messageDto(lastMessage) : undefined
+        )
+      }),
+      meta: conversations.getMeta(),
+    }
+  }
+
+  async get(tenantId: number, userId: number, conversationId: number): Promise<ConversationDto> {
+    const conversation = await this.conversationRepository.find(tenantId, userId, conversationId)
+    if (!conversation) throw new NotFoundException('AI conversation not found')
+    return this.conversationDto(
+      conversation,
+      conversation.messages.map((message) => this.messageDto(message))
+    )
+  }
+
+  delete(tenantId: number, userId: number, conversationId: number): Promise<void> {
+    return this.conversationRepository.delete(tenantId, userId, conversationId)
+  }
+
   private async *streamTurn(
     tenantId: number,
     userId: number,
@@ -136,34 +164,6 @@ export default class AiChatService {
         )
       }
     }
-  }
-
-  async list(tenantId: number, userId: number, input: AiConversationListInput) {
-    const conversations = await this.conversationRepository.paginate(tenantId, userId, input)
-    return {
-      data: conversations.all().map((conversation) => {
-        const lastMessage = conversation.messages[0]
-        return this.conversationDto(
-          conversation,
-          undefined,
-          lastMessage ? this.messageDto(lastMessage) : undefined
-        )
-      }),
-      meta: conversations.getMeta(),
-    }
-  }
-
-  async get(tenantId: number, userId: number, conversationId: number): Promise<ConversationDto> {
-    const conversation = await this.conversationRepository.find(tenantId, userId, conversationId)
-    if (!conversation) throw new NotFoundException('AI conversation not found')
-    return this.conversationDto(
-      conversation,
-      conversation.messages.map((message) => this.messageDto(message))
-    )
-  }
-
-  delete(tenantId: number, userId: number, conversationId: number): Promise<void> {
-    return this.conversationRepository.delete(tenantId, userId, conversationId)
   }
 
   private async providerMessages(

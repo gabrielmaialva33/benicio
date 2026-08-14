@@ -1,6 +1,6 @@
 import { inject } from '@adonisjs/core'
 import { type HttpContext } from '@adonisjs/core/http'
-import { signInValidator, createUserValidator } from '#modules/users/validators/users_validator'
+import { createUserValidator, signInValidator } from '#modules/users/validators/users_validator'
 import SignInService from '#modules/auth/services/sign_in_service'
 import SignUpService from '#modules/auth/services/sign_up_service'
 import LogoutSessionService from '#modules/auth/services/logout_session_service'

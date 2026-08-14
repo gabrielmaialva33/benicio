@@ -7,24 +7,24 @@ import type { QueryClientContract } from '@adonisjs/lucid/types/database'
 import {
   LEGAL_DEMO_REFERENCE_DATE,
   LEGAL_DEMO_SEED_KEY,
+  type LegalDemoClientKey,
   legalDemoClients,
   legalDemoDeadlines,
   legalDemoDocuments,
   legalDemoFavorites,
+  type LegalDemoFolderKey,
   legalDemoFolders,
   legalDemoHearings,
   legalDemoMessages,
   legalDemoMovements,
   legalDemoNotifications,
   legalDemoProcesses,
-  legalDemoTasks,
-  type LegalDemoClientKey,
-  type LegalDemoFolderKey,
   type LegalDemoProcessKey,
+  legalDemoTasks,
 } from '#database/fixtures/legal_demo'
 import {
-  seedLegalDemoAccess,
   type LegalDemoAccessContext,
+  seedLegalDemoAccess,
 } from '#database/seed_support/demo_access'
 import { seedLegalDemoInfrastructure } from '#database/seed_support/legal_demo_infrastructure_seed'
 import { withinSeedTransaction } from '#database/seed_support/transaction'

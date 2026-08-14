@@ -8,13 +8,13 @@ import { LEGAL_DEMO_REFERENCE_DATE } from '#database/fixtures/legal_demo'
 import {
   PRECATORIOS_DEMO_SEED_KEY,
   precatoriosDemoCases,
+  type PrecatoriosDemoUserKey,
   precatoriosDemoUsers,
   precatoriosDocumentTemplates,
   precatoriosPublicEntities,
-  type PrecatoriosDemoUserKey,
   type PrecatoriosPublicEntityKey,
 } from '#database/fixtures/precatorios_demo'
-import { seedDemoAccess, type DemoAccessContext } from '#database/seed_support/demo_access'
+import { type DemoAccessContext, seedDemoAccess } from '#database/seed_support/demo_access'
 import { withinSeedTransaction } from '#database/seed_support/transaction'
 import Activity from '#modules/activities/models/activity'
 import Client from '#modules/clients/models/client'

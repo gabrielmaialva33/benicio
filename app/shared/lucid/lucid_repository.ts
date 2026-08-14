@@ -5,6 +5,7 @@ import { type ModelAttributes, type ModelQueryBuilderContract } from '@adonisjs/
 import ValidationException from '#exceptions/validation_exception'
 import { type TransactionClientContract } from '@adonisjs/lucid/types/database'
 
+import type LucidRepositoryInterface from '#shared/lucid/lucid_repository_interface'
 import {
   type DefaultOptions,
   type ModelKeys,
@@ -12,7 +13,6 @@ import {
   type PaginateOptions,
   type PaginateResult,
 } from '#shared/lucid/lucid_repository_interface'
-import type LucidRepositoryInterface from '#shared/lucid/lucid_repository_interface'
 
 export default class LucidRepository<
   T extends typeof BaseModel,

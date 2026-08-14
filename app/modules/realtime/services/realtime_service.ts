@@ -2,10 +2,11 @@ import transmit from '@adonisjs/transmit/services/main'
 import logger from '@adonisjs/core/services/logger'
 
 interface RealtimeEnvelope {
-  [key: string]: string | number
   event: string
   id: number
   occurred_at: string
+
+  [key: string]: string | number
 }
 
 export default class RealtimeService {
