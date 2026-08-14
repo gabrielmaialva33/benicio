@@ -590,7 +590,10 @@ Content-Type: application/json
   "folder_id": {{folderId}},
   "process_id": {{processId}},
   "assignee_id": {{userId}},
-  "tags": ["contencioso", "revisão"]
+  "tags": [
+    "contencioso",
+    "revisão"
+  ]
 }
 
 ### Update Task Status

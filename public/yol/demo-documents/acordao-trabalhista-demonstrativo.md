@@ -4,8 +4,8 @@
 
 ## Ementa simulada
 
-Discussão fictícia sobre a natureza do uso de veículo particular em atividade profissional,
-com análise demonstrativa de indenização e distribuição do ônus da prova.
+Discussão fictícia sobre a natureza do uso de veículo particular em atividade profissional, com análise demonstrativa de
+indenização e distribuição do ônus da prova.
 
 ## Resultado
 

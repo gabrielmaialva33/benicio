@@ -32,18 +32,19 @@
 ## :bookmark: Sobre
 
 O **Benício** é uma plataforma de gestão jurídica para organizar escritórios, equipes e fluxos de trabalho. Este é o
-repositório canônico do produto: aplicação web em **React 19 + Inertia.js**, API REST versionada e backend em
-**AdonisJS v7**, todos apoiados pela mesma camada de domínio.
+repositório canônico do produto: aplicação web em **React 19 + Inertia.js**, API REST versionada e backend em **AdonisJS
+v7**, todos apoiados pela mesma camada de domínio.
 
-A fundação atual já entrega autenticação multi-guard, controle de acesso baseado em papéis (RBAC), **multi-tenancy N:N**,
-auditoria e gerenciamento de arquivos. Dashboard, clientes, pastas, processos e chat de IA já foram consolidados no
+A fundação atual já entrega autenticação multi-guard, controle de acesso baseado em papéis (RBAC), **multi-tenancy N:
+N**, auditoria e gerenciamento de arquivos. Dashboard, clientes, pastas, processos e chat de IA já foram consolidados no
 Inertia; os módulos operacionais restantes seguem a mesma migração incremental, sempre com dados reais e testes de
 contrato.
 
 ### 🏗️ Visão Geral da Arquitetura
 
 O backend é **modular (orientado a domínio)**: cada domínio (`auth`, `users`, `roles`, `permissions`, `files`, `audits`,
-`tenants`, `health`, `web` e os módulos do fluxo jurídico) é dono dos seus controllers, serviços, repositórios, modelos, validators e rotas em
+`tenants`, `health`, `web` e os módulos do fluxo jurídico) é dono dos seus controllers, serviços, repositórios, modelos,
+validators e rotas em
 `app/modules/<domínio>/`. Código transversal (middleware, guard JWT, repositório/modelos base) fica em `app/shared/`, e
 as exceptions tipadas em `app/exceptions/`.
 
@@ -88,15 +89,19 @@ graph TD
 
 A direção de dependências é intencional: controllers cuidam de HTTP, serviços orquestram casos de uso e fronteiras
 transacionais, e repositórios concentram toda query Lucid/SQL. O ESLint rejeita acesso ao banco/query builder em
-controllers, serviços e middlewares, além de impedir que controllers ou middlewares pulem a camada de serviço
-importando um repositório diretamente.
+controllers, serviços e middlewares, além de impedir que controllers ou middlewares pulem a camada de serviço importando
+um repositório diretamente.
 
 ## Status atual
 
-- **Fundação da plataforma disponível**: famílias rotativas de refresh token, usuários, tenants, RBAC, auditoria, arquivos, shell web e infraestrutura de API.
-- **API jurídica disponível**: clientes, pastas, processos/partes, tarefas, audiências, prazos, movimentações, atividade append-only, documentos ligados a arquivos e favoritos por usuário.
-- **Operação disponível**: dashboard com agregações reais, notificações do destinatário, mensagens internas, canais realtime privados e conversas de IA persistidas com fronteira explícita de provider.
-- **Contrato coberto**: toda rota pública da API/Transmit está representada em `docs/openapi.yaml`, com testes funcionais de isolamento por tenant e proprietário.
+- **Fundação da plataforma disponível**: famílias rotativas de refresh token, usuários, tenants, RBAC, auditoria,
+  arquivos, shell web e infraestrutura de API.
+- **API jurídica disponível**: clientes, pastas, processos/partes, tarefas, audiências, prazos, movimentações, atividade
+  append-only, documentos ligados a arquivos e favoritos por usuário.
+- **Operação disponível**: dashboard com agregações reais, notificações do destinatário, mensagens internas, canais
+  realtime privados e conversas de IA persistidas com fronteira explícita de provider.
+- **Contrato coberto**: toda rota pública da API/Transmit está representada em `docs/openapi.yaml`, com testes
+  funcionais de isolamento por tenant e proprietário.
 - **Web canônica**: a experiência aprovada do `yol-benicio` agora vive no Inertia, incluindo dashboard, pastas e
   clientes isolados por tenant, processos aninhados em pastas e chat de IA persistido com streaming SSE real.
 - **Próximo slice de produto**: expor os módulos operacionais restantes da API (tarefas, audiências, prazos,
@@ -112,10 +117,12 @@ importando um repositório diretamente.
   `owner`/`admin`/`member`). O tenant ativo viaja no JWT e é alternável por endpoints de API e web.
 - **📁 Gerenciamento de Arquivos**: Serviço de upload pré-configurado com suporte para drivers local, S3, Spaces, R2 e
   GCS.
-- **⚖️ Fluxos Jurídicos**: Processos, tarefas, audiências, prazos, movimentações, timeline, documentos ligados a arquivos e favoritos por usuário.
+- **⚖️ Fluxos Jurídicos**: Processos, tarefas, audiências, prazos, movimentações, timeline, documentos ligados a
+  arquivos e favoritos por usuário.
 - **📊 Read Models Operacionais**: Agregações e widgets tenant-safe alimentados por queries reais no PostgreSQL.
 - **📨 Realtime Privado**: Notificações e mensagens persistidas, entregues por canais autenticados do Transmit/SSE.
-- **🤖 Chat de IA com Provider Real**: Histórico por usuário, controle de concorrência, falha explícita e streaming OpenAI-compatible, sem mock silencioso em produção.
+- **🤖 Chat de IA com Provider Real**: Histórico por usuário, controle de concorrência, falha explícita e streaming
+  OpenAI-compatible, sem mock silencioso em produção.
 - **⚡️ Reatividade Full-Stack**: O poder do React combinado com a simplicidade de uma aplicação tradicional renderizada
   no servidor, graças ao Inertia.js.
 - **🎨 Biblioteca de Componentes de UI**: ~78 componentes Metronic (estilo shadcn) sobre Radix UI, Tailwind CSS v4 e
@@ -127,35 +134,46 @@ importando um repositório diretamente.
 
 ### Núcleo
 
-- **[AdonisJS v7](https://adonisjs.com/)**: Um framework Node.js robusto para o backend (roda TypeScript direto via `@poppinss/ts-exec`).
+- **[AdonisJS v7](https://adonisjs.com/)**: Um framework Node.js robusto para o backend (roda TypeScript direto via
+  `@poppinss/ts-exec`).
 - **[Node.js 24 LTS](https://nodejs.org/)**: O runtime (`.nvmrc` → `v24.13.0`).
 - **[React 19](https://react.dev/)**: Uma poderosa biblioteca para construir interfaces de usuário.
 - **[Inertia.js v3](https://inertiajs.com/)**: A cola que conecta o frontend moderno com o backend.
 - **[TypeScript](https://www.typescriptlang.org/)**: Para segurança de tipos em toda a stack.
-- **[PostgreSQL](https://www.postgresql.org/)**: Um banco de dados relacional confiável e poderoso (SQLite disponível para testes).
+- **[PostgreSQL](https://www.postgresql.org/)**: Um banco de dados relacional confiável e poderoso (SQLite disponível
+  para testes).
 - **[Redis](https://redis.io/)**: Usado para cache, sessões, rate limiting, jobs e distribuição realtime.
 - **[Vite](https://vitejs.dev/)**: Para uma experiência de desenvolvimento frontend ultrarrápida.
-- **[Tailwind CSS v4](https://tailwindcss.com/)**: Framework CSS utility-first que sustenta a biblioteca de componentes Metronic.
+- **[Tailwind CSS v4](https://tailwindcss.com/)**: Framework CSS utility-first que sustenta a biblioteca de componentes
+  Metronic.
 
 ### Bibliotecas de frontend
 
-- **[TanStack Table v9](https://tanstack.com/table)**: Data grids headless (os componentes `DataGrid` em `inertia/components/ui/`).
+- **[TanStack Table v9](https://tanstack.com/table)**: Data grids headless (os componentes `DataGrid` em
+  `inertia/components/ui/`).
 - **[TanStack Query](https://tanstack.com/query)**: Cache de estado de servidor para requisições no cliente.
-- **[React Hook Form](https://react-hook-form.com/)** + **[Zod](https://zod.dev/)**: Estado de formulários e validação por schema.
-- **[Radix UI](https://www.radix-ui.com/)** + **[lucide-react](https://lucide.dev/)**: Primitivos e ícones por trás da biblioteca de componentes.
-- **[Recharts](https://recharts.org/)**, **[dnd-kit](https://dndkit.com/)**, **[Motion](https://motion.dev/)**: Gráficos, drag-and-drop e animação.
+- **[React Hook Form](https://react-hook-form.com/)** + **[Zod](https://zod.dev/)**: Estado de formulários e validação
+  por schema.
+- **[Radix UI](https://www.radix-ui.com/)** + **[lucide-react](https://lucide.dev/)**: Primitivos e ícones por trás da
+  biblioteca de componentes.
+- **[Recharts](https://recharts.org/)**, **[dnd-kit](https://dndkit.com/)**, **[Motion](https://motion.dev/)**:
+  Gráficos, drag-and-drop e animação.
 
 ### Bibliotecas de backend
 
-- **[Lucid ORM](https://lucid.adonisjs.com/)**: Models, migrations e query builder com estratégia de nomes em snake_case.
+- **[Lucid ORM](https://lucid.adonisjs.com/)**: Models, migrations e query builder com estratégia de nomes em
+  snake_case.
 - **[VineJS](https://vinejs.dev/)**: Validação de requisições na borda do sistema.
-- **[AdonisJS Queue](https://docs.adonisjs.com/guides/digging-deeper/queues)**: Jobs oficiais em background sobre Redis, com versão fixada enquanto a API é experimental.
-- **[AdonisJS Transmit](https://docs.adonisjs.com/guides/digging-deeper/server-sent-events)**: Server-Sent Events autenticados com distribuição via Redis.
+- **[AdonisJS Queue](https://docs.adonisjs.com/guides/digging-deeper/queues)**: Jobs oficiais em background sobre Redis,
+  com versão fixada enquanto a API é experimental.
+- **[AdonisJS Transmit](https://docs.adonisjs.com/guides/digging-deeper/server-sent-events)**: Server-Sent Events
+  autenticados com distribuição via Redis.
 
 ### Testes
 
 - **[Japa](https://japa.dev/)**: Suítes de backend unit, functional e browser (browser via Playwright).
-- **[Vitest](https://vitest.dev/)** + **[Testing Library](https://testing-library.com/)** + **[MSW](https://mswjs.io/)**: Testes do frontend.
+- **[Vitest](https://vitest.dev/)** + **[Testing Library](https://testing-library.com/)** +
+  **[MSW](https://mswjs.io/)**: Testes do frontend.
 
 > **Nota sobre o TypeScript.** A dependência `typescript` está apontada para
 > `@typescript/typescript6`, enquanto o TS 7 entra como `typescript-native`. O `typescript-eslint`
@@ -170,8 +188,8 @@ importando um repositório diretamente.
 
 - **Node.js 24 LTS** (`.nvmrc` → `v24.13.0`)
 - **pnpm**
-- **PostgreSQL** e **Redis** — ambos obrigatórios para dev _e_ testes. O jeito mais rápido de subir
-  os dois é `docker compose up -d postgres redis` (veja [Docker](#whale-docker)).
+- **PostgreSQL** e **Redis** — ambos obrigatórios para dev _e_ testes. O jeito mais rápido de subir os dois é
+  `docker compose up -d postgres redis` (veja [Docker](#whale-docker)).
 
 ### 🚀 Começando
 
@@ -197,8 +215,8 @@ importando um repositório diretamente.
    _Abra o arquivo `.env` e configure suas credenciais de banco de dados e outras configurações._
 
    O chat de IA fica fail-closed por padrão. Para habilitar um provider OpenAI-compatible, configure
-   `AI_PROVIDER=openai_compatible`, `AI_BASE_URL`, `AI_MODEL` e, quando necessário, `AI_API_KEY`.
-   A base precisa expor `POST /chat/completions`; fora dos testes não existe provider fake.
+   `AI_PROVIDER=openai_compatible`, `AI_BASE_URL`, `AI_MODEL` e, quando necessário, `AI_API_KEY`. A base precisa expor
+   `POST /chat/completions`; fora dos testes não existe provider fake.
 
 4. **Suba o PostgreSQL e o Redis:**
 
@@ -215,10 +233,9 @@ importando um repositório diretamente.
    pnpm ace db:seed
    ```
 
-   Em desenvolvimento, o seed é determinístico e idempotente. Ele cria o cenário jurídico
-   multi-tenant e o acesso local principal `admin@benicio.com.br` / `benicio123`. Uma nova execução
-   atualiza a fixture gerenciada sem duplicar registros; tokens de acesso, refresh tokens e estado
-   de rate limit não são populados de propósito.
+   Em desenvolvimento, o seed é determinístico e idempotente. Ele cria o cenário jurídico multi-tenant e o acesso local
+   principal `admin@benicio.com.br` / `benicio123`. Uma nova execução atualiza a fixture gerenciada sem duplicar
+   registros; tokens de acesso, refresh tokens e estado de rate limit não são populados de propósito.
 
 6. **Inicie o servidor de desenvolvimento:**
    ```sh
@@ -264,10 +281,9 @@ docker compose up -d postgres redis
 docker compose up --build
 ```
 
-O container da aplicação espera os healthchecks dos dois serviços, roda migrations e seeders e só
-então sobe o servidor em `http://localhost:3333`. O compose traz um `APP_KEY` de placeholder; gere
-uma chave real e exporte antes de rodar a stack completa em qualquer coisa além de um ambiente
-descartável:
+O container da aplicação espera os healthchecks dos dois serviços, roda migrations e seeders e só então sobe o servidor
+em `http://localhost:3333`. O compose traz um `APP_KEY` de placeholder; gere uma chave real e exporte antes de rodar a
+stack completa em qualquer coisa além de um ambiente descartável:
 
 ```sh
 export APP_KEY=$(pnpm ace generate:key --show | cut -d' ' -f3)
@@ -281,9 +297,9 @@ _O `--show` imprime `APP_KEY = <chave>` em vez de escrever no `.env` — daí o 
 ## :test_tube: Integração Contínua
 
 Todo push para `master`/`develop` e todo PR para `master` dispara o
-[workflow de CI](.github/workflows/ci-cd.yml): lint, checagem de tipos (backend + frontend), a suíte
-completa do backend (unit + functional + browser no Playwright Chromium), os testes do frontend e um
-build de produção — contra containers reais de PostgreSQL e Redis.
+[workflow de CI](.github/workflows/ci-cd.yml): lint, checagem de tipos (backend + frontend), a suíte completa do backend
+(unit + functional + browser no Playwright Chromium), os testes do frontend e um build de produção — contra containers
+reais de PostgreSQL e Redis.
 
 ## :memo: Licença
 

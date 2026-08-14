@@ -12,5 +12,5 @@
 
 ## Conclusão demonstrativa
 
-O cenário recomenda mapear os fluxos de custódia, documentar os controles internos e
-acompanhar os atos normativos aplicáveis antes do lançamento do produto analisado.
+O cenário recomenda mapear os fluxos de custódia, documentar os controles internos e acompanhar os atos normativos
+aplicáveis antes do lançamento do produto analisado.

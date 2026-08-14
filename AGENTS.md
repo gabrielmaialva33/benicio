@@ -2,11 +2,17 @@
 
 ## Project Structure & Module Organization
 
-This is an AdonisJS 7, React 19, and Inertia application. Backend features live in `app/modules/<domain>/`; each domain owns its controllers, services, repositories, models, validators, and `routes.ts`. Put cross-cutting middleware, JWT support, base Lucid classes, and shared services in `app/shared/`, and typed errors in `app/exceptions/`.
+This is an AdonisJS 7, React 19, and Inertia application. Backend features live in `app/modules/<domain>/`; each domain
+owns its controllers, services, repositories, models, validators, and `routes.ts`. Put cross-cutting middleware, JWT
+support, base Lucid classes, and shared services in `app/shared/`, and typed errors in `app/exceptions/`.
 
-Frontend pages, layouts, components, hooks, and styles live under `inertia/`. Database migrations, factories, and seeders are in `database/`; server-rendered views and translations are in `resources/`. Backend tests mirror their suite under `tests/{unit,functional,browser}/`, while frontend tests live in `inertia/tests/`.
+Frontend pages, layouts, components, hooks, and styles live under `inertia/`. Database migrations, factories, and
+seeders are in `database/`; server-rendered views and translations are in `resources/`. Backend tests mirror their suite
+under `tests/{unit,functional,browser}/`, while frontend tests live in `inertia/tests/`.
 
-Adonis generators target the framework's default layout, which this repository does not use. If you run `pnpm ace make:*`, move generated code into the owning module and replace default aliases with `#modules/*`, `#shared/*`, or another alias declared in `package.json`.
+Adonis generators target the framework's default layout, which this repository does not use. If you run
+`pnpm ace make:*`, move generated code into the owning module and replace default aliases with `#modules/*`,
+`#shared/*`, or another alias declared in `package.json`.
 
 ## Build, Test, and Development Commands
 
@@ -21,20 +27,28 @@ Use Node 24 from `.nvmrc`. Copy `.env.example` to `.env` for local development; 
 
 ## Coding Style & Naming Conventions
 
-TypeScript is strict. Use two-space indentation, LF endings, snake_case filenames, PascalCase classes and React components, and camelCase functions and variables. Run `pnpm format` (Prettier) and `pnpm lint` before submitting. Follow neighboring modules instead of introducing a new layering pattern. Do not restore removed aliases such as `#controllers/*` or `#models/*`.
+TypeScript is strict. Use two-space indentation, LF endings, snake_case filenames, PascalCase classes and React
+components, and camelCase functions and variables. Run `pnpm format` (Prettier) and `pnpm lint` before submitting.
+Follow neighboring modules instead of introducing a new layering pattern. Do not restore removed aliases such as
+`#controllers/*` or `#models/*`.
 
 ### Backend dependency rule
 
-Keep the dependency direction `Controller -> Service -> Repository -> Model/Database`. Controllers handle HTTP input
-and responses; services own business orchestration and use `UnitOfWork` for cross-repository transactions;
-repositories are the only application layer allowed to execute Lucid/SQL queries or relationship persistence.
-Controllers and middleware must not import repositories directly. These boundaries are enforced in
+Keep the dependency direction `Controller -> Service -> Repository -> Model/Database`. Controllers handle HTTP input and
+responses; services own business orchestration and use `UnitOfWork` for cross-repository transactions; repositories are
+the only application layer allowed to execute Lucid/SQL queries or relationship persistence. Controllers and middleware
+must not import repositories directly. These boundaries are enforced in
 `eslint.config.js`; add an intent-named repository method instead of disabling the rule.
 
 ## Testing Guidelines
 
-Japa backend tests use `*.spec.ts`; Vitest/Testing Library frontend tests use `*.test.tsx` or `*.spec.tsx`. Add regression coverage in the closest matching suite. Tests migrate and seed the database automatically from `.env.test`; browser tests require Playwright Chromium. No coverage threshold is enforced, but changed behavior should be exercised.
+Japa backend tests use `*.spec.ts`; Vitest/Testing Library frontend tests use `*.test.tsx` or `*.spec.tsx`. Add
+regression coverage in the closest matching suite. Tests migrate and seed the database automatically from `.env.test`;
+browser tests require Playwright Chromium. No coverage threshold is enforced, but changed behavior should be exercised.
 
 ## Commit & Pull Request Guidelines
 
-History follows Conventional Commits, usually with scopes: `feat(ui): ...`, `fix(auth): ...`, `refactor(jwt): ...`, or `chore(ci): ...`. Keep commits focused and imperative. Pull requests should explain impact, link relevant issues, call out migrations or environment changes, include screenshots for UI work, and report results for lint, typecheck, tests, and build.
+History follows Conventional Commits, usually with scopes: `feat(ui): ...`, `fix(auth): ...`, `refactor(jwt): ...`, or
+`chore(ci): ...`. Keep commits focused and imperative. Pull requests should explain impact, link relevant issues, call
+out migrations or environment changes, include screenshots for UI work, and report results for lint, typecheck, tests,
+and build.

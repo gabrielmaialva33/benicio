@@ -4,23 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## ⚠️ CRITICAL RULE: KEEP THE MODULAR STRUCTURE
 
-This project does **NOT** use the default AdonisJS layout (`app/controllers`, `app/models`, …).
-It uses a **modular, domain-driven** layout under `app/modules/<domain>/` plus cross-cutting
-code in `app/shared/`. Two things follow from that:
+This project does **NOT** use the default AdonisJS layout (`app/controllers`, `app/models`, …). It uses a **modular,
+domain-driven** layout under `app/modules/<domain>/` plus cross-cutting code in `app/shared/`. Two things follow from
+that:
 
 1. **`node ace make:*` generates files in the DEFAULT location** (`app/controllers/...`,
    `#controllers/...` aliases) which is **wrong** for this repo. So when you scaffold:
-   - Generate with ace if you want the boilerplate, then **MOVE** the file into the right
-     module (`app/modules/<domain>/{controllers,services,...}/`) and **fix the imports** to
-     `#modules/*` / `#shared/*`, **OR**
-   - Create the file directly following the existing module pattern (look at a sibling module
-     like `app/modules/users/` and copy its shape).
-2. **Never use the removed legacy aliases** (`#controllers`, `#models`, `#services`,
-   `#repositories`, `#middleware`, `#validators`, `#interfaces`, `#routes`). They no longer
-   exist. Use `#modules/*`, `#shared/*`, `#exceptions/*` (see "Import Aliases").
 
-The spirit of the old rule still holds: **stay consistent with the existing structure** — just
-don't trust the default ace output paths.
+- Generate with ace if you want the boilerplate, then **MOVE** the file into the right module
+  (`app/modules/<domain>/{controllers,services,...}/`) and **fix the imports** to
+  `#modules/*` / `#shared/*`, **OR**
+- Create the file directly following the existing module pattern (look at a sibling module like `app/modules/users/`
+  and copy its shape).
+
+2. **Never use the removed legacy aliases** (`#controllers`, `#models`, `#services`,
+   `#repositories`, `#middleware`, `#validators`, `#interfaces`, `#routes`). They no longer exist. Use `#modules/*`,
+   `#shared/*`, `#exceptions/*` (see "Import Aliases").
+
+The spirit of the old rule still holds: **stay consistent with the existing structure** — just don't trust the default
+ace output paths.
 
 > **Runtime note:** this is **AdonisJS v7** running TypeScript directly via `@poppinss/ts-exec`.
 > There is **no `node ace`** anymore. Use `pnpm ace <cmd>` (or
@@ -38,8 +40,8 @@ Package manager is **pnpm** (there is a `pnpm-workspace.yaml` with `allowBuilds`
 > live at the root. TS 7 comes in as `typescript-native` and owns the plain `tsc`
 > binary, which is what `pnpm typecheck` and `pnpm build` use. Collapse both back
 > into a single `typescript` entry once typescript-eslint supports TS 7.
->
-> [typescript-eslint#10940]: https://github.com/typescript-eslint/typescript-eslint/issues/10940
+
+[typescript-eslint#10940]: https://github.com/typescript-eslint/typescript-eslint/issues/10940
 
 ### Development
 
@@ -78,8 +80,8 @@ Package manager is **pnpm** (there is a `pnpm-workspace.yaml` with `allowBuilds`
 
 ## Architecture Overview
 
-This is an **AdonisJS v7** application with a **React 19 + Inertia.js** frontend. The codebase is
-organized **by domain (modular)**, not by technical layer.
+This is an **AdonisJS v7** application with a **React 19 + Inertia.js** frontend. The codebase is organized **by
+domain (modular)**, not by technical layer.
 
 ### Key Technologies
 
@@ -132,23 +134,27 @@ app/
     └── handler.ts
 ```
 
-Each module owns its slice end to end. A module typically wires
-**controller → service → repository → model**, registers its own `routes.ts` (imported from
+Each module owns its slice end to end. A module typically wires **controller → service → repository → model**, registers
+its own `routes.ts` (imported from
 `start/routes.ts`), and keeps its validators/interfaces alongside.
 
 #### Frontend (`inertia/`)
 
 - **app/**: React entry points
-- **pages/**: page components (auth/login, auth/register, dashboard, users/{index,create,edit}, files, errors, home, ui_demo)
-- **layouts/**: admin shell — `main_layout` (sidebar + header with tenant switcher, user menu, theme toggle) and `auth/auth_split_layout`
-- **components/ui/**: ~78 Metronic (shadcn-style) components, kebab-case (button, card, data-grid, form, dialog, drawer, command, calendar, chart, …)
+- **pages/**: page components (auth/login, auth/register, dashboard, users/{index,create,edit}, files, errors, home,
+  ui_demo)
+- **layouts/**: admin shell — `main_layout` (sidebar + header with tenant switcher, user menu, theme toggle) and
+  `auth/auth_split_layout`
+- **components/ui/**: ~78 Metronic (shadcn-style) components, kebab-case (button, card, data-grid, form, dialog, drawer,
+  command, calendar, chart, …)
 - **components/ui/core/**: legacy components, in transition out
 - **hooks/ lib/ providers/ services/ utils/ types/**: client-side support code
 - **css/**: stylesheets (Tailwind v4)
 
 #### Configuration (`config/`)
 
-- **auth.ts**: 4 guards — `jwt` (default, cookie-based custom guard from `#shared/jwt`), `api` (access tokens), `web` (session), `basicAuth`
+- **auth.ts**: 4 guards — `jwt` (default, cookie-based custom guard from `#shared/jwt`), `api` (access tokens), `web`
+  (session), `basicAuth`
 - **database.ts**: `DB_CONNECTION` selects `postgres` (default) or `sqlite`
 - **drive.ts**: file storage (`DRIVE_DISK`: fs / s3 / spaces / r2 / gcs)
 - **mail.ts**, **redis.ts**, **cache.ts**, **limiter.ts**, **queue.ts**, **inertia.ts**, etc.
@@ -157,10 +163,10 @@ Each module owns its slice end to end. A module typically wires
 
 The app is multi-tenant with an **N:N** relationship:
 
-- **`Tenant`** model (`tenants` table) and a **`user_tenants`** pivot carrying a `role` column
-  (`owner` / `admin` / `member`, defaults to `member`). `User` `manyToMany` `Tenant`.
-- The **active tenant rides in the JWT** as a `tenantId` claim (minted on sign-in and on tenant
-  switch). Tenant-scoped entities can extend `#shared/models/tenant_base_model` (gives
+- **`Tenant`** model (`tenants` table) and a **`user_tenants`** pivot carrying a `role` column (`owner` / `admin` /
+  `member`, defaults to `member`). `User` `manyToMany` `Tenant`.
+- The **active tenant rides in the JWT** as a `tenantId` claim (minted on sign-in and on tenant switch). Tenant-scoped
+  entities can extend `#shared/models/tenant_base_model` (gives
   `tenant_id`, soft-delete `deletedAt`, and `notDeleted` / `withTenant(id)` scopes).
 - **`#shared/middleware/tenant_middleware`** resolves `ctx.tenant` in this order:
   1. `x-tenant-id` request header
@@ -182,21 +188,20 @@ RBAC on top of the multi-guard auth:
 
 - **Guards**: `jwt` (default — custom guard in `#shared/jwt`, cookie + `Authorization` header),
   `api` (access tokens), `web` (session), `basicAuth`.
-- **Role–Permission system**: users have roles, roles have permissions, users can also have
-  direct permissions. Roles can **inherit** permissions from other roles. Permission checks are
-  **cached**.
+- **Role–Permission system**: users have roles, roles have permissions, users can also have direct permissions. Roles
+  can **inherit** permissions from other roles. Permission checks are **cached**.
 - **Named middleware** (`start/kernel.ts`): `auth`, `guest`, `acl`, `permission`, `ownership`,
   `tenant` — all resolve from `#shared/middleware/*`.
-- **Ownership-based access**: `ownership` middleware + `ownership_service` validate that a user
-  owns the resource being accessed.
+- **Ownership-based access**: `ownership` middleware + `ownership_service` validate that a user owns the resource being
+  accessed.
 
 ### Frontend (UI components)
 
 The UI is built on a **Metronic (shadcn-style) component library** under
 `inertia/components/ui/` (~78 components, kebab-case filenames). It leans on Radix UI primitives,
-`class-variance-authority`, `tailwind-merge`, and `lucide-react`. The admin shell
-(`inertia/layouts/main_layout.tsx`) provides a sidebar + header with a **tenant switcher**, user
-menu, and theme toggle (`next-themes`). Legacy components live in `inertia/components/ui/core/`
+`class-variance-authority`, `tailwind-merge`, and `lucide-react`. The admin shell (`inertia/layouts/main_layout.tsx`)
+provides a sidebar + header with a **tenant switcher**, user menu, and theme toggle (`next-themes`). Legacy components
+live in `inertia/components/ui/core/`
 and are being phased out — prefer the top-level `ui/` components for new work.
 
 ### Database
@@ -214,8 +219,8 @@ Three Japa suites are configured in `adonisrc.ts`:
 - **functional**: `tests/functional/**/*.spec.ts` (30s timeout)
 - **browser**: `tests/browser/**/*.spec.ts` (60s timeout, Playwright via `@japa/browser-client`)
 
-Frontend tests run under **Vitest** (`pnpm test:ui`) with Testing Library + jsdom + MSW.
-Japa is wired with the API client and OpenAPI assertion support. Tests need Postgres + Redis.
+Frontend tests run under **Vitest** (`pnpm test:ui`) with Testing Library + jsdom + MSW. Japa is wired with the API
+client and OpenAPI assertion support. Tests need Postgres + Redis.
 
 ### Import Aliases
 
@@ -323,8 +328,7 @@ await loadHelpers() // helpers
 ## Important Instructions for AI Assistants
 
 1. **Respect the modular structure** — code lives in `app/modules/<domain>/` and `app/shared/`.
-   `make:*` output lands in the wrong place; move it and fix imports, or hand-write to match a
-   sibling module.
+   `make:*` output lands in the wrong place; move it and fix imports, or hand-write to match a sibling module.
 
 2. **Follow the per-module flow** — Controller → Service → Repository → Model. Use `@inject()`
    for dependency injection. Keep business logic in services, not controllers.
@@ -335,9 +339,10 @@ await loadHelpers() // helpers
 4. **Run ace via pnpm** — `pnpm ace <cmd>`, never `node ace`.
 
 5. **Validate before committing**
-   - `pnpm lint` — must pass
-   - `pnpm typecheck` — must pass (checks backend **and** `inertia/`)
-   - `pnpm test` — must pass (and `pnpm test:ui` if you touched the frontend)
+
+- `pnpm lint` — must pass
+- `pnpm typecheck` — must pass (checks backend **and** `inertia/`)
+- `pnpm test` — must pass (and `pnpm test:ui` if you touched the frontend)
 
 6. **Multi-tenancy awareness** — for tenant-scoped data, extend `tenant_base_model` and scope by
    `ctx.tenant`; remember `roles`, `permissions`, and `audit_logs` are global.
