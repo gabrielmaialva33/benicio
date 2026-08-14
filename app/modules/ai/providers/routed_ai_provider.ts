@@ -2,6 +2,7 @@ import logger from '@adonisjs/core/services/logger'
 
 import { AiProviderRequestError } from '#modules/ai/providers/openai_compatible_provider'
 import type {
+  AiGenerationOptions,
   AiProfile,
   AiProvider,
   AiProviderChunk,
@@ -39,7 +40,11 @@ export default class RoutedAiProvider implements AiProvider {
     this.model = `profile:${options.profile}`
   }
 
-  async generate(messages: AiProviderMessage[], signal?: AbortSignal): Promise<AiProviderResult> {
+  async generate(
+    messages: AiProviderMessage[],
+    signal?: AbortSignal,
+    options?: AiGenerationOptions
+  ): Promise<AiProviderResult> {
     let lastError: unknown
 
     for (const [candidateIndex, candidate] of this.options.candidates.entries()) {
@@ -48,7 +53,7 @@ export default class RoutedAiProvider implements AiProvider {
       for (let attempt = 1; attempt <= this.options.maxAttemptsPerCandidate; attempt++) {
         const startedAt = performance.now()
         try {
-          const result = await candidate.generate(messages, signal)
+          const result = await candidate.generate(messages, signal, options)
           const durationMs = Math.round(performance.now() - startedAt)
           this.recordSuccess(candidate)
           this.logSuccess(candidate, attempt, candidateIndex, durationMs, false)
@@ -84,7 +89,8 @@ export default class RoutedAiProvider implements AiProvider {
 
   async *stream(
     messages: AiProviderMessage[],
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    options?: AiGenerationOptions
   ): AsyncGenerator<AiProviderChunk, void, void> {
     let lastError: unknown
 
@@ -97,7 +103,7 @@ export default class RoutedAiProvider implements AiProvider {
         let usage: Record<string, unknown> = {}
 
         try {
-          for await (const chunk of candidate.stream(messages, signal)) {
+          for await (const chunk of candidate.stream(messages, signal, options)) {
             if (chunk.usage) usage = chunk.usage
             if (!chunk.content) continue
             emittedContent = true

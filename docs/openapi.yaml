@@ -827,7 +827,8 @@ components:
           description: Legacy-compatible alias of `id`.
         url:
           type: string
-          example: 'https://storage.example.com/files/abc123.pdf'
+          description: Authenticated API route that authorizes the active tenant before redirecting to a short-lived signed URL.
+          example: '/api/v1/files/42/download'
         clientName:
           type: string
           example: 'document.pdf'
@@ -1197,6 +1198,72 @@ components:
       properties:
         message: { $ref: '#/components/schemas/AiMessage' }
         conversation: { $ref: '#/components/schemas/AiConversation' }
+
+    AiLegalOptions:
+      type: object
+      additionalProperties: false
+      properties:
+        model: { type: string, minLength: 3, maxLength: 255, pattern: '^[A-Za-z0-9._/-]+$' }
+        maxTokens: { type: integer, minimum: 100, maximum: 16000 }
+        temperature: { type: number, minimum: 0, maximum: 1 }
+        language: { type: string, enum: [pt-BR, en-US, es-ES] }
+        profile: { type: string, enum: [fast, deep] }
+
+    AiAnalyzeDocumentInput:
+      type: object
+      additionalProperties: false
+      required: [document_id, analysis_type]
+      properties:
+        document_id: { type: integer, minimum: 1 }
+        analysis_type: { type: string, enum: [summary, entities, sentiment, legal_review] }
+        options: { $ref: '#/components/schemas/AiLegalOptions' }
+
+    AiGenerateDocumentInput:
+      type: object
+      additionalProperties: false
+      required: [template_type, variables]
+      properties:
+        template_type: { type: string, enum: [petition, contract, notification, appeal, motion] }
+        variables: { type: object, additionalProperties: true }
+        options: { $ref: '#/components/schemas/AiLegalOptions' }
+
+    AiSemanticSearchInput:
+      type: object
+      additionalProperties: false
+      required: [query]
+      properties:
+        query: { type: string, minLength: 3, maxLength: 500 }
+        folder_id: { type: integer, minimum: 1 }
+        document_ids:
+          type: array
+          maxItems: 100
+          items: { type: integer, minimum: 1 }
+        limit: { type: integer, minimum: 1, maximum: 50, default: 5 }
+
+    AiTextOrDocumentInput:
+      type: object
+      additionalProperties: false
+      anyOf:
+        - required: [text]
+        - required: [document_id]
+      properties:
+        text: { type: string, minLength: 10, maxLength: 200000 }
+        document_id: { type: integer, minimum: 1 }
+
+    AiAnalyzePrecatorioInput:
+      type: object
+      additionalProperties: false
+      required: [folder_id]
+      properties:
+        folder_id: { type: integer, minimum: 1 }
+        options: { $ref: '#/components/schemas/AiLegalOptions' }
+
+    AiOperationResponse:
+      type: object
+      required: [message, data]
+      properties:
+        message: { type: string }
+        data: { type: object, additionalProperties: true }
 
     DashboardSummary:
       type: object
@@ -2823,6 +2890,8 @@ paths:
         - `file`: csv, xls, xlsx, zip, and others
       tags:
         - Files
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
       requestBody:
         required: true
         content:
@@ -2856,6 +2925,27 @@ paths:
                   - message: 'File size should be less than 10MB'
                     field: 'file'
                     rule: 'size'
+
+  /api/v1/files/{id}/download:
+    get:
+      operationId: downloadFile
+      x-permission: files.read
+      summary: Authorize and download a private file
+      description: Validates tenant and file access, then redirects to a five-minute signed storage URL.
+      tags: [Files]
+      parameters:
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '302':
+          description: Redirect to a short-lived private storage URL
+          headers:
+            Location:
+              required: true
+              schema: { type: string, format: uri }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '403': { $ref: '#/components/responses/ForbiddenError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
 
   /api/v1/sessions/refresh:
     post:
@@ -4042,6 +4132,205 @@ paths:
       responses:
         '200': { description: Updated message }
         '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /api/v1/ai/analyze-document:
+    post:
+      operationId: analyzeAiDocument
+      summary: Analyze a tenant-owned legal document
+      tags: [AI]
+      x-permission: ai.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiAnalyzeDocumentInput' }
+      responses:
+        '200':
+          description: Persisted document analysis
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiOperationResponse' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '502': { description: AI provider or structured output failed }
+        '503': { description: AI provider is disabled or incomplete }
+
+  /api/v1/ai/generate-document:
+    post:
+      operationId: generateAiDocument
+      summary: Generate a legal document from a typed template and variables
+      tags: [AI]
+      x-permission: ai.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiGenerateDocumentInput' }
+      responses:
+        '200':
+          description: Generated content and persisted analysis ID
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiOperationResponse' }
+        '400': { description: Requested model is not allowed for the selected profile }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '502': { description: AI provider or structured output failed }
+        '503': { description: AI provider is disabled or incomplete }
+
+  /api/v1/ai/semantic-search:
+    post:
+      operationId: semanticSearchLegalDocuments
+      summary: Search real document content through tenant-filtered Qdrant retrieval and reranking
+      tags: [AI]
+      x-permission: ai.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiSemanticSearchInput' }
+      responses:
+        '200':
+          description: Reranked chunks rehydrated from PostgreSQL after authorization
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message, data]
+                properties:
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, content, similarity, metadata]
+                      properties:
+                        id: { type: integer }
+                        content: { type: string }
+                        similarity: { type: number }
+                        metadata: { type: object, additionalProperties: true }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '502': { description: Embedding, vector index, or reranking provider failed }
+
+  /api/v1/ai/extract-entities:
+    post:
+      operationId: extractAiLegalEntities
+      summary: Extract structured legal entities from text or a tenant-owned document
+      tags: [AI]
+      x-permission: ai.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiTextOrDocumentInput' }
+      responses:
+        '200':
+          description: Validated structured entities
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiOperationResponse' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '502': { description: AI provider or structured output failed }
+
+  /api/v1/ai/classify-document:
+    post:
+      operationId: classifyAiLegalDocument
+      summary: Classify legal text or a tenant-owned document
+      tags: [AI]
+      x-permission: ai.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiTextOrDocumentInput' }
+      responses:
+        '200':
+          description: Validated document classification
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiOperationResponse' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '502': { description: AI provider or structured output failed }
+
+  /api/v1/ai/analyze-precatorio:
+    post:
+      operationId: analyzeAiPrecatorio
+      summary: Analyze a tenant-owned precatorio folder
+      tags: [AI]
+      x-permission: ai.create
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiAnalyzePrecatorioInput' }
+      responses:
+        '200':
+          description: Validated precatorio analysis
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiOperationResponse' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '502': { description: AI provider or structured output failed }
+
+  /api/v1/ai/history:
+    get:
+      operationId: listAiAnalysisHistory
+      summary: List the current user's analysis history inside the active tenant
+      tags: [AI]
+      x-permission: ai.list
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+        - $ref: '#/components/parameters/pageParam'
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - name: type
+          in: query
+          schema: { type: string, maxLength: 80 }
+        - name: status
+          in: query
+          schema: { type: string, enum: [processing, completed, failed] }
+      responses:
+        '200':
+          description: Paginated analysis history
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { type: object, additionalProperties: true } }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/ai/usage-stats:
+    get:
+      operationId: getAiUsageStats
+      summary: Get the current user's 30-day tenant-scoped AI usage
+      tags: [AI]
+      x-permission: ai.read
+      parameters:
+        - $ref: '#/components/parameters/tenantIdHeader'
+      responses:
+        '200':
+          description: Usage totals and token counts grouped by analysis type
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiOperationResponse' }
 
   /api/v1/ai/chat:
     post:

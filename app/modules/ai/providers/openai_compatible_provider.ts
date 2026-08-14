@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 
 import type { AiTimeoutsConfig } from '#config/ai'
 import type {
+  AiGenerationOptions,
   AiProvider,
   AiProviderChunk,
   AiProviderMessage,
@@ -89,14 +90,18 @@ export default class OpenAiCompatibleProvider implements AiProvider {
     }
   }
 
-  async generate(messages: AiProviderMessage[], signal?: AbortSignal): Promise<AiProviderResult> {
+  async generate(
+    messages: AiProviderMessage[],
+    signal?: AbortSignal,
+    options?: AiGenerationOptions
+  ): Promise<AiProviderResult> {
     const abort = this.createAbortContext(signal)
     try {
       abort.setPhaseTimeout('connect', this.timeouts.connectMs)
       const response = await this.fetcher(this.endpoint, {
         method: 'POST',
         headers: this.headers(),
-        body: JSON.stringify(this.requestPayload(messages, false)),
+        body: JSON.stringify(this.requestPayload(messages, false, options)),
         signal: abort.signal,
       })
       abort.clearPhaseTimeout()
@@ -121,7 +126,8 @@ export default class OpenAiCompatibleProvider implements AiProvider {
 
   async *stream(
     messages: AiProviderMessage[],
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    options?: AiGenerationOptions
   ): AsyncGenerator<AiProviderChunk, void, void> {
     const abort = this.createAbortContext(signal)
     let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
@@ -131,7 +137,7 @@ export default class OpenAiCompatibleProvider implements AiProvider {
       const response = await this.fetcher(this.endpoint, {
         method: 'POST',
         headers: this.headers(),
-        body: JSON.stringify(this.requestPayload(messages, true)),
+        body: JSON.stringify(this.requestPayload(messages, true, options)),
         signal: abort.signal,
       })
       abort.clearPhaseTimeout()
@@ -217,12 +223,22 @@ export default class OpenAiCompatibleProvider implements AiProvider {
     }
   }
 
-  private requestPayload(messages: AiProviderMessage[], stream: boolean): Record<string, unknown> {
+  private requestPayload(
+    messages: AiProviderMessage[],
+    stream: boolean,
+    options?: AiGenerationOptions
+  ): Record<string, unknown> {
+    const configuredMaxTokens = this.options.maxTokens
+    const maxTokens = options?.maxTokens
+      ? Math.min(options.maxTokens, configuredMaxTokens ?? options.maxTokens)
+      : configuredMaxTokens
+
     return {
       model: this.model,
       messages,
       stream,
-      ...(this.options.maxTokens ? { max_tokens: this.options.maxTokens } : {}),
+      ...(maxTokens ? { max_tokens: maxTokens } : {}),
+      ...(options?.temperature !== undefined ? { temperature: options.temperature } : {}),
       ...(stream ? { stream_options: { include_usage: true } } : {}),
     }
   }

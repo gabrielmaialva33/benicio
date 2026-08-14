@@ -1,5 +1,6 @@
 import aiConfig from '#config/ai'
 import ServiceUnavailableException from '#exceptions/service_unavailable_exception'
+import BadRequestException from '#exceptions/bad_request_exception'
 import OpenAiCompatibleProvider from '#modules/ai/providers/openai_compatible_provider'
 import RoutedAiProvider from '#modules/ai/providers/routed_ai_provider'
 import type { AiProfile, AiProvider } from '#modules/ai/interfaces/ai_interface'
@@ -14,12 +15,15 @@ export default class AiProviderFactory {
     return factory
   }
 
-  getOrFail(profile: AiProfile = aiConfig.defaultProfile): AiProvider {
+  getOrFail(profile: AiProfile = aiConfig.defaultProfile, requestedModel?: string): AiProvider {
     if (this.overrideProvider) return this.overrideProvider
     if (aiConfig.provider === 'disabled') {
       throw new ServiceUnavailableException('AI provider is disabled')
     }
     if (aiConfig.provider === 'openai_compatible') return this.legacyProvider()
+
+    const normalizedModel = requestedModel?.trim()
+    if (normalizedModel) return this.configuredModelProvider(profile, normalizedModel)
 
     const cached = this.routedProviders.get(profile)
     if (cached) return cached
@@ -48,6 +52,23 @@ export default class AiProviderFactory {
     })
     this.routedProviders.set(profile, routed)
     return routed
+  }
+
+  private configuredModelProvider(profile: AiProfile, requestedModel: string): AiProvider {
+    const candidate = aiConfig.profiles[profile].candidates.find(
+      (configured) => configured.model === requestedModel && configured.apiKey?.trim()
+    )
+    if (!candidate) {
+      throw new BadRequestException('Requested AI model is not configured for this profile')
+    }
+    return new OpenAiCompatibleProvider({
+      providerName: candidate.provider,
+      baseUrl: candidate.baseUrl,
+      apiKey: candidate.apiKey,
+      model: candidate.model,
+      maxTokens: candidate.maxTokens,
+      timeouts: candidate.timeouts,
+    })
   }
 
   isAvailable(profile: AiProfile = aiConfig.defaultProfile): boolean {
