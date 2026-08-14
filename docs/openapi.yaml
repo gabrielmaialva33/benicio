@@ -5,7 +5,7 @@ info:
   description: |
     ## Welcome to the Benício API
 
-    The versioned API for the Benício legal operations platform, built with AdonisJS v7. The current foundation provides user management, multi-tenancy, role-based access control, and file management capabilities.
+    The versioned API for the Benício legal operations platform, built with AdonisJS v7. It provides tenant-safe legal workflows, authentication, RBAC, file-backed documents, dashboard read models, realtime notifications, internal messages, and persisted AI conversations.
 
     ### Key Features
 
@@ -13,6 +13,9 @@ info:
     - **Role-Based Access Control**: Fine-grained permissions with multiple user roles
     - **User Management**: Complete CRUD operations for user accounts
     - **File Management**: Secure file upload with automatic categorization
+    - **Legal Operations**: Clients, folders, cases, tasks, hearings, deadlines, movements, documents, and activity timelines
+    - **Realtime**: Authenticated private channels over Server-Sent Events
+    - **AI Chat**: Persisted conversations backed by an explicitly configured OpenAI-compatible provider
     - **Health Monitoring**: Built-in health check endpoints
 
     ## Authentication
@@ -25,8 +28,9 @@ info:
 
     ### Token Management
 
-    - **Access Token Lifetime**: 1 hour
+    - **Access Token Lifetime**: 15 minutes
     - **Refresh Token Lifetime**: 3 days
+    - **Refresh Rotation**: Every refresh invalidates the previous token; replay revokes the token family
     - **Token Format**: JWT Bearer token
 
     ## API Conventions
@@ -46,6 +50,7 @@ info:
     ### Common Headers
     ```
     Authorization: Bearer <token>
+    x-tenant-id: <active tenant id>
     Content-Type: application/json
     Accept: application/json
     ```
@@ -749,6 +754,12 @@ components:
     Error:
       type: object
       properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Resource not found'
         errors:
           type: array
           items:
@@ -800,7 +811,14 @@ components:
 
     FileUploadResponse:
       type: object
+      required: [id, fileId, url, clientName, fileCategory, fileType, size, extname]
       properties:
+        id:
+          type: integer
+          description: Canonical file record ID.
+        fileId:
+          type: integer
+          description: Legacy-compatible alias of `id`.
         url:
           type: string
           example: 'https://storage.example.com/files/abc123.pdf'
@@ -821,6 +839,365 @@ components:
           type: string
           example: 'pdf'
 
+    AuthTokens:
+      type: object
+      required: [access_token, refresh_token]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+          pattern: '^rt_'
+
+    TenantMembership:
+      type: object
+      required: [id, name, slug, role]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        is_active: { type: boolean }
+        role: { type: string, enum: [owner, admin, member] }
+
+    Task:
+      type: object
+      required: [id, tenant_id, creator_id, title, status, priority, tags, metadata]
+      properties:
+        id: { type: integer }
+        tenant_id: { type: integer }
+        folder_id: { type: [integer, 'null'] }
+        process_id: { type: [integer, 'null'] }
+        assignee_id: { type: [integer, 'null'] }
+        creator_id: { type: integer }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        status: { type: string, enum: [pending, in_progress, completed, cancelled] }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        due_date: { type: [string, 'null'], format: date-time }
+        completed_at: { type: [string, 'null'], format: date-time }
+        tags: { type: array, items: { type: string } }
+        metadata: { type: object, additionalProperties: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    TaskInput:
+      type: object
+      additionalProperties: false
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 10000 }
+        status: { type: string, enum: [pending, in_progress, completed, cancelled] }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        due_date: { type: [string, 'null'], format: date-time }
+        folder_id: { type: [integer, 'null'], minimum: 1 }
+        process_id: { type: [integer, 'null'], minimum: 1 }
+        assignee_id: { type: [integer, 'null'], minimum: 1 }
+        tags:
+          type: array
+          maxItems: 50
+          items: { type: string, minLength: 1, maxLength: 80 }
+        metadata: { type: object, additionalProperties: true }
+
+    HearingAttendeeInput:
+      type: object
+      additionalProperties: false
+      required: [user_id]
+      properties:
+        user_id: { type: integer, minimum: 1 }
+        role: { type: [string, 'null'], maxLength: 80 }
+        is_required: { type: boolean }
+
+    Hearing:
+      type: object
+      required: [id, tenant_id, process_id, creator_id, title, type, status, starts_at]
+      properties:
+        id: { type: integer }
+        tenant_id: { type: integer }
+        process_id: { type: integer }
+        creator_id: { type: integer }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        type:
+          type: string
+          enum: [audience, judgment, conciliation, instruction, other]
+        status: { type: string, enum: [scheduled, completed, cancelled, postponed] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        completed_at: { type: [string, 'null'], format: date-time }
+        location: { type: [string, 'null'] }
+        online_url: { type: [string, 'null'], format: uri }
+        judge: { type: [string, 'null'] }
+        notes: { type: [string, 'null'] }
+        result: { type: [string, 'null'] }
+        metadata: { type: object, additionalProperties: true }
+        attendees: { type: array, items: { $ref: '#/components/schemas/User' } }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    HearingInput:
+      type: object
+      additionalProperties: false
+      required: [process_id, title, type, starts_at]
+      properties:
+        process_id: { type: integer, minimum: 1 }
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 10000 }
+        type:
+          type: string
+          enum: [audience, judgment, conciliation, instruction, other]
+        status: { type: string, enum: [scheduled, completed, cancelled, postponed] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        location: { type: [string, 'null'], maxLength: 500 }
+        online_url: { type: [string, 'null'], format: uri, maxLength: 2048 }
+        judge: { type: [string, 'null'], maxLength: 255 }
+        notes: { type: [string, 'null'], maxLength: 20000 }
+        result: { type: [string, 'null'], maxLength: 20000 }
+        attendees:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/HearingAttendeeInput' }
+        metadata: { type: object, additionalProperties: true }
+
+    Deadline:
+      type: object
+      required: [id, tenant_id, folder_id, creator_id, title, kind, status, priority, is_fatal, due_at]
+      properties:
+        id: { type: integer }
+        tenant_id: { type: integer }
+        folder_id: { type: integer }
+        process_id: { type: [integer, 'null'] }
+        assignee_id: { type: [integer, 'null'] }
+        creator_id: { type: integer }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        kind: { type: string, enum: [judicial, extrajudicial, administrative, internal] }
+        status: { type: string, enum: [pending, in_progress, completed, cancelled] }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        is_fatal: { type: boolean }
+        due_at: { type: string, format: date-time }
+        completed_at: { type: [string, 'null'], format: date-time }
+        legal_basis: { type: [string, 'null'] }
+        notes: { type: [string, 'null'] }
+        metadata: { type: object, additionalProperties: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    DeadlineInput:
+      type: object
+      additionalProperties: false
+      required: [title, kind, due_at]
+      properties:
+        folder_id: { type: [integer, 'null'], minimum: 1 }
+        process_id: { type: [integer, 'null'], minimum: 1 }
+        assignee_id: { type: [integer, 'null'], minimum: 1 }
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 10000 }
+        kind: { type: string, enum: [judicial, extrajudicial, administrative, internal] }
+        status: { type: string, enum: [pending, in_progress, completed, cancelled] }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        is_fatal: { type: boolean }
+        due_at: { type: string, format: date-time }
+        legal_basis: { type: [string, 'null'], maxLength: 20000 }
+        notes: { type: [string, 'null'], maxLength: 20000 }
+        metadata: { type: object, additionalProperties: true }
+
+    Movement:
+      type: object
+      required: [id, tenant_id, process_id, occurred_at, kind, title, source, metadata]
+      properties:
+        id: { type: integer }
+        tenant_id: { type: integer }
+        process_id: { type: integer }
+        created_by: { type: [integer, 'null'] }
+        occurred_at: { type: string, format: date-time }
+        kind: { type: string }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        source: { type: string, enum: [manual, court, integration, import] }
+        external_id: { type: [string, 'null'] }
+        metadata: { type: object, additionalProperties: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    MovementInput:
+      type: object
+      additionalProperties: false
+      required: [occurred_at, kind, title]
+      properties:
+        occurred_at: { type: string, format: date-time }
+        kind: { type: string, minLength: 1, maxLength: 80 }
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 20000 }
+        source: { type: string, enum: [manual, court, integration, import] }
+        external_id: { type: [string, 'null'], maxLength: 255 }
+        metadata: { type: object, additionalProperties: true }
+
+    Activity:
+      type: object
+      required: [id, tenant_id, folder_id, event_type, summary, data, occurred_at, created_at]
+      properties:
+        id: { type: integer }
+        tenant_id: { type: integer }
+        folder_id: { type: integer }
+        process_id: { type: [integer, 'null'] }
+        actor_id: { type: [integer, 'null'] }
+        event_type: { type: string }
+        summary: { type: string }
+        data: { type: object, additionalProperties: true }
+        occurred_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+
+    LegalDocument:
+      type: object
+      required: [id, tenant_id, folder_id, file_id, created_by, document_type, title, version, is_signed]
+      properties:
+        id: { type: integer }
+        tenant_id: { type: integer }
+        folder_id: { type: integer }
+        process_id: { type: [integer, 'null'] }
+        file_id: { type: integer }
+        created_by: { type: integer }
+        document_type: { type: string }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        version: { type: integer }
+        is_signed: { type: boolean }
+        metadata: { type: object, additionalProperties: true }
+        file: { type: object, additionalProperties: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    LegalDocumentInput:
+      type: object
+      additionalProperties: false
+      required: [folder_id, file_id, document_type, title]
+      properties:
+        folder_id: { type: integer, minimum: 1 }
+        process_id: { type: [integer, 'null'], minimum: 1 }
+        file_id: { type: integer, minimum: 1 }
+        document_type: { type: string, minLength: 1, maxLength: 80 }
+        title: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 20000 }
+        version: { type: integer, minimum: 1, maximum: 10000 }
+        is_signed: { type: boolean }
+        metadata: { type: object, additionalProperties: true }
+
+    Notification:
+      type: object
+      required: [id, tenant_id, recipient_id, type, title, message, data]
+      properties:
+        id: { type: integer }
+        tenant_id: { type: integer }
+        recipient_id: { type: integer }
+        actor_id: { type: [integer, 'null'] }
+        type:
+          type: string
+          enum: [info, success, warning, error, task, hearing, deadline, message, system]
+        title: { type: string }
+        message: { type: string }
+        read_at: { type: [string, 'null'], format: date-time }
+        data: { type: object, additionalProperties: true }
+        action_url: { type: [string, 'null'], format: uri }
+        action_text: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    NotificationInput:
+      type: object
+      additionalProperties: false
+      required: [recipient_id, title, message]
+      properties:
+        recipient_id: { type: integer, minimum: 1 }
+        type:
+          type: string
+          enum: [info, success, warning, error, task, hearing, deadline, message, system]
+        title: { type: string, minLength: 1, maxLength: 255 }
+        message: { type: string, minLength: 1, maxLength: 20000 }
+        data: { type: object, additionalProperties: true }
+        action_url: { type: [string, 'null'], format: uri, maxLength: 2048 }
+        action_text: { type: [string, 'null'], maxLength: 100 }
+
+    InternalMessage:
+      type: object
+      required: [id, tenant_id, recipient_id, subject, body, priority, metadata]
+      properties:
+        id: { type: integer }
+        tenant_id: { type: integer }
+        recipient_id: { type: integer }
+        sender_id: { type: [integer, 'null'] }
+        subject: { type: string }
+        body: { type: string }
+        priority: { type: string, enum: [low, normal, high] }
+        read_at: { type: [string, 'null'], format: date-time }
+        metadata: { type: object, additionalProperties: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    InternalMessageInput:
+      type: object
+      additionalProperties: false
+      required: [recipient_id, subject, body]
+      properties:
+        recipient_id: { type: integer, minimum: 1 }
+        subject: { type: string, minLength: 1, maxLength: 255 }
+        body: { type: string, minLength: 1, maxLength: 50000 }
+        priority: { type: string, enum: [low, normal, high] }
+        metadata: { type: object, additionalProperties: true }
+
+    AiMessage:
+      type: object
+      required: [id, conversation_id, role, content, created_at]
+      properties:
+        id: { type: integer }
+        conversation_id: { type: integer }
+        role: { type: string, enum: [user, assistant] }
+        content: { type: string }
+        created_at: { type: string, format: date-time }
+
+    AiConversation:
+      type: object
+      required: [id, title, user_id, created_at, updated_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        user_id: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        messages:
+          type: array
+          items: { $ref: '#/components/schemas/AiMessage' }
+        lastMessage:
+          $ref: '#/components/schemas/AiMessage'
+
+    AiChatInput:
+      type: object
+      additionalProperties: false
+      required: [message]
+      properties:
+        message: { type: string, minLength: 1, maxLength: 50000 }
+        conversation_id: { type: integer, minimum: 1 }
+        mode: { type: string, enum: [single, multi] }
+
+    AiChatResponse:
+      type: object
+      required: [message, conversation]
+      properties:
+        message: { $ref: '#/components/schemas/AiMessage' }
+        conversation: { $ref: '#/components/schemas/AiConversation' }
+
+    DashboardSummary:
+      type: object
+      description: Tenant-scoped aggregates for folders, tasks, hearings, deadlines, and clients.
+      required: [folders, tasks, hearings, deadlines, clients]
+      properties:
+        folders: { type: object, additionalProperties: true }
+        tasks: { type: object, additionalProperties: true }
+        hearings: { type: object, additionalProperties: true }
+        deadlines: { type: object, additionalProperties: true }
+        clients: { type: object, additionalProperties: true }
+
   parameters:
     pathId:
       name: id
@@ -829,6 +1206,31 @@ components:
       schema:
         type: integer
       description: Resource ID
+
+    folderId:
+      name: folderId
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+      description: Folder ID in the active tenant.
+
+    processId:
+      name: processId
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+      description: Process ID in the active tenant.
+
+    limitParam:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+
+    cursorParam:
+      name: cursor
+      in: query
+      schema: { type: string, maxLength: 500 }
+      description: Opaque keyset cursor returned by the previous activity page.
 
     pageParam:
       name: page
@@ -941,6 +1343,30 @@ tags:
     description: Tenant-scoped legal matter and folder management
   - name: Processes
     description: Tenant-scoped judicial proceedings and parties
+  - name: Tenants
+    description: Tenant memberships and active-tenant switching
+  - name: Tasks
+    description: Tenant-scoped work items with due dates and ownership
+  - name: Hearings
+    description: Hearings, judgments, and attendee assignments
+  - name: Deadlines
+    description: Judicial and operational deadlines, separate from hearings
+  - name: Movements
+    description: Canonical process movements and append-only activity timelines
+  - name: Documents
+    description: Legal metadata linked to canonical file records
+  - name: Favorites
+    description: Per-user folder favorites
+  - name: Dashboard
+    description: Real tenant-scoped aggregate and widget read models
+  - name: Notifications
+    description: Recipient-owned notifications
+  - name: Messages
+    description: Internal user-to-user messages
+  - name: AI
+    description: Persisted, user-owned AI conversations
+  - name: Realtime
+    description: Authenticated private Transmit channels over Server-Sent Events
 
 paths:
   /version:
