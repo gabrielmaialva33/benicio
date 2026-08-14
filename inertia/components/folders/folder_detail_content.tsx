@@ -14,8 +14,15 @@ import {
 } from 'lucide-react'
 import { type ReactNode, useMemo, useState } from 'react'
 
+import { StatusBadge } from '~/components/shared/status_badge'
 import { Button } from '~/components/ui/button'
-import { APP_TIME_ZONE } from '~/lib/date'
+import { formatCurrency, formatDateTime } from '~/lib/format'
+import {
+  labelOf,
+  PROCESS_INSTANCE_LABELS,
+  PROCESS_PHASE_LABELS,
+  PROCESS_STATUS_LABELS,
+} from '~/lib/labels'
 import { cn } from '~/lib/utils'
 import type {
   FolderActivity,
@@ -34,26 +41,6 @@ interface FolderDetailContentProps {
   activities: FolderActivity[]
 }
 
-const processStatusLabels: Record<string, string> = {
-  active: 'Ativo',
-  suspended: 'Suspenso',
-  archived: 'Arquivado',
-  closed: 'Encerrado',
-}
-
-const instanceLabels: Record<string, string> = {
-  first: '1ª instância',
-  second: '2ª instância',
-  superior: 'Tribunal superior',
-}
-
-const phaseLabels: Record<string, string> = {
-  knowledge: 'Conhecimento',
-  execution: 'Execução',
-  appeal: 'Recurso',
-  sentence_compliance: 'Cumprimento de sentença',
-}
-
 const detailSections = [
   { id: 'overview', label: 'Informações Gerais', icon: BriefcaseBusiness },
   { id: 'processes', label: 'Processos', icon: Scale },
@@ -63,33 +50,11 @@ const detailSections = [
 
 type DetailSection = (typeof detailSections)[number]['id']
 
-function formatDateTime(value: string) {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Data inválida'
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: APP_TIME_ZONE,
-  })
-    .format(date)
-    .replace('.', '')
-}
-
 function formatCnj(value: string | null) {
   if (!value) return null
   const digits = value.replace(/\D/g, '')
   if (digits.length !== 20) return value
   return `${digits.slice(0, 7)}-${digits.slice(7, 9)}.${digits.slice(9, 13)}.${digits.slice(13, 14)}.${digits.slice(14, 16)}.${digits.slice(16)}`
-}
-
-function formatCurrency(value: string | null) {
-  if (!value) return null
-  const number = Number(value)
-  if (!Number.isFinite(number)) return value
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(number)
 }
 
 function DetailCard({
@@ -180,18 +145,14 @@ function ProcessCard({ folderId, process }: { folderId: number; process: FolderP
               'Sem natureza informada'}
           </p>
         </div>
-        <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700">
-          {processStatusLabels[process.status] ?? process.status}
-        </span>
+        <StatusBadge status={process.status} labels={PROCESS_STATUS_LABELS} />
       </div>
 
       <dl className="mt-4 grid gap-4 border-t border-gray-100 pt-4 sm:grid-cols-3">
         <Definition label="Instância">
-          {process.instance ? (instanceLabels[process.instance] ?? process.instance) : '—'}
+          {labelOf(PROCESS_INSTANCE_LABELS, process.instance)}
         </Definition>
-        <Definition label="Fase">
-          {process.phase ? (phaseLabels[process.phase] ?? process.phase) : '—'}
-        </Definition>
+        <Definition label="Fase">{labelOf(PROCESS_PHASE_LABELS, process.phase)}</Definition>
         <Definition label="Tribunal">{process.tribunal ?? '—'}</Definition>
         <Definition label="Local">
           {[process.district, process.court_division].filter(Boolean).join(' · ') || '—'}
