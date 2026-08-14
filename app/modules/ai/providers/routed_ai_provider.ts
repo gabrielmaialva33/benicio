@@ -71,9 +71,13 @@ export default class RoutedAiProvider implements AiProvider {
           lastError = error
           const durationMs = Math.round(performance.now() - startedAt)
           const retryable = this.isRetryable(error)
-          this.recordFailure(candidate, retryable)
+          this.recordFailure(candidate, retryable || this.isProviderLevelFailure(error))
           this.logFailure(candidate, attempt, candidateIndex, durationMs, error, false)
-          if (!retryable) throw error
+
+          if (this.isFatal(error)) throw error
+          // Retrying a permanent rejection just repeats it; hand over to the
+          // next candidate instead of burning the attempt budget here.
+          if (!retryable) break
           if (attempt < this.options.maxAttemptsPerCandidate) {
             await this.backoff(attempt, signal)
           }
@@ -132,11 +136,12 @@ export default class RoutedAiProvider implements AiProvider {
           lastError = error
           const durationMs = Math.round(performance.now() - startedAt)
           const retryable = this.isRetryable(error)
-          this.recordFailure(candidate, retryable)
+          this.recordFailure(candidate, retryable || this.isProviderLevelFailure(error))
           this.logFailure(candidate, attempt, candidateIndex, durationMs, error, true)
 
           // Never splice output from two legal models into one streamed answer.
-          if (emittedContent || !retryable) throw error
+          if (emittedContent || this.isFatal(error)) throw error
+          if (!retryable) break
           if (attempt < this.options.maxAttemptsPerCandidate) {
             await this.backoff(attempt, signal)
           }
@@ -174,8 +179,8 @@ export default class RoutedAiProvider implements AiProvider {
     circuitStates.set(this.circuitKey(provider), { failures: 0, openUntil: 0 })
   }
 
-  private recordFailure(provider: AiProvider, retryable: boolean): void {
-    if (!retryable) return
+  private recordFailure(provider: AiProvider, countsTowardCircuit: boolean): void {
+    if (!countsTowardCircuit) return
     const key = this.circuitKey(provider)
     const state = circuitStates.get(key) ?? { failures: 0, openUntil: 0 }
     const failures = state.failures + 1
@@ -190,6 +195,30 @@ export default class RoutedAiProvider implements AiProvider {
 
   private isRetryable(error: unknown): boolean {
     return error instanceof AiProviderRequestError && error.retryable
+  }
+
+  /**
+   * A cancelled request is the only failure worth giving up on: the caller is
+   * already gone, so burning the remaining providers helps nobody.
+   *
+   * Everything else moves on to the next candidate — that is the whole point of
+   * a candidate list. Treating a permanent rejection as fatal meant one broken
+   * account (delinquent billing answers 400) took down a profile whose other
+   * provider was healthy.
+   */
+  private isFatal(error: unknown): boolean {
+    return error instanceof AiProviderRequestError && error.code === 'aborted'
+  }
+
+  /**
+   * Auth, billing and missing-model rejections describe the account rather than
+   * the request, so they will greet every later call the same way. Counting them
+   * lets the breaker park the provider instead of paying a round trip per turn.
+   */
+  private isProviderLevelFailure(error: unknown): boolean {
+    if (!(error instanceof AiProviderRequestError)) return false
+    if (error.code !== 'http' || !error.status) return false
+    return [401, 402, 403, 404].includes(error.status)
   }
 
   private async backoff(attempt: number, signal?: AbortSignal): Promise<void> {

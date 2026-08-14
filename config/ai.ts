@@ -239,7 +239,7 @@ const aiConfig = {
           provider: 'nvidia_nim',
           baseUrl: env.get('AI_NVIDIA_BASE_URL') ?? 'https://integrate.api.nvidia.com/v1',
           apiKey: env.get('AI_NVIDIA_API_KEY'),
-          model: env.get('AI_NVIDIA_FAST_MODEL') ?? 'deepseek-ai/deepseek-v4-flash',
+          model: env.get('AI_NVIDIA_FAST_MODEL') ?? 'deepseek-ai/deepseek-v4-flash-0731',
           maxTokens: fastMaxTokens,
           timeouts: fastTimeouts,
         },

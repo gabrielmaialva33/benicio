@@ -79,7 +79,9 @@ test.group('Routed AI provider', (group) => {
     assert.isNumber(routing.duration_ms)
   })
 
-  test('does not retry or fall back on a non-retryable client error', async ({ assert }) => {
+  test('hands a non-retryable client error to the next candidate without retrying', async ({
+    assert,
+  }) => {
     const primary = new StubProvider('groq', 'fast-primary', async () => {
       throw new AiProviderRequestError('invalid request', 400, 'req_2', 'http')
     })
@@ -87,9 +89,34 @@ test.group('Routed AI provider', (group) => {
       success('nvidia_nim', 'fast-fallback')
     )
 
+    const result = await router([primary, fallback]).generate([
+      { role: 'user', content: 'Pergunta' },
+    ])
+
+    // Retrying the same provider would only repeat the rejection, but a
+    // provider that permanently refuses (expired key, unpaid account, retired
+    // model) must not take down a profile whose other candidate is healthy.
+    assert.equal(primary.generateCalls, 1)
+    assert.equal(fallback.generateCalls, 1)
+    assert.equal(result.provider, 'nvidia_nim')
+  })
+
+  test('gives up without trying other candidates once the caller aborts', async ({ assert }) => {
+    const primary = new StubProvider('groq', 'fast-primary', async () => {
+      throw new AiProviderRequestError(
+        'AI provider request was aborted',
+        undefined,
+        undefined,
+        'aborted'
+      )
+    })
+    const fallback = new StubProvider('nvidia_nim', 'fast-fallback', async () =>
+      success('nvidia_nim', 'fast-fallback')
+    )
+
     await assert.rejects(
       () => router([primary, fallback]).generate([{ role: 'user', content: 'Pergunta' }]),
-      'invalid request'
+      'AI provider request was aborted'
     )
     assert.equal(primary.generateCalls, 1)
     assert.equal(fallback.generateCalls, 0)
