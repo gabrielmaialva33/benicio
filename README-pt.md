@@ -233,9 +233,15 @@ um repositório diretamente.
    pnpm ace db:seed
    ```
 
-   Em desenvolvimento, o seed é determinístico e idempotente. Ele cria o cenário jurídico multi-tenant e o acesso local
-   principal `admin@benicio.com.br` / `benicio123`. Uma nova execução atualiza a fixture gerenciada sem duplicar
-   registros; tokens de acesso, refresh tokens e estado de rate limit não são populados de propósito.
+   Em desenvolvimento, o seed é determinístico e idempotente. Ele porta os dois conjuntos legados (a operação realista
+   do escritório e a carteira de precatórios) sem perder nenhuma categoria de factory ou seeder, e adiciona relações
+   tenant-safe, partes processuais, prazos, participantes de audiências, timelines e arquivos apoiados por assets reais
+   de demonstração. Uma nova execução reconcilia a fixture gerenciada sem duplicar registros.
+
+   Use `admin@benicio.com.br` / `benicio123` para acesso local completo ou
+   `teste@benicio.com.br` / `benicio123` para o perfil de usuário comum. Fixtures de desenvolvimento com hashes de
+   tokens, sessões de refresh, rate limits, permissões e histórico de auditoria são populadas para manter a paridade com
+   o legado; nenhum segredo bruto ou de produção é salvo pela fixture.
 
 6. **Inicie o servidor de desenvolvimento:**
    ```sh

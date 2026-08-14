@@ -232,9 +232,15 @@ repository directly.
    pnpm ace db:seed
    ```
 
-   In development, the seed is deterministic and idempotent. It creates the tenant-aware legal demo scenario and the
-   primary local account `admin@benicio.com.br` / `benicio123`. Running it again updates the managed fixture instead of
-   duplicating records; access tokens, refresh tokens, and rate-limit state are intentionally not seeded.
+   In development, the seed is deterministic and idempotent. It ports both legacy datasets (the realistic law-firm
+   operation and the precatórios portfolio) without dropping any legacy factory or seeder category, then adds canonical
+   tenant relations, process parties, deadlines, hearing attendees, activity timelines, and files backed by real demo
+   assets. Running it again reconciles the managed fixture instead of duplicating records.
+
+   Use `admin@benicio.com.br` / `benicio123` for full local access or
+   `teste@benicio.com.br` / `benicio123` for a regular-user profile. Development-only hashed token fixtures, refresh
+   sessions, rate-limit rows, permissions, and audit history are seeded for legacy parity; no raw or production secret
+   is stored by the fixture.
 
 6. **Start the development server:**
    ```sh
