@@ -21,11 +21,11 @@ const useCardContext = () => {
 }
 
 // Variants
-const cardVariants = cva('flex flex-col items-stretch text-card-foreground rounded-xl', {
+const cardVariants = cva('flex flex-col items-stretch text-[#1f2a37] rounded-2xl', {
   variants: {
     variant: {
-      default: 'bg-card border border-border shadow-xs black/5',
-      accent: 'bg-muted shadow-xs p-1',
+      default: 'border border-[#e1e3ea] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.03)]',
+      accent: 'bg-[#f1f1f2] p-1',
     },
   },
   defaultVariants: {
@@ -33,26 +33,23 @@ const cardVariants = cva('flex flex-col items-stretch text-card-foreground round
   },
 })
 
-const cardHeaderVariants = cva(
-  'flex items-center justify-between flex-wrap px-5 min-h-14 gap-2.5',
-  {
-    variants: {
-      variant: {
-        default: 'border-b border-border',
-        accent: '',
-      },
+const cardHeaderVariants = cva('flex min-h-16 flex-wrap items-center justify-between gap-3 px-6', {
+  variants: {
+    variant: {
+      default: 'border-b border-[#e1e3ea]',
+      accent: '',
     },
-    defaultVariants: {
-      variant: 'default',
-    },
-  }
-)
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+})
 
-const cardContentVariants = cva('grow p-5', {
+const cardContentVariants = cva('grow p-6', {
   variants: {
     variant: {
       default: '',
-      accent: 'bg-card rounded-t-xl [&:last-child]:rounded-b-xl',
+      accent: 'rounded-t-xl bg-white [&:last-child]:rounded-b-xl',
     },
   },
   defaultVariants: {
@@ -64,7 +61,7 @@ const cardTableVariants = cva('grid grow', {
   variants: {
     variant: {
       default: '',
-      accent: 'bg-card rounded-xl',
+      accent: 'rounded-xl bg-white',
     },
   },
   defaultVariants: {
@@ -72,11 +69,11 @@ const cardTableVariants = cva('grid grow', {
   },
 })
 
-const cardFooterVariants = cva('flex items-center px-5 min-h-14', {
+const cardFooterVariants = cva('flex min-h-16 items-center px-6', {
   variants: {
     variant: {
-      default: 'border-t border-border',
-      accent: 'bg-card rounded-b-xl mt-[2px]',
+      default: 'border-t border-[#e1e3ea]',
+      accent: 'mt-[2px] rounded-b-xl bg-white',
     },
   },
   defaultVariants: {
@@ -164,7 +161,7 @@ function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElem
   return (
     <h3
       data-slot="card-title"
-      className={cn('text-base font-semibold leading-none tracking-tight', className)}
+      className={cn('text-lg font-semibold leading-none text-[#1f2a37]', className)}
       {...props}
     />
   )

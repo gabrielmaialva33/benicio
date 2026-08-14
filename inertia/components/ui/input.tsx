@@ -5,8 +5,8 @@ import { cva, type VariantProps } from 'class-variance-authority'
 // Define input size variants
 const inputVariants = cva(
   `
-    flex w-full bg-background border border-input shadow-xs shadow-black/5 transition-[color,box-shadow] text-foreground placeholder:text-muted-foreground/80 
-    focus-visible:ring-ring/30  focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px]     
+    flex w-full bg-white border border-[#d8dde3] transition-[color,box-shadow] text-[#1f2a37] placeholder:text-gray-400
+    focus-visible:ring-cyan-100 focus-visible:border-[#1cd6f4] focus-visible:outline-none focus-visible:ring-2
     disabled:cursor-not-allowed disabled:opacity-60 
     [&[readonly]]:bg-muted/80 [&[readonly]]:cursor-not-allowed
     file:h-full [&[type=file]]:py-0 file:border-solid file:border-input file:bg-transparent 
@@ -16,9 +16,9 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        lg: 'h-10 px-4 text-sm rounded-md file:pe-4 file:me-4',
-        md: 'h-8.5 px-3 text-[0.8125rem] leading-(--text-sm--line-height) rounded-md file:pe-3 file:me-3',
-        sm: 'h-7 px-2.5 text-xs rounded-md file:pe-2.5 file:me-2.5',
+        lg: 'h-12 rounded-lg px-4 text-sm file:me-4 file:pe-4',
+        md: 'h-11 rounded-lg px-4 text-sm file:me-3 file:pe-3',
+        sm: 'h-9 rounded-lg px-3 text-xs file:me-2.5 file:pe-2.5',
       },
     },
     defaultVariants: {

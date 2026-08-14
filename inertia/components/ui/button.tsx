@@ -5,19 +5,18 @@ import { Slot as SlotPrimitive } from 'radix-ui'
 import { cn } from '~/lib/utils'
 
 const buttonVariants = cva(
-  'cursor-pointer group whitespace-nowrap focus-visible:outline-hidden inline-flex items-center justify-center has-data-[arrow=true]:justify-between whitespace-nowrap text-sm font-medium ring-offset-background transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-60 [&_svg]:shrink-0',
+  "group inline-flex cursor-pointer items-center justify-center whitespace-nowrap font-['Work_Sans'] text-sm font-semibold ring-offset-background transition-[color,box-shadow] focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-60 has-data-[arrow=true]:justify-between [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary:
-          'bg-primary text-primary-foreground hover:bg-primary/90 data-[state=open]:bg-primary/90',
+        primary: 'bg-[#00b8d9] text-white hover:bg-[#00a7c6] data-[state=open]:bg-[#00a7c6]',
         mono: 'bg-zinc-950 text-white dark:bg-zinc-300 dark:text-black hover:bg-zinc-950/90 dark:hover:bg-zinc-300/90 data-[state=open]:bg-zinc-950/90 dark:data-[state=open]:bg-zinc-300/90',
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-destructive/90 data-[state=open]:bg-destructive/90',
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-secondary/90 data-[state=open]:bg-secondary/90',
         outline:
-          'bg-background text-accent-foreground border border-input hover:bg-accent data-[state=open]:bg-accent',
+          'border border-[#d8dde3] bg-white text-[#1f2a37] hover:bg-[#f1f1f2] data-[state=open]:bg-[#f1f1f2]',
         dashed:
           'text-accent-foreground border border-input border-dashed bg-background hover:bg-accent hover:text-accent-foreground data-[state=open]:text-accent-foreground',
         ghost:
@@ -39,10 +38,10 @@ const buttonVariants = cva(
         dashed: '',
       },
       size: {
-        lg: 'h-10 rounded-md px-4 text-sm gap-1.5 [&_svg:not([class*=size-])]:size-4',
-        md: 'h-8.5 rounded-md px-3 gap-1.5 text-[0.8125rem] leading-(--text-sm--line-height) [&_svg:not([class*=size-])]:size-4',
-        sm: 'h-7 rounded-md px-2.5 gap-1.25 text-xs [&_svg:not([class*=size-])]:size-3.5',
-        icon: 'size-8.5 rounded-md [&_svg:not([class*=size-])]:size-4 shrink-0',
+        lg: 'h-12 gap-2 rounded-lg px-5 text-sm [&_svg:not([class*=size-])]:size-4',
+        md: 'h-10 gap-2 rounded-lg px-4 text-sm [&_svg:not([class*=size-])]:size-4',
+        sm: 'h-9 gap-1.5 rounded-lg px-3 text-xs [&_svg:not([class*=size-])]:size-3.5',
+        icon: 'size-10 shrink-0 rounded-lg [&_svg:not([class*=size-])]:size-4',
       },
       autoHeight: {
         true: '',
@@ -127,7 +126,7 @@ const buttonVariants = cva(
         variant: 'primary',
         mode: 'default',
         appearance: 'default',
-        className: 'shadow-xs shadow-black/5',
+        className: 'shadow-none',
       },
       {
         variant: 'mono',

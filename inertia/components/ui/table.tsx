@@ -14,7 +14,13 @@ function Table({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) 
 }
 
 function TableHeader({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead data-slot="table-header" className={cn('[&_tr]:border-b', className)} {...props} />
+  return (
+    <thead
+      data-slot="table-header"
+      className={cn('bg-[#f7f8f9] [&_tr]:border-b [&_tr]:border-gray-200', className)}
+      {...props}
+    />
+  )
 }
 
 function TableBody({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
@@ -42,7 +48,7 @@ function TableRow({ className, ...props }: React.HTMLAttributes<HTMLTableRowElem
     <tr
       data-slot="table-row"
       className={cn(
-        'border-b transition-colors [&:has(td):hover]:bg-muted/50 data-[state=selected]:bg-muted',
+        'border-b border-gray-100 transition-colors [&:has(td):hover]:bg-cyan-50/30 data-[state=selected]:bg-cyan-50/40',
         className
       )}
       {...props}
@@ -55,7 +61,7 @@ function TableHead({ className, ...props }: React.ThHTMLAttributes<HTMLTableCell
     <th
       data-slot="table-head"
       className={cn(
-        'h-12 px-4 text-left rtl:text-right align-middle font-normal text-muted-foreground [&:has([role=checkbox])]:pe-0',
+        'h-14 px-5 text-left align-middle text-xs font-semibold uppercase tracking-wide text-gray-500 rtl:text-right [&:has([role=checkbox])]:pe-0',
         className
       )}
       {...props}
@@ -67,7 +73,7 @@ function TableCell({ className, ...props }: React.TdHTMLAttributes<HTMLTableCell
   return (
     <td
       data-slot="table-cell"
-      className={cn('p-4 align-middle [&:has([role=checkbox])]:pe-0', className)}
+      className={cn('px-5 py-4 align-middle [&:has([role=checkbox])]:pe-0', className)}
       {...props}
     />
   )

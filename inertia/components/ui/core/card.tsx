@@ -10,7 +10,7 @@ const Card = React.forwardRef<
 >(({ className, border = true, shadow = 'sm', ...props }, ref) => {
   const shadowClasses = {
     none: '',
-    sm: 'shadow-sm',
+    sm: 'shadow-[0_4px_4px_rgba(0,0,0,0.03)]',
     md: 'shadow-md',
     lg: 'shadow-lg',
     xl: 'shadow-xl',
@@ -20,8 +20,8 @@ const Card = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'rounded-lg bg-card text-card-foreground',
-        border && 'border',
+        'rounded-2xl bg-white text-[#1f2a37]',
+        border && 'border border-[#e1e3ea]',
         shadowClasses[shadow],
         className
       )}
@@ -39,7 +39,11 @@ const CardHeader = React.forwardRef<
 >(({ className, border = false, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex flex-col space-y-1.5 p-6', border && 'border-b', className)}
+    className={cn(
+      'flex flex-col space-y-1.5 p-6',
+      border && 'border-b border-[#e1e3ea]',
+      className
+    )}
     {...props}
   />
 ))
