@@ -16,8 +16,24 @@ export default class PermissionRepository
     return this.model.findBy('name', name)
   }
 
-  async findByResourceAction(resource: string, action: string): Promise<Permission | null> {
-    return this.model.query().where('resource', resource).where('action', action).first()
+  async findByResourceAction(
+    resource: string,
+    action: string,
+    context: IPermission.Contexts = IPermission.Contexts.ANY
+  ): Promise<Permission | null> {
+    return this.model
+      .query()
+      .where('resource', resource)
+      .where('action', action)
+      .where('context', context)
+      .first()
+  }
+
+  async updateExisting(
+    permission: Permission,
+    payload: Pick<IPermission.PermissionData, 'name' | 'description'>
+  ): Promise<Permission> {
+    return permission.merge(payload).save()
   }
 
   async syncPermissions(
@@ -25,14 +41,17 @@ export default class PermissionRepository
     trx?: TransactionClientContract
   ): Promise<void> {
     for (const permissionData of permissions) {
+      const context = permissionData.context ?? IPermission.Contexts.ANY
       await this.model.firstOrCreate(
         {
           resource: permissionData.resource,
           action: permissionData.action,
+          context,
         },
         {
           name: permissionData.name,
           description: permissionData.description,
+          context,
         },
         { client: trx }
       )

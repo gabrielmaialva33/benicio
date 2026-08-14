@@ -7,6 +7,7 @@ import {
   SnakeCaseNamingStrategy,
 } from '@adonisjs/lucid/orm'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 
 import User from '#modules/users/models/user'
 import Role from '#modules/roles/models/role'
@@ -80,20 +81,20 @@ export default class Permission extends BaseModel {
    * Query Scopes
    * ------------------------------------------------------
    */
-  static byResource = (query: any, resource: string) => {
+  static byResource = (query: ModelQueryBuilderContract<typeof Permission>, resource: string) => {
     return query.where('resource', resource)
   }
 
-  static byAction = (query: any, action: string) => {
+  static byAction = (query: ModelQueryBuilderContract<typeof Permission>, action: string) => {
     return query.where('action', action)
   }
 
-  static byContext = (query: any, context: string) => {
+  static byContext = (query: ModelQueryBuilderContract<typeof Permission>, context: string) => {
     return query.where('context', context)
   }
 
   static byResourceActionContext = (
-    query: any,
+    query: ModelQueryBuilderContract<typeof Permission>,
     resource: string,
     action: string,
     context: string = 'any'

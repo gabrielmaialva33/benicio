@@ -1,9 +1,12 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import app from '@adonisjs/core/services/app'
 
 import User from '#modules/users/models/user'
 import Role from '#modules/roles/models/role'
 import Permission from '#modules/permissions/models/permission'
+import File from '#modules/files/models/file'
+import PermissionService from '#modules/permissions/services/permission_service'
 
 import IRole from '#modules/roles/interfaces/role_interface'
 import IPermission from '#modules/permissions/interfaces/permission_interface'
@@ -29,6 +32,91 @@ test.group('Permissions', (group) => {
       'ai.delete',
     ])
     assert.notInclude(permissionNames, 'notifications.create')
+  })
+
+  test('enforces own-context permissions through the ownership repository', async ({ assert }) => {
+    const role = await Role.firstOrCreate(
+      { slug: IRole.Slugs.EDITOR },
+      { name: 'Editor', slug: IRole.Slugs.EDITOR, description: 'Contextual access role' }
+    )
+    const ownPermission = await Permission.firstOrCreate(
+      { name: 'files.read.own' },
+      {
+        name: 'files.read.own',
+        resource: IPermission.Resources.FILES,
+        action: IPermission.Actions.READ,
+        context: IPermission.Contexts.OWN,
+      }
+    )
+    const teamPermission = await Permission.firstOrCreate(
+      { name: 'files.read.team' },
+      {
+        name: 'files.read.team',
+        resource: IPermission.Resources.FILES,
+        action: IPermission.Actions.READ,
+        context: IPermission.Contexts.TEAM,
+      }
+    )
+    await role.related('permissions').sync([ownPermission.id, teamPermission.id])
+
+    const owner = await User.create({
+      full_name: 'File Owner',
+      email: 'file-owner@example.com',
+      password: 'password123',
+    })
+    const otherUser = await User.create({
+      full_name: 'Other User',
+      email: 'other-user@example.com',
+      password: 'password123',
+    })
+    await owner.related('roles').sync([role.id])
+
+    const ownedFile = await File.create({
+      owner_id: owner.id,
+      tenant_id: null,
+      client_name: 'owned.txt',
+      file_name: 'owned-file.txt',
+      file_size: 1,
+      file_type: 'text/plain',
+      file_category: 'file',
+      url: '/files/owned-file.txt',
+    })
+    const foreignFile = await File.create({
+      owner_id: otherUser.id,
+      tenant_id: null,
+      client_name: 'foreign.txt',
+      file_name: 'foreign-file.txt',
+      file_size: 1,
+      file_type: 'text/plain',
+      file_category: 'file',
+      url: '/files/foreign-file.txt',
+    })
+
+    const redis = await import('@adonisjs/redis/services/main')
+    await redis.default.flushdb()
+    const service = await app.container.make(PermissionService)
+
+    assert.isTrue(
+      await service.checkUserPermission({
+        user_id: owner.id,
+        permission: 'files.read.own',
+        resource_id: ownedFile.id,
+      })
+    )
+    assert.isFalse(
+      await service.checkUserPermission({
+        user_id: owner.id,
+        permission: 'files.read.own',
+        resource_id: foreignFile.id,
+      })
+    )
+    assert.isFalse(
+      await service.checkUserPermission({
+        user_id: owner.id,
+        permission: 'files.read.team',
+        resource_id: foreignFile.id,
+      })
+    )
   })
 
   test('should create a permission', async ({ client, assert }) => {
@@ -78,18 +166,20 @@ test.group('Permissions', (group) => {
     const response = await client.post('/api/v1/admin/permissions').bearerToken(token).json({
       resource: IPermission.Resources.USERS,
       action: IPermission.Actions.EXPORT,
+      context: IPermission.Contexts.OWN,
       description: 'Export users',
     })
 
     response.assertStatus(201)
     response.assertBodyContains({
-      name: 'users.export',
+      name: 'users.export.own',
       resource: 'users',
       action: 'export',
+      context: 'own',
       description: 'Export users',
     })
 
-    const createdPermission = await Permission.findBy('name', 'users.export')
+    const createdPermission = await Permission.findBy('name', 'users.export.own')
     assert.isNotNull(createdPermission)
   })
 

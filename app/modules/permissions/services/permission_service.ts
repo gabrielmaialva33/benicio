@@ -5,6 +5,7 @@ import PermissionInheritanceService from '#modules/permissions/services/permissi
 
 import Permission from '#modules/permissions/models/permission'
 import UsersRepository from '#modules/users/repositories/users_repository'
+import OwnershipService from '#shared/services/ownership_service'
 
 import IPermission from '#modules/permissions/interfaces/permission_interface'
 
@@ -13,7 +14,8 @@ export default class PermissionService {
   constructor(
     private cacheService: PermissionCacheService,
     private inheritanceService: PermissionInheritanceService,
-    private usersRepository: UsersRepository
+    private usersRepository: UsersRepository,
+    private ownershipService: OwnershipService
   ) {}
 
   /**
@@ -248,47 +250,20 @@ export default class PermissionService {
     resourceId?: number
   ): Promise<boolean> {
     // If context is 'any', permission is granted
-    if (context === 'any') {
+    if (context === IPermission.Contexts.ANY) {
       return true
     }
 
-    // If context is 'own', check ownership
-    if (context === 'own' && resourceId) {
-      return await this.checkResourceOwnership(userId, resource, resourceId)
-    }
+    // Team and department membership have no canonical data source yet. Keep
+    // unsupported contextual checks fail-closed instead of granting broadly.
+    if (context !== IPermission.Contexts.OWN || !resourceId) return false
 
-    // Add more contextual checks as needed
-    return true
-  }
-
-  /**
-   * Check resource ownership
-   */
-  private async checkResourceOwnership(
-    userId: number,
-    resource: string,
-    resourceId: number
-  ): Promise<boolean> {
-    // This is a simplified implementation
-    // You would implement specific ownership checks based on your domain
-
-    switch (resource) {
-      case 'users':
-        return userId === resourceId
-
-      case 'posts':
-        // Example: check if user owns the post
-        // const post = await Post.find(resourceId)
-        // return post?.user_id === userId
-        break
-
-      case 'files':
-        // Example: check if user uploaded the file
-        // const file = await File.find(resourceId)
-        // return file?.uploaded_by === userId
-        break
-    }
-
-    return false
+    return this.ownershipService.checkOwnership({
+      userId,
+      resource,
+      resourceId,
+      action: _action,
+      context,
+    })
   }
 }

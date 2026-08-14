@@ -7,9 +7,16 @@ namespace IPermission {
   export interface Repository extends LucidRepositoryInterface<typeof Permission> {
     findByName(name: string): Promise<Permission | null>
 
-    findByResourceAction(resource: string, action: string): Promise<Permission | null>
+    findByResourceAction(
+      resource: string,
+      action: string,
+      context?: Contexts
+    ): Promise<Permission | null>
 
-    syncPermissions(permissions: SyncPermissionData[]): Promise<void>
+    syncPermissions(
+      permissions: SyncPermissionData[],
+      trx?: TransactionClientContract
+    ): Promise<void>
 
     paginateFiltered(
       page: number,
@@ -35,6 +42,7 @@ namespace IPermission {
     name: string
     resource: string
     action: string
+    context?: Contexts
     description?: string
   }
 
@@ -92,7 +100,7 @@ namespace IPermission {
     description?: string
     resource: string
     action: string
-    context?: string
+    context?: Contexts
   }
 
   export interface ContextPermissionCheck {

@@ -9,28 +9,33 @@ export default class CreatePermissionService {
   constructor(private permissionRepository: PermissionRepository) {}
 
   async handle(data: IPermission.PermissionData): Promise<Permission> {
-    // Check if a permission with the same resource and action already exists
+    const context = data.context ?? IPermission.Contexts.ANY
+    const defaultName =
+      context === IPermission.Contexts.ANY
+        ? `${data.resource}.${data.action}`
+        : `${data.resource}.${data.action}.${context}`
+
+    // Resource, action and context form the permission's domain identity.
     const existingPermission = await this.permissionRepository.findByResourceAction(
       data.resource,
-      data.action
+      data.action,
+      context
     )
 
     if (existingPermission) {
-      // Update existing permission
-      existingPermission.merge({
-        name: data.name || `${data.resource}.${data.action}`,
+      return this.permissionRepository.updateExisting(existingPermission, {
+        name: data.name || defaultName,
         description: data.description,
       })
-      await existingPermission.save()
-      return existingPermission
     }
 
     // Create new permission
-    return await this.permissionRepository.create({
-      name: data.name || `${data.resource}.${data.action}`,
+    return this.permissionRepository.create({
+      name: data.name || defaultName,
       description: data.description,
       resource: data.resource,
       action: data.action,
+      context,
     })
   }
 }
