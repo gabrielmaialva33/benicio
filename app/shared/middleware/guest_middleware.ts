@@ -25,10 +25,10 @@ export default class GuestMiddleware {
   ) {
     for (let guard of options.guards || [ctx.auth.defaultGuard]) {
       if (await ctx.auth.use(guard).check()) {
-        const usuarioLogado = ctx.auth.use(guard).user
-        const destino = usuarioLogado ? await resolveHomeRoute(usuarioLogado.id) : this.redirectTo
+        const loggedUser = ctx.auth.use(guard).user
+        const destination = loggedUser ? await resolveHomeRoute(loggedUser.id) : this.redirectTo
 
-        return ctx.response.redirect(destino, true)
+        return ctx.response.redirect(destination, true)
       }
     }
 

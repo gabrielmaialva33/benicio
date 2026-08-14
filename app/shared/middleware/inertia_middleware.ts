@@ -94,16 +94,16 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
     const activeTenantId = this.#resolveActiveTenantId(ctx, tenants)
 
     const permissionService = await app.container.make(PermissionService)
-    const resumoDePermissoes = await permissionService.getUserPermissionSummary(user.id)
+    const permissionSummary = await permissionService.getUserPermissionSummary(user.id)
 
     return {
       user: { id: user.id, full_name: user.full_name, email: user.email },
       tenants,
       activeTenantId,
-      permissions: resumoDePermissoes.effectivePermissions.map(
-        (permissao) => `${permissao.resource}.${permissao.action}`
+      permissions: permissionSummary.effectivePermissions.map(
+        (permission) => `${permission.resource}.${permission.action}`
       ),
-      roles: resumoDePermissoes.roles,
+      roles: permissionSummary.roles,
     }
   }
 

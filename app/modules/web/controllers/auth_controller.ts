@@ -28,14 +28,14 @@ export default class InertiaAuthController {
     const { uid, password } = await request.validateUsing(signInValidator)
 
     try {
-      const usuarioAutenticado = await this.signInService.run({
+      const authenticatedUser = await this.signInService.run({
         uid,
         password,
         ctx,
         accessTokenLifetime: '1h',
       })
 
-      return inertiaRedirectTo(ctx, await resolveHomeRoute(usuarioAutenticado.id))
+      return inertiaRedirectTo(ctx, await resolveHomeRoute(authenticatedUser.id))
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Invalid credentials'
       session.flash('errors', { general: message })

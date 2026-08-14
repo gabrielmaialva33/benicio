@@ -3,36 +3,36 @@ import app from '@adonisjs/core/services/app'
 import PermissionService from '#modules/permissions/services/permission_service'
 
 /**
- * Rotas candidatas a "início", da mais completa para a mais restrita. A
- * primeira cuja permissão o usuário possui vira o destino padrão dele.
+ * Home candidates, from the broadest to the most restricted. The first one the
+ * user holds the permission for becomes their default landing route.
  */
-const rotasIniciaisPorPermissao = [
-  { rota: '/dashboard', permissao: 'dashboard.read' },
-  { rota: '/folders', permissao: 'folders.list' },
-  { rota: '/clients', permissao: 'clients.list' },
+const HOME_ROUTES_BY_PERMISSION = [
+  { route: '/dashboard', permission: 'dashboard.read' },
+  { route: '/folders', permission: 'folders.list' },
+  { route: '/clients', permission: 'clients.list' },
 ] as const
 
-/** Rota disponível para qualquer usuário autenticado (perfil + escritórios). */
-const rotaDeFallback = '/settings'
+/** Route any authenticated user can reach (own profile + workspaces). */
+const FALLBACK_ROUTE = '/settings'
 
 /**
- * Resolve para onde mandar o usuário depois do login (e no lugar de um 403).
+ * Resolves where to send the user after sign-in (and in place of a 403).
  *
- * Sem isso, perfis restritos como o cliente/guest caem sempre em `/dashboard`,
- * levam 403 e ficam presos em loop, porque `/login` devolve o autenticado
- * justamente para `/dashboard`.
+ * Without this, restricted profiles such as the client/guest always land on
+ * `/dashboard`, take a 403 and get stuck in a loop, since `/login` bounces the
+ * authenticated user right back to `/dashboard`.
  */
 export async function resolveHomeRoute(userId: number): Promise<string> {
   const permissionService = await app.container.make(PermissionService)
 
-  for (const candidata of rotasIniciaisPorPermissao) {
-    const temPermissao = await permissionService.checkUserPermission({
+  for (const candidate of HOME_ROUTES_BY_PERMISSION) {
+    const hasPermission = await permissionService.checkUserPermission({
       user_id: userId,
-      permission: candidata.permissao,
+      permission: candidate.permission,
     })
 
-    if (temPermissao) return candidata.rota
+    if (hasPermission) return candidate.route
   }
 
-  return rotaDeFallback
+  return FALLBACK_ROUTE
 }

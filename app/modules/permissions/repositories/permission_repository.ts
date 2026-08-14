@@ -188,9 +188,9 @@ export default class PermissionRepository
   }
 
   /**
-   * Permission ids granted to the GUEST role: read/list restrito ao próprio
-   * perfil. O convidado é o cliente do escritório — não pode enxergar o
-   * cadastro de usuários, papéis nem o repositório de arquivos internos.
+   * Permission ids granted to the GUEST role: read/list limited to their own
+   * profile. The guest is the firm's client — they must not see the user
+   * directory, the role registry nor the internal file repository.
    */
   async findGuestPermissionIds(trx?: TransactionClientContract): Promise<number[]> {
     const rows = await this.model

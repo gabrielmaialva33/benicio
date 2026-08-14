@@ -56,22 +56,22 @@ export default class HttpExceptionHandler extends ExceptionHandler {
   }
 
   /**
-   * Renderiza o 403 como página Inertia em qualquer ambiente. As `statusPages`
-   * só valem em produção, então sem isto o usuário bloqueado vê o JSON cru do
-   * erro no meio da tela durante o desenvolvimento.
+   * Renders the 403 as an Inertia page in every environment. `statusPages` only
+   * apply in production, so without this the blocked user sees the raw error
+   * JSON in the middle of the screen while developing.
    */
   async #handleForbidden(ctx: HttpContext) {
-    const usuario = ctx.auth?.user
-    const fallbackPath = usuario ? await resolveHomeRoute(usuario.id) : '/login'
+    const user = ctx.auth?.user
+    const fallbackPath = user ? await resolveHomeRoute(user.id) : '/login'
 
-    const paginaDeErro = await ctx.inertia.render('errors/forbidden', {
+    const errorPage = await ctx.inertia.render('errors/forbidden', {
       attemptedPath: ctx.request.url(),
       fallbackPath,
     })
 
-    // O retorno do exception handler não vira corpo sozinho: o Adonis só envia
-    // o que for passado explicitamente para o response.
-    return ctx.response.status(403).send(paginaDeErro)
+    // The exception handler return value does not become the body on its own:
+    // Adonis only sends what is explicitly handed to the response.
+    return ctx.response.status(403).send(errorPage)
   }
 
   /**
