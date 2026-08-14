@@ -140,12 +140,12 @@ export default function FoldersPage({
                 className={cn(
                   'border-b-2 px-3 pb-4 text-sm font-medium transition',
                   !localFilters.status
-                    ? 'border-[#00b8d9] text-[#00b8d9]'
+                    ? 'border-yol-cyan text-yol-cyan'
                     : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                 )}
               >
                 Total
-                <span className="ms-2 rounded-full bg-[#00b8d9] px-2.5 py-1 text-xs font-semibold text-white">
+                <span className="ms-2 rounded-full bg-yol-cyan px-2.5 py-1 text-xs font-semibold text-white">
                   {totalCount.toString().padStart(2, '0')}
                 </span>
               </button>
@@ -157,7 +157,7 @@ export default function FoldersPage({
                   className={cn(
                     'border-b-2 px-3 pb-4 text-sm font-medium transition',
                     localFilters.status === item.status
-                      ? 'border-[#00b8d9] text-[#00b8d9]'
+                      ? 'border-yol-cyan text-yol-cyan'
                       : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   )}
                 >
@@ -166,7 +166,7 @@ export default function FoldersPage({
                     className={cn(
                       'ms-2 rounded-full px-2.5 py-1 text-xs font-semibold',
                       localFilters.status === item.status
-                        ? 'bg-[#00b8d9] text-white'
+                        ? 'bg-yol-cyan text-white'
                         : 'bg-gray-100 text-gray-600'
                     )}
                   >
@@ -194,7 +194,7 @@ export default function FoldersPage({
                   setLocalFilters((current) => ({ ...current, search: event.target.value }))
                 }
                 placeholder="Código, título, descrição ou cliente"
-                className="h-12 rounded-lg border-gray-300 ps-10 focus-visible:border-[#00b8d9] focus-visible:ring-[#00b8d9]/20"
+                className="h-12 rounded-lg border-gray-300 ps-10 focus-visible:border-yol-cyan focus-visible:ring-yol-cyan/20"
               />
             </div>
             <NativeSelect
@@ -218,7 +218,7 @@ export default function FoldersPage({
               <Button
                 type="submit"
                 variant="outline"
-                className="h-10 flex-1 rounded-full border-[#00b8d9]/50 font-bold text-[#00b8d9] hover:bg-[#00b8d9]/5 hover:text-[#00b8d9] sm:flex-none"
+                className="h-10 flex-1 rounded-full border-yol-cyan/50 font-bold text-yol-cyan hover:bg-yol-cyan/5 hover:text-yol-cyan sm:flex-none"
               >
                 <Search className="size-4" />
                 Buscar
@@ -230,6 +230,9 @@ export default function FoldersPage({
                   mode="icon"
                   onClick={clearFilters}
                   aria-label="Limpar filtros"
+                  /* Matches the 40px pills beside it; the default icon button is
+                     shorter, which left it sitting off the toolbar's baseline. */
+                  className="size-10 shrink-0 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 >
                   <FilterX className="size-4" />
                 </Button>
@@ -240,15 +243,16 @@ export default function FoldersPage({
               variant="outline"
               onClick={() => downloadFoldersCsv(folders.data)}
               disabled={folders.data.length === 0}
-              className="h-10 rounded-full border-[#00b8d9]/50 font-bold text-[#00b8d9] hover:bg-[#00b8d9]/5 hover:text-[#00b8d9]"
+              className="h-10 rounded-full border-yol-cyan/50 font-bold text-yol-cyan hover:bg-yol-cyan/5 hover:text-yol-cyan"
             >
               <Download className="size-4" />
               Baixar
             </Button>
+            {/* The one action that creates something is the only filled button:
+                three identical cyan outlines gave the toolbar no focal point. */}
             <Button
-              variant="outline"
               asChild
-              className="h-10 rounded-full border-[#00b8d9]/50 font-bold text-[#00b8d9] hover:bg-[#00b8d9]/5 hover:text-[#00b8d9]"
+              className="h-10 rounded-full bg-yol-cyan font-bold text-white hover:bg-yol-cyan-hover"
             >
               <Link href="/folders/create">
                 <Plus className="size-4" />
