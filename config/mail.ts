@@ -2,7 +2,7 @@ import { defineConfig, transports } from '@adonisjs/mail'
 import env from '#start/env'
 
 const mailConfig = defineConfig({
-  default: env.get('MAIL_MAILER', 'mailgun') as 'smtp' | 'mailgun',
+  default: env.get('MAIL_MAILER', 'resend') as 'smtp' | 'mailgun' | 'resend',
 
   /**
    * A static address for the "from" property. It will be
@@ -10,7 +10,7 @@ const mailConfig = defineConfig({
    * Email
    */
   from: {
-    address: env.get('MAIL_FROM_ADDRESS', 'noreply@benicio.local'),
+    address: env.get('MAIL_FROM_ADDRESS', 'noreply@benicio.juridicai.com.br'),
     name: env.get('MAIL_FROM_NAME', 'Benício'),
   },
 
@@ -20,6 +20,11 @@ const mailConfig = defineConfig({
    * options.
    */
   mailers: {
+    resend: transports.resend({
+      key: env.get('RESEND_API_KEY', ''),
+      baseUrl: env.get('RESEND_BASE_URL', 'https://api.resend.com'),
+    }),
+
     smtp: transports.smtp({
       host: env.get('SMTP_HOST', 'localhost'),
       port: env.get('SMTP_PORT'),
