@@ -71,7 +71,7 @@ function FolderMobileCard({ folder }: { folder: FolderItem }) {
   return (
     <Link
       href={`/folders/${folder.id}`}
-      className="block rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md dark:border-white/10 dark:bg-card"
+      className="block w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md dark:border-white/10 dark:bg-card"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -80,7 +80,7 @@ function FolderMobileCard({ folder }: { folder: FolderItem }) {
           </span>
           <h3 className="mt-1 truncate font-bold text-slate-900 dark:text-white">{folder.title}</h3>
         </div>
-        <FolderStatusBadge status={folder.status} />
+        <FolderStatusBadge status={folder.status} className="shrink-0" />
       </div>
       <div className="mt-4 grid gap-2 text-sm text-slate-500">
         <span className="flex items-center gap-2">
@@ -119,14 +119,23 @@ export function FolderList({ folders, sortBy, direction, onSort }: FolderListPro
 
   return (
     <>
-      <div className="grid gap-3 p-4 md:hidden">
+      <div className="grid min-w-0 gap-3 p-4 md:hidden">
         {folders.map((folder) => (
           <FolderMobileCard key={folder.id} folder={folder} />
         ))}
       </div>
 
       <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[980px] text-left text-sm">
+        <table className="w-full min-w-[960px] table-fixed text-left text-sm">
+          <colgroup>
+            <col className="w-[24%]" />
+            <col className="w-[18%]" />
+            <col className="w-[18%]" />
+            <col className="w-[13%]" />
+            <col className="w-[14%]" />
+            <col className="w-[9%]" />
+            <col className="w-14" />
+          </colgroup>
           <thead className="border-y border-slate-200/80 bg-slate-50/80 text-xs text-slate-500 dark:border-white/10 dark:bg-white/[0.03]">
             <tr>
               <th className="px-5 py-3.5">
