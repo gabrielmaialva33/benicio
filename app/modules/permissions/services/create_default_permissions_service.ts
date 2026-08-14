@@ -81,6 +81,61 @@ export default class CreateDefaultPermissionsService {
         IPermission.Actions.DELETE,
         IPermission.Actions.LIST,
       ],
+      [IPermission.Resources.TASKS]: [
+        IPermission.Actions.CREATE,
+        IPermission.Actions.READ,
+        IPermission.Actions.UPDATE,
+        IPermission.Actions.DELETE,
+        IPermission.Actions.LIST,
+      ],
+      [IPermission.Resources.HEARINGS]: [
+        IPermission.Actions.CREATE,
+        IPermission.Actions.READ,
+        IPermission.Actions.UPDATE,
+        IPermission.Actions.DELETE,
+        IPermission.Actions.LIST,
+      ],
+      [IPermission.Resources.DEADLINES]: [
+        IPermission.Actions.CREATE,
+        IPermission.Actions.READ,
+        IPermission.Actions.UPDATE,
+        IPermission.Actions.DELETE,
+        IPermission.Actions.LIST,
+      ],
+      [IPermission.Resources.MOVEMENTS]: [
+        IPermission.Actions.CREATE,
+        IPermission.Actions.READ,
+        IPermission.Actions.UPDATE,
+        IPermission.Actions.DELETE,
+        IPermission.Actions.LIST,
+      ],
+      [IPermission.Resources.DOCUMENTS]: [
+        IPermission.Actions.CREATE,
+        IPermission.Actions.READ,
+        IPermission.Actions.UPDATE,
+        IPermission.Actions.DELETE,
+        IPermission.Actions.LIST,
+      ],
+      [IPermission.Resources.DASHBOARD]: [IPermission.Actions.READ],
+      [IPermission.Resources.NOTIFICATIONS]: [
+        IPermission.Actions.READ,
+        IPermission.Actions.UPDATE,
+        IPermission.Actions.DELETE,
+        IPermission.Actions.LIST,
+      ],
+      [IPermission.Resources.MESSAGES]: [
+        IPermission.Actions.CREATE,
+        IPermission.Actions.READ,
+        IPermission.Actions.UPDATE,
+        IPermission.Actions.DELETE,
+        IPermission.Actions.LIST,
+      ],
+      [IPermission.Resources.AI]: [
+        IPermission.Actions.CREATE,
+        IPermission.Actions.READ,
+        IPermission.Actions.DELETE,
+        IPermission.Actions.LIST,
+      ],
     }
 
     // Generate permissions based on resource and action combinations

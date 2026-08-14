@@ -127,9 +127,28 @@ export default class PermissionRepository
             IPermission.Resources.CLIENTS,
             IPermission.Resources.FOLDERS,
             IPermission.Resources.PROCESSES,
+            IPermission.Resources.TASKS,
+            IPermission.Resources.HEARINGS,
+            IPermission.Resources.DEADLINES,
+            IPermission.Resources.MOVEMENTS,
+            IPermission.Resources.DOCUMENTS,
+            IPermission.Resources.MESSAGES,
+            IPermission.Resources.AI,
           ])
           .whereIn('action', [
             IPermission.Actions.CREATE,
+            IPermission.Actions.READ,
+            IPermission.Actions.UPDATE,
+            IPermission.Actions.LIST,
+          ])
+      })
+      .orWhere((query) => {
+        query
+          .whereIn('resource', [
+            IPermission.Resources.DASHBOARD,
+            IPermission.Resources.NOTIFICATIONS,
+          ])
+          .whereIn('action', [
             IPermission.Actions.READ,
             IPermission.Actions.UPDATE,
             IPermission.Actions.LIST,
@@ -154,6 +173,15 @@ export default class PermissionRepository
         IPermission.Resources.CLIENTS,
         IPermission.Resources.FOLDERS,
         IPermission.Resources.PROCESSES,
+        IPermission.Resources.TASKS,
+        IPermission.Resources.HEARINGS,
+        IPermission.Resources.DEADLINES,
+        IPermission.Resources.MOVEMENTS,
+        IPermission.Resources.DOCUMENTS,
+        IPermission.Resources.DASHBOARD,
+        IPermission.Resources.NOTIFICATIONS,
+        IPermission.Resources.MESSAGES,
+        IPermission.Resources.AI,
       ])
       .select('id')
 

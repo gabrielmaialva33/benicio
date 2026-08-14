@@ -57,6 +57,15 @@ namespace IPermission {
     CLIENTS = 'clients',
     FOLDERS = 'folders',
     PROCESSES = 'processes',
+    TASKS = 'tasks',
+    HEARINGS = 'hearings',
+    DEADLINES = 'deadlines',
+    MOVEMENTS = 'movements',
+    DOCUMENTS = 'documents',
+    DASHBOARD = 'dashboard',
+    NOTIFICATIONS = 'notifications',
+    MESSAGES = 'messages',
+    AI = 'ai',
   }
 
   export enum Actions {
