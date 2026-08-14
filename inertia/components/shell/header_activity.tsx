@@ -304,6 +304,14 @@ function NotificationsPopover() {
             ))}
           </div>
         )}
+        {/* The popover only ever shows the most recent handful; the inbox is
+            where the rest of them live. */}
+        <Link
+          href="/notifications"
+          className="block border-t border-slate-100 px-4 py-3 text-center text-xs font-bold text-[#f97316] hover:underline dark:border-white/10"
+        >
+          Ver todas as notificações
+        </Link>
       </PopoverContent>
     </Popover>
   )

@@ -72,6 +72,9 @@ function pageCopy(url: string) {
   if (path.startsWith('/calendar')) {
     return { title: 'Agenda', description: 'Audiências e prazos do escritório.' }
   }
+  if (path.startsWith('/notifications')) {
+    return { title: 'Notificações', description: 'Tudo que pediu sua atenção.' }
+  }
   if (path.startsWith('/chat')) {
     return { title: 'Chat IA', description: 'Seu assistente jurídico inteligente.' }
   }

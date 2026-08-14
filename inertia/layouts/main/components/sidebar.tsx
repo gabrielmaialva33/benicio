@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react'
 import {
+  Bell,
   ChevronDown,
   ContactRound,
   FileText,
@@ -48,6 +49,12 @@ const pageItems: MenuItem[] = [
     href: '/calendar',
     iconPath: '/yol/icons/calendar.svg',
     permission: 'hearings.list',
+  },
+  {
+    title: 'Notificações',
+    href: '/notifications',
+    icon: Bell,
+    permission: 'notifications.list',
   },
   { title: 'Chat IA', href: '/chat', iconPath: '/yol/icons/sparkles.svg', permission: 'ai.read' },
 ]
