@@ -8,11 +8,20 @@ export function useAuth() {
   const activeTenantId = auth?.activeTenantId ?? null
   const activeTenant = tenants.find((tenant) => tenant.id === activeTenantId) ?? tenants[0] ?? null
 
+  const permissions = auth?.permissions ?? []
+  const roles = auth?.roles ?? []
+
+  /** `true` quando o usuário tem a permissão `recurso.acao` informada. */
+  const podeAcessar = (permissaoRequerida: string) => permissions.includes(permissaoRequerida)
+
   return {
     user: auth?.user ?? null,
     isAuthenticated: !!auth?.user,
     tenants,
     activeTenant,
     activeTenantId,
+    permissions,
+    roles,
+    can: podeAcessar,
   }
 }

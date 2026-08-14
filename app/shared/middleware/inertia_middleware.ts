@@ -1,9 +1,11 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import app from '@adonisjs/core/services/app'
 import type { NextFn } from '@adonisjs/core/types/http'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 import jwt from 'jsonwebtoken'
 
+import PermissionService from '#modules/permissions/services/permission_service'
 import TenantMembershipService from '#modules/tenants/services/tenant_membership_service'
 
 type SharedUser = {
@@ -66,8 +68,16 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
     user: SharedUser | null
     tenants: SharedTenant[]
     activeTenantId: number | null
+    permissions: string[]
+    roles: string[]
   }> {
-    const empty = { user: null, tenants: [] as SharedTenant[], activeTenantId: null }
+    const empty = {
+      user: null,
+      tenants: [] as SharedTenant[],
+      activeTenantId: null,
+      permissions: [] as string[],
+      roles: [] as string[],
+    }
 
     if (!ctx.auth) {
       return empty
@@ -83,10 +93,17 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
 
     const activeTenantId = this.#resolveActiveTenantId(ctx, tenants)
 
+    const permissionService = await app.container.make(PermissionService)
+    const resumoDePermissoes = await permissionService.getUserPermissionSummary(user.id)
+
     return {
       user: { id: user.id, full_name: user.full_name, email: user.email },
       tenants,
       activeTenantId,
+      permissions: resumoDePermissoes.effectivePermissions.map(
+        (permissao) => `${permissao.resource}.${permissao.action}`
+      ),
+      roles: resumoDePermissoes.roles,
     }
   }
 
