@@ -126,7 +126,12 @@ export function ClientDetailContent({
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" mode="icon" aria-label="Excluir cliente">
+                <Button
+                  variant="destructive"
+                  mode="icon"
+                  aria-label="Excluir cliente"
+                  className="size-10 shrink-0"
+                >
                   <Trash2 className="size-4" />
                 </Button>
               </AlertDialogTrigger>

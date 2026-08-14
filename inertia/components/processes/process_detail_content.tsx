@@ -161,7 +161,12 @@ export function ProcessDetailContent({
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" mode="icon" aria-label="Excluir processo">
+                <Button
+                  variant="destructive"
+                  mode="icon"
+                  aria-label="Excluir processo"
+                  className="size-10 shrink-0"
+                >
                   <Trash2 className="size-4" />
                 </Button>
               </AlertDialogTrigger>
