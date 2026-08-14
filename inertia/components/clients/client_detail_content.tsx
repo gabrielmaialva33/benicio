@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react'
+import { Link } from '@inertiajs/react'
 import {
   ArrowLeft,
   BriefcaseBusiness,
@@ -9,24 +9,14 @@ import {
   MapPin,
   Phone,
   Plus,
-  Trash2,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { ClientPersonBadge } from './client_person_badge'
 import { formatClientDocument } from './client_list'
 import { FolderStatusBadge } from '~/components/folders/folder_status_badge'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '~/components/ui/alert-dialog'
+import { DeleteDialog } from '~/components/shared/delete_dialog'
+import { EmptyState } from '~/components/shared/empty_state'
 import { Button } from '~/components/ui/button'
 import { APP_TIME_ZONE } from '~/lib/date'
 import type { ClientFolder, ClientItem } from '~/types/client'
@@ -102,36 +92,13 @@ export function ClientDetailContent({ client, folders }: ClientDetailContentProp
                 Nova pasta
               </Link>
             </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="destructive"
-                  mode="icon"
-                  aria-label="Excluir cliente"
-                  className="size-10 shrink-0"
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Excluir {client.name}?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    O cliente será removido apenas se não possuir nenhuma pasta ativa. Esta ação não
-                    apaga histórico jurídico.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction
-                    variant="destructive"
-                    onClick={() => router.delete(`/clients/${client.id}`, { preserveScroll: true })}
-                  >
-                    Excluir cliente
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <DeleteDialog
+              url={`/clients/${client.id}`}
+              title={`Excluir ${client.name}?`}
+              description="O cliente será removido apenas se não possuir nenhuma pasta ativa. Esta ação não apaga histórico jurídico."
+              confirmLabel="Excluir cliente"
+              triggerLabel="Excluir cliente"
+            />
           </div>
         </div>
       </section>
@@ -167,16 +134,14 @@ export function ClientDetailContent({ client, folders }: ClientDetailContentProp
             <h2 className="text-lg font-semibold text-[#1f2a37]">Pastas do cliente</h2>
           </header>
           {folders.length === 0 ? (
-            <div className="flex min-h-56 flex-col items-center justify-center px-6 text-center">
-              <BriefcaseBusiness className="size-8 text-slate-300" />
-              <p className="mt-3 text-sm font-semibold text-slate-600">Nenhuma pasta vinculada.</p>
-              <Button asChild variant="outline" size="sm" className="mt-4">
+            <EmptyState message="Nenhuma pasta vinculada." icon={BriefcaseBusiness}>
+              <Button asChild variant="outline" size="sm">
                 <Link href={`/folders/create?client_id=${client.id}`}>
                   <Plus className="size-4" />
                   Abrir primeira pasta
                 </Link>
               </Button>
-            </div>
+            </EmptyState>
           ) : (
             <div className="divide-y divide-gray-100">
               {folders.map((folder) => (

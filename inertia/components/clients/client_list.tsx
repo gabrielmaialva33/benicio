@@ -6,6 +6,7 @@ import { ClientPersonBadge } from './client_person_badge'
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
 import { Button } from '~/components/ui/button'
 import { APP_TIME_ZONE } from '~/lib/date'
+import { EmptyState } from '~/components/shared/empty_state'
 import { cn } from '~/lib/utils'
 import type { ClientItem, ClientSortField } from '~/types/client'
 
@@ -142,15 +143,11 @@ export function ClientList({ clients, sortBy, direction, onSort }: ClientListPro
 
   if (clients.length === 0) {
     return (
-      <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-cyan-50 text-yol-cyan">
-          <Users className="size-7" />
-        </span>
-        <h3 className="mt-4 text-base font-semibold text-[#1f2a37]">Nenhum cliente encontrado</h3>
-        <p className="mt-1 max-w-sm text-sm text-slate-500">
-          Ajuste os filtros ou cadastre o primeiro cliente deste escritório.
-        </p>
-      </div>
+      <EmptyState
+        icon={Users}
+        message="Nenhum cliente encontrado"
+        description="Ajuste os filtros ou cadastre o primeiro cliente deste escritório."
+      />
     )
   }
 
