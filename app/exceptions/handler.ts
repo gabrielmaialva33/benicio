@@ -3,6 +3,7 @@ import { ExceptionHandler, type HttpContext } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 
 import { inertiaRedirectBack } from '#shared/http/inertia_redirect'
+import { resolveHomeRoute } from '#shared/http/resolve_home_route'
 
 function toInputErrorsBag(messages: unknown): Record<string, string[]> {
   if (!Array.isArray(messages)) {
@@ -55,6 +56,25 @@ export default class HttpExceptionHandler extends ExceptionHandler {
   }
 
   /**
+   * Renderiza o 403 como página Inertia em qualquer ambiente. As `statusPages`
+   * só valem em produção, então sem isto o usuário bloqueado vê o JSON cru do
+   * erro no meio da tela durante o desenvolvimento.
+   */
+  async #handleForbidden(ctx: HttpContext) {
+    const usuario = ctx.auth?.user
+    const fallbackPath = usuario ? await resolveHomeRoute(usuario.id) : '/login'
+
+    const paginaDeErro = await ctx.inertia.render('errors/forbidden', {
+      attemptedPath: ctx.request.url(),
+      fallbackPath,
+    })
+
+    // O retorno do exception handler não vira corpo sozinho: o Adonis só envia
+    // o que for passado explicitamente para o response.
+    return ctx.response.status(403).send(paginaDeErro)
+  }
+
+  /**
    * The method is used for handling errors and returning
    * response to the client
    */
@@ -77,6 +97,19 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       ctx.session.flashAll()
       ctx.session.flash('inputErrorsBag', toInputErrorsBag(validationError.messages))
       return inertiaRedirectBack(ctx)
+    }
+
+    /**
+     * Handle authorization errors (Inertia/HTML only — APIs keep the JSON body)
+     */
+    if (
+      error &&
+      typeof error === 'object' &&
+      'status' in error &&
+      error.status === 403 &&
+      ctx.request.accepts(['html', 'json']) !== 'json'
+    ) {
+      return this.#handleForbidden(ctx)
     }
 
     /**

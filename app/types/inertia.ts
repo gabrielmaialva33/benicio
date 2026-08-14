@@ -110,6 +110,10 @@ declare module '@adonisjs/inertia/types' {
     }
 
     // Error pages
+    'errors/forbidden': {
+      attemptedPath: string
+      fallbackPath: string
+    }
     'errors/not_found': {
       error: Record<string, any>
     }
